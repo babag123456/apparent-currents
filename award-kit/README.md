@@ -39,6 +39,9 @@ Standalone Next.js + Payload app for the extracted awards slice from this repo. 
 
 1. `cd award-kit`
 2. Copy `.env.example` to `.env` and set `DATABASE_URL` and `PAYLOAD_SECRET`.
+   For external media, also set `UPLOADTHING_TOKEN`, plus either
+   `MUX_TOKEN_ID` / `MUX_TOKEN_SECRET` or `MUX_ENVIRONMENT_ID` / `MUX_ENVIRONMENT_KEY`
+   in `.env.local` for local development and in Vercel env vars for preview / production.
 3. `npm install`
 4. `npm run db:start`
 5. Wait for Postgres to become healthy, or watch with `npm run db:logs`
@@ -61,7 +64,7 @@ The standalone app already wires:
 
 ## Award Media
 
-- Put recovered binaries under `award-kit/public/award-media`.
+- Put recovered binaries under `award-kit/public/award-media` for seed imports and UploadThing migrations.
 - Do not rename files without updating `src/data/asset-manifest.json`.
 - Current state: all four referenced assets have been recovered and checksummed.
 - Provenance:
@@ -75,6 +78,7 @@ Run after the app can connect to Postgres:
 ```bash
 npm run seed:verify
 npm run seed:import
+npm run media:migrate:uploadthing
 ```
 
 ## Local Docker Postgres
@@ -109,7 +113,6 @@ npm run db:reset
 
 ## Deferred Decisions
 
-- production media storage for Vercel
 - auth model for create/update/delete access
 - broader site navigation and layout
 - additional awards pages beyond this extracted slice

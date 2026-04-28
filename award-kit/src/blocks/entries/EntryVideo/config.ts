@@ -6,7 +6,7 @@ export const EntryVideo: Block = {
   labels: { singular: 'Video', plural: 'Videos' },
   admin: {},
   fields: [
-    { name: 'video', type: 'upload', relationTo: 'media', required: true },
+    { name: 'video', type: 'upload', relationTo: 'videos', required: true },
     { name: 'poster', type: 'upload', relationTo: 'media', label: 'Poster Image' },
     { name: 'caption', type: 'text' },
   ],

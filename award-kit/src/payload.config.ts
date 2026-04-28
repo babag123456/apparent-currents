@@ -6,10 +6,13 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Users } from './collections/Users.ts'
+import { loadAwardKitEnv } from './lib/loadEnv'
 import { awardKitCollections } from './payload/award-kit.config-fragment.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+loadAwardKitEnv()
 
 export default buildConfig({
   admin: {

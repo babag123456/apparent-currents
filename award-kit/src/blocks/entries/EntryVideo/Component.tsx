@@ -2,6 +2,8 @@ import React from 'react'
 
 interface MediaLike {
   alt?: string | null
+  playbackUrl?: string | null
+  thumbnailUrl?: string | null
   url?: string | null
 }
 
@@ -13,7 +15,8 @@ interface Props {
 
 export const EntryVideoComponent: React.FC<Props> = ({ video, poster, caption }) => {
   const vid = typeof video === 'object' ? video : null
-  if (!vid?.url) return null
+  const videoUrl = vid?.playbackUrl || vid?.url
+  if (!videoUrl) return null
 
   const posterImg = poster && typeof poster === 'object' ? poster : null
 
@@ -21,8 +24,8 @@ export const EntryVideoComponent: React.FC<Props> = ({ video, poster, caption })
     <section className="py-8">
       <div className="mx-auto max-w-4xl px-6">
         <video
-          src={vid.url}
-          poster={posterImg?.url || undefined}
+          src={videoUrl}
+          poster={posterImg?.url || vid?.thumbnailUrl || undefined}
           controls
           playsInline
           className="w-full rounded-sm"

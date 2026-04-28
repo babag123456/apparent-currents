@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url'
 import { getPayload, type Payload } from 'payload'
 import configPromise from '@payload-config'
 
+import { loadAwardKitEnv } from '../lib/loadEnv'
+
 type AssetManifestEntry = {
   legacyId: string
   filename: string
@@ -32,6 +34,8 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const dataDir = path.resolve(dirname, '../data')
 const projectRoot = path.resolve(dirname, '../../..')
+
+loadAwardKitEnv()
 
 async function readJson<T>(name: string): Promise<T> {
   const fullPath = path.join(dataDir, name)
