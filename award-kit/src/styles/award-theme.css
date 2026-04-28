@@ -1,0 +1,323 @@
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+
+@font-face {
+  font-family: 'Swiss Posters';
+  src: url('/fonts/Swiss-Posters/SwisspoTrial-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Swiss Posters';
+  src: url('/fonts/Swiss-Posters/SwisspoTrial-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  src: url('/fonts/Inter_Tight/inter-tight-latin-ext-300-normal.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  src: url('/fonts/Inter_Tight/inter-tight-latin-ext-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Mono';
+  src: url('/fonts/DM_Mono/DMMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Mono';
+  src: url('/fonts/DM_Mono/DMMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Inter Tight', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --font-display: 'Swiss Posters', 'Inter Tight', sans-serif;
+  --color-red: #fa0500;
+  --color-plum: #6b0000;
+  --color-cream: #f7f4f2;
+  --color-charcoal: #232322;
+  --color-grey: #e2dfd8;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+  }
+
+  body.award-kit-body {
+    font-family: var(--font-sans);
+    font-weight: 300;
+    background: var(--theme-bg, var(--color-cream));
+    color: var(--theme-text, var(--color-charcoal));
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  p,
+  blockquote,
+  figure {
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer utilities {
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 400;
+    line-height: 1rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-charcoal);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+  }
+}
+
+:root {
+  --theme-bg: #f7f4f2;
+  --theme-text: #232322;
+  --theme-text-muted: #6b6762;
+}
+
+.homepage-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(0, 0, 0, 0.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(0, 0, 0, 0.16), transparent 30%),
+    linear-gradient(180deg, #f6f2ef 0%, #ece5df 100%);
+  color: var(--color-charcoal);
+}
+
+.homepage-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+  background-image:
+    linear-gradient(rgba(35, 35, 34, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35, 35, 34, 0.06) 1px, transparent 1px);
+  background-size: 2rem 2rem;
+  mask-image: radial-gradient(circle at center, black 28%, transparent 88%);
+}
+
+.homepage-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(50px);
+  opacity: 0.55;
+}
+
+.homepage-orb-left {
+  top: 12%;
+  left: -8rem;
+  width: 20rem;
+  height: 20rem;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.homepage-orb-right {
+  right: -7rem;
+  bottom: 10%;
+  width: 18rem;
+  height: 18rem;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.homepage-stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 2rem;
+}
+
+.homepage-lockup {
+  display: grid;
+  gap: 0;
+  justify-items: center;
+  text-align: center;
+  width: min(98vw, 1800px);
+}
+
+.homepage-wordmark {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: baseline;
+  white-space: nowrap;
+  gap: 0.04em;
+  width: max-content;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: clamp(2.6rem, 10vw, 10rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+}
+
+.homepage-wordmark-static {
+  color: var(--color-charcoal);
+  font-weight: 300;
+  letter-spacing: 0.035em;
+}
+
+.wordmark-rotating {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: baseline;
+  color: var(--color-charcoal);
+  font-weight: 500;
+  line-height: inherit;
+  transform: translateY(-0.025em);
+}
+
+.wordmark-rotating-sizer {
+  display: block;
+  color: transparent;
+  opacity: 0;
+  padding-right: 0.18em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  line-height: inherit;
+}
+
+.wordmark-rotating-text {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  line-height: inherit;
+}
+
+.wordmark-rotating-value {
+  display: inline-block;
+}
+
+.wordmark-caret {
+  display: inline-block;
+  flex: 0 0 auto;
+  align-self: flex-end;
+  width: 0.08em;
+  height: 0.9em;
+  margin-left: 0.08em;
+  background: currentColor;
+  animation: wordmark-blink 0.9s steps(1, end) infinite;
+}
+
+@keyframes wordmark-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .homepage-wordmark {
+    gap: 0.02em;
+    font-size: clamp(2rem, 9.3vw, 4.25rem);
+  }
+
+  .wordmark-rotating {
+    min-width: 0;
+  }
+}
+
+.entry-richtext {
+  color: var(--entry-text);
+}
+
+.entry-richtext h2,
+.entry-richtext h3,
+.entry-richtext h4 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.entry-richtext h2 {
+  font-size: clamp(1.875rem, 4vw, 3rem);
+}
+
+.entry-richtext h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.entry-richtext p,
+.entry-richtext ul,
+.entry-richtext ol {
+  margin-top: 1rem;
+  color: var(--entry-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.entry-richtext ul,
+.entry-richtext ol {
+  padding-left: 1.5rem;
+}
+
+.entry-richtext a {
+  color: var(--color-red);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}

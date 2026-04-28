@@ -1,0 +1,290 @@
+[
+  {
+    "legacyId": "69bb28a96dfcce4274b13cdd",
+    "title": "Mumbrella Awards 2026",
+    "awardBody": "Mumbrella",
+    "category": "Independent Agency of the Year",
+    "year": 2026,
+    "theme": "dark",
+    "slug": "mumbrella-2026",
+    "layout": [
+      {
+        "blockType": "entryHero",
+        "prehead": "Mumbrella Awards 2026 — Independent Agency of the Year",
+        "headline": "Accelerating Impact",
+        "media": {
+          "legacyMediaId": "69bb30a4cb503c4c7bb64674"
+        },
+        "mediaPosition": "behind",
+        "heroHeight": "tall",
+        "mediaWidth": "wide",
+        "textAlign": "left",
+        "theme": "light",
+        "id": "69bb28a9bf8558cb4c892f3e"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Audi",
+        "headline": "Feel Every Second",
+        "body": "To launch Audi's debut into Formula 1, we developed a localised digital home. Fusing Bauhaus design with racing precision, the modular Next.js platform fuelled some high-octane numbers.",
+        "results": [
+          {
+            "value": "75.8%",
+            "label": "RYI form completion rate",
+            "id": "69bb28a9bf8558cb4c892f3f"
+          },
+          {
+            "value": "$233M",
+            "label": "in 'Add to Cart' value",
+            "id": "69bb28a9bf8558cb4c892f40"
+          }
+        ],
+        "images": [
+          {
+            "image": {
+              "legacyMediaId": "69ba90524c79c8e3acbce9a3"
+            },
+            "id": "69bb2c89481eca25ce423f63"
+          },
+          {
+            "image": {
+              "legacyMediaId": "69ba90ee4c79c8e3acbcea64"
+            },
+            "id": "69bb2ca0481eca25ce423f65"
+          }
+        ],
+        "imageLayout": "stack",
+        "id": "69bb28a9bf8558cb4c892f41"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f42"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Vanuatu Tourism Office",
+        "headline": "The Wake-Up Call",
+        "body": "Outspent 20:1 by Fiji, Vanuatu offers a raw, unpolished adventure that's close to home. So we invited beloved comedian Ray O'Leary for a 'Wake-Up Call', to disrupt his routine. His grey suit, deadpan humour, and TV reach helped drive Vanuatu's highest visitor numbers in years.",
+        "results": [
+          {
+            "value": "25.2%",
+            "label": "growth vs 4.1% regional average",
+            "id": "69bb28a9bf8558cb4c892f43"
+          },
+          {
+            "value": "84%",
+            "label": "saliency among viewers",
+            "id": "69bb28a9bf8558cb4c892f44"
+          }
+        ],
+        "images": [
+          {
+            "image": {
+              "legacyMediaId": "69ba88bf4c79c8e3acbcdca7"
+            },
+            "id": "69bb2d7f481eca25ce423f67"
+          }
+        ],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f45"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f46"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Jilya Institute",
+        "headline": "Change Direction",
+        "body": "The Change Direction initiative reversed the narrative on Indigenous suicide. The central film used a palindrome to move from despair into hope through cultural connection, shifting perceptions nationwide and becoming an open source brand for the entire community.",
+        "results": [
+          {
+            "value": "165%",
+            "label": "increase in awareness",
+            "id": "69bb28a9bf8558cb4c892f47"
+          },
+          {
+            "value": "$3M",
+            "label": "pro bono media support",
+            "id": "69bb28a9bf8558cb4c892f48"
+          }
+        ],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f49"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f4a"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Cricket for Climate",
+        "headline": "Sign the Bat",
+        "body": "Having founded Cricket for Climate in 2024, Australian captain Pat Cummins aimed to ask the government for $50M to protect sports from climate change. With Sign the Bat, we reframed a hero's signature into a digital pledge, while presenting three bats decorated by kids to ministers.",
+        "results": [
+          {
+            "value": "$50M",
+            "label": "in funding secured, supported by Sign The Bat",
+            "id": "69bb28a9bf8558cb4c892f4b"
+          }
+        ],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f4c"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f4d"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Google Workspace",
+        "headline": "Fifty States, Fifty Stories",
+        "body": "Working with Google Workspace US, we supported their Super Bowl campaign with a modular site hosting 50 customer stories, ready to engage audiences from across the country — and contributing to a Cannes Lions shortlist for best B2B Creative.",
+        "results": [
+          {
+            "value": "249K",
+            "label": "visitors",
+            "id": "69bb28a9bf8558cb4c892f4e"
+          },
+          {
+            "value": "20x",
+            "label": "average trial conversions",
+            "id": "69bb28a9bf8558cb4c892f4f"
+          }
+        ],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f50"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f51"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Vanuatu Tourism Office",
+        "headline": "Adventure Passes",
+        "body": "Confronted by an earthquake, airline stoppages, and neighbours with far higher budgets, Vanuatu needed to get people onto planes to reignite tourism. Embracing their positioning, adventure close to home, we invited travellers to experiences, not just destinations.",
+        "results": [
+          {
+            "value": "1.3M",
+            "label": "Spotify users",
+            "id": "69bb28a9bf8558cb4c892f52"
+          },
+          {
+            "value": "1.13M",
+            "label": "YouTube views",
+            "id": "69bb28a9bf8558cb4c892f53"
+          }
+        ],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f54"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f55"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Volkswagen",
+        "headline": "Tough Not Rough",
+        "body": "Amarok is rugged on the outside, refined on the inside. Asked to create a basic model showroom page, we hacked the Optimizely CMS to allow users to toggle between the two, driving unprecedented results for the site.",
+        "results": [
+          {
+            "value": "60%",
+            "label": "increase in leads",
+            "id": "69bb28a9bf8558cb4c892f56"
+          },
+          {
+            "value": "17.5%",
+            "label": "increase in CTR",
+            "id": "69bb28a9bf8558cb4c892f57"
+          }
+        ],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f58"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f59"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Google Android",
+        "headline": "Hear the Future",
+        "body": "To help launch immersive hearing technology for the accessibility community, we designed experiential demo booths and a live Sydney Opera House performance, delivering a full suite of social and training assets.",
+        "results": [
+          {
+            "value": "350+",
+            "label": "stories in global media",
+            "id": "69bb28a9bf8558cb4c892f5a"
+          },
+          {
+            "value": "2.2K+",
+            "label": "content engagements",
+            "id": "69bb28a9bf8558cb4c892f5b"
+          }
+        ],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f5c"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f5d"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Kinatico",
+        "headline": "Your Compliance Companion",
+        "body": "For Kinatico, a leading Australian regtech, we brought some personality to B2B with our brand character, KC, your compliance companion. Soft launched recently, early results are already very encouraging.",
+        "results": [],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f5e"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f5f"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Inner Circle Network",
+        "headline": "Iconoclasts",
+        "body": "For the annual CMO Women's Dinner, we celebrated the inner spirit of these powerful women. The brand identity, 'Iconoclast', featured 30 AI-generated artworks celebrating the inner spirit of radical leaders. The intimate event also raised over $2,000 for charity.",
+        "results": [],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f60"
+      },
+      {
+        "blockType": "entryDivider",
+        "color": "subtle",
+        "id": "69bb28a9bf8558cb4c892f61"
+      },
+      {
+        "blockType": "entryCaseStudy",
+        "client": "Apparent",
+        "headline": "2025 Hindsight",
+        "body": "For our end-of-year Holiday card, we avoided the Festive Season cliches, instead creating 'Hindsight', a digital game that looked back at the year through the lens of pop culture. Clients loved it, with engagement far exceeding previous years.",
+        "results": [],
+        "images": [],
+        "imageLayout": "auto",
+        "id": "69bb28a9bf8558cb4c892f62"
+      }
+    ]
+  }
+]

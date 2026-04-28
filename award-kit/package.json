@@ -1,0 +1,43 @@
+{
+  "name": "award-kit",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "db:start": "docker compose up -d",
+    "db:stop": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
+    "db:reset": "docker compose down -v",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "generate:types": "payload generate:types --config src/payload.config.ts",
+    "seed:verify": "tsx src/scripts/verify-award-assets.ts",
+    "seed:import": "tsx src/scripts/import-award-kit.ts"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "^3.84.1",
+    "@payloadcms/next": "^3.84.1",
+    "@payloadcms/richtext-lexical": "^3.84.1",
+    "clsx": "^2.1.1",
+    "graphql": "^16.12.0",
+    "next": "16.2.4",
+    "payload": "^3.84.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "sharp": "^0.34.5",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.6",
+    "typescript": "^5"
+  }
+}

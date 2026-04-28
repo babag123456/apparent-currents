@@ -1,0 +1,62 @@
+[
+  {
+    "legacyId": "69ba88bf4c79c8e3acbcdca7",
+    "filename": "wake-up-call-03_v1-1.png",
+    "mimeType": "image/png",
+    "expectedDimensions": {
+      "width": 380,
+      "height": 280
+    },
+    "sourceUrl": "https://images.impartmedia.com/vanuatu.travel/wakeupcall/image_01.png",
+    "recoveredLocalPath": "award-kit/public/award-media/wake-up-call-03_v1-1.png",
+    "checksum": "510ed751daf740bcd374e4e0b8aeedb21e77453ba90b461d23299a58b9072bbf",
+    "usageReferences": [
+      "awardEntries.0.layout.3.images.0.image"
+    ]
+  },
+  {
+    "legacyId": "69ba90524c79c8e3acbce9a3",
+    "filename": "audi-f1-audi-image-1_v1-1.png",
+    "mimeType": "image/png",
+    "expectedDimensions": {
+      "width": 800,
+      "height": 431
+    },
+    "sourceUrl": "https://images-r2.thebrag.com/mw/uploads/2025/12/Oblong-800-x-431-px-800-x-431-px-2025-12-01T074916.495.png",
+    "recoveredLocalPath": "award-kit/public/award-media/audi-f1-audi-image-1_v1-1.png",
+    "checksum": "c317e7175a1e920edeb1fc29938087b7967dfc02d49715fdf43a5a1e1dd33ffa",
+    "usageReferences": [
+      "awardEntries.0.layout.1.images.0.image"
+    ]
+  },
+  {
+    "legacyId": "69ba90ee4c79c8e3acbcea64",
+    "filename": "audi-f1-audi-image-2_v1-1.png",
+    "mimeType": "image/png",
+    "expectedDimensions": {
+      "width": 1536,
+      "height": 864
+    },
+    "sourceUrl": "https://www.bandt.com.au/information/uploads/2025/12/Audi-1-1536x864.jpeg",
+    "recoveredLocalPath": "award-kit/public/award-media/audi-f1-audi-image-2_v1-1.png",
+    "checksum": "0ee01aee75351291f3995a363698a8382247a7fba5f2d3b4b61c144c01f30596",
+    "usageReferences": [
+      "awardEntries.0.layout.1.images.1.image"
+    ]
+  },
+  {
+    "legacyId": "69bb30a4cb503c4c7bb64674",
+    "filename": "audi-f1-hero-recovered.jpg",
+    "mimeType": "image/jpeg",
+    "expectedDimensions": {
+      "width": 1920,
+      "height": 1308
+    },
+    "sourceUrl": "https://f1.audi.com.au/assets/A260224_large.jpg",
+    "recoveredLocalPath": "award-kit/public/award-media/audi-f1-hero-recovered.jpg",
+    "checksum": "538a30a6413d42f6e7a88504529833922ad43520bffc497a6abc0cda59386cc1",
+    "usageReferences": [
+      "awardEntries.0.layout.0.media"
+    ]
+  }
+]
