@@ -22,7 +22,7 @@ export const EntryResultsComponent: React.FC<Props> = ({ intro, results }) => {
             {intro}
           </p>
         )}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-3">
           {results.map((r, i) => (
             <div key={r.id ?? i}>
               <p className="font-sans text-4xl md:text-5xl font-[500] tracking-tight" style={{ color: 'var(--entry-text)' }}>

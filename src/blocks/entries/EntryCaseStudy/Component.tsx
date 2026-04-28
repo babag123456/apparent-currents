@@ -35,13 +35,13 @@ interface Props {
 }
 
 function getGridCols(count: number, layout: string | null | undefined): string {
-  if (layout === '2-col') return 'grid-cols-2'
-  if (layout === '3-col') return 'grid-cols-3'
+  if (layout === '2-col') return 'grid-cols-1 sm:grid-cols-2'
+  if (layout === '3-col') return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
   if (layout === 'stack') return 'grid-cols-1'
   if (count === 1) return 'grid-cols-1'
-  if (count === 2) return 'grid-cols-2'
-  if (count >= 3) return 'grid-cols-2 md:grid-cols-3'
-  return 'grid-cols-2'
+  if (count === 2) return 'grid-cols-1 sm:grid-cols-2'
+  if (count >= 3) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+  return 'grid-cols-1 sm:grid-cols-2'
 }
 
 export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, body, results, links, images, imageLayout }) => {
@@ -65,7 +65,7 @@ export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, bod
         )}
 
         {results && results.length > 0 && (
-          <div className="mt-10 flex flex-wrap gap-x-12 gap-y-6">
+          <div className="mt-10 flex flex-wrap gap-x-8 gap-y-6 md:gap-x-12">
             {results.map((r, i) => (
               <div key={r.id ?? i}>
                 <p className="font-sans text-4xl md:text-5xl font-[500] tracking-tight" style={{ color: 'var(--entry-text)' }}>

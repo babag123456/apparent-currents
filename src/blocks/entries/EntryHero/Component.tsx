@@ -67,11 +67,11 @@ export const EntryHeroComponent: React.FC<Props> = ({
                 {prehead}
               </p>
             )}
-            <h1 className="font-sans text-5xl md:text-7xl font-[500] leading-[1.05] tracking-tight text-cream">
+            <h1 className="font-sans text-4xl sm:text-5xl md:text-7xl font-[500] leading-[1.05] tracking-tight text-cream">
               {headline}
             </h1>
             {subhead && (
-              <p className={`mt-6 text-lg md:text-xl font-[300] leading-relaxed text-cream/70 ${align === 'center' ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`}>
+              <p className={`mt-5 text-base sm:text-lg md:text-xl font-[300] leading-relaxed text-cream/70 ${align === 'center' ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`}>
                 {subhead}
               </p>
             )}
@@ -89,11 +89,11 @@ export const EntryHeroComponent: React.FC<Props> = ({
           {prehead}
         </p>
       )}
-      <h1 className="font-sans text-5xl md:text-7xl font-[500] leading-[1.05] tracking-tight" style={{ color: 'var(--entry-text)' }}>
+      <h1 className="font-sans text-4xl sm:text-5xl md:text-7xl font-[500] leading-[1.05] tracking-tight" style={{ color: 'var(--entry-text)' }}>
         {headline}
       </h1>
       {subhead && (
-        <p className={`mt-6 text-lg md:text-xl font-[300] leading-relaxed ${align === 'center' ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`} style={{ color: 'var(--entry-muted)' }}>
+        <p className={`mt-5 text-base sm:text-lg md:text-xl font-[300] leading-relaxed ${align === 'center' ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`} style={{ color: 'var(--entry-muted)' }}>
           {subhead}
         </p>
       )}

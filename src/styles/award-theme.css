@@ -184,7 +184,8 @@
   gap: 0;
   justify-items: center;
   text-align: center;
-  width: min(98vw, 1800px);
+  width: min(100%, 1800px);
+  padding-inline: clamp(0.75rem, 3vw, 2rem);
 }
 
 .homepage-wordmark {
@@ -197,7 +198,7 @@
   width: max-content;
   max-width: 100%;
   font-family: var(--font-mono);
-  font-size: clamp(2.6rem, 10vw, 10rem);
+  font-size: clamp(1.7rem, 8vw, 10rem);
   font-weight: 400;
   line-height: 0.95;
   letter-spacing: -0.02em;
@@ -256,6 +257,47 @@
   animation: wordmark-blink 0.9s steps(1, end) infinite;
 }
 
+@media (max-width: 640px) {
+  .homepage-stage {
+    padding: 1rem 1.25rem;
+  }
+
+  .homepage-lockup {
+    width: 100%;
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  .homepage-wordmark {
+    gap: 0.018em;
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    padding-inline: 0.2rem;
+    font-size: clamp(1.25rem, 6.9vw, 1.85rem);
+    letter-spacing: -0.04em;
+  }
+
+  .homepage-wordmark-static {
+    letter-spacing: 0.012em;
+  }
+
+  .wordmark-rotating-sizer {
+    padding-right: 0.08em;
+  }
+
+  .wordmark-caret {
+    margin-left: 0.04em;
+  }
+
+  .homepage-shell > a[href='/admin'] {
+    min-width: 0;
+    padding: 0.85rem 1rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+  }
+}
+
 @keyframes wordmark-blink {
   0%,
   49% {
@@ -265,17 +307,6 @@
   50%,
   100% {
     opacity: 0;
-  }
-}
-
-@media (max-width: 640px) {
-  .homepage-wordmark {
-    gap: 0.02em;
-    font-size: clamp(2rem, 9.3vw, 4.25rem);
-  }
-
-  .wordmark-rotating {
-    min-width: 0;
   }
 }
 

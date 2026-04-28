@@ -24,11 +24,11 @@ export const EntryImageGridComponent: React.FC<Props> = ({ images, columns = 'au
   if (!validImages.length) return null
 
   const colClass =
-    columns === '2' ? 'grid-cols-2'
-    : columns === '3' ? 'grid-cols-3'
+    columns === '2' ? 'grid-cols-1 sm:grid-cols-2'
+    : columns === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
     : validImages.length === 1 ? 'grid-cols-1'
-    : validImages.length === 2 ? 'grid-cols-2'
-    : 'grid-cols-2 md:grid-cols-3'
+    : validImages.length === 2 ? 'grid-cols-1 sm:grid-cols-2'
+    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
 
   return (
     <section className="py-8">
