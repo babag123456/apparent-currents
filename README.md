@@ -39,8 +39,8 @@ Standalone Next.js + Payload app for the extracted awards slice from this repo. 
 
 1. `cd award-kit`
 2. Copy `.env.example` to `.env` and set `DATABASE_URL` and `PAYLOAD_SECRET`.
-   For external media, also set `UPLOADTHING_TOKEN`, plus either
-   `MUX_TOKEN_ID` / `MUX_TOKEN_SECRET` or `MUX_ENVIRONMENT_ID` / `MUX_ENVIRONMENT_KEY`
+   For external media, also set `UPLOADTHING_TOKEN`, plus
+   `MUX_ACCESS_TOKEN_ID` / `MUX_ACCESS_TOKEN_SECRET`
    in `.env.local` for local development and in Vercel env vars for preview / production.
 3. `npm install`
 4. `npm run db:start`

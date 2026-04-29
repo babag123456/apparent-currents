@@ -11,12 +11,20 @@ type MuxAssetResponse = {
 }
 
 function getMuxCredentials() {
-  const tokenId = process.env.MUX_TOKEN_ID || process.env.MUX_ENVIRONMENT_ID || ''
-  const tokenSecret = process.env.MUX_TOKEN_SECRET || process.env.MUX_ENVIRONMENT_KEY || ''
+  const tokenId =
+    process.env.MUX_ACCESS_TOKEN_ID ||
+    process.env.MUX_TOKEN_ID ||
+    process.env.MUX_ENVIRONMENT_ID ||
+    ''
+  const tokenSecret =
+    process.env.MUX_ACCESS_TOKEN_SECRET ||
+    process.env.MUX_TOKEN_SECRET ||
+    process.env.MUX_ENVIRONMENT_KEY ||
+    ''
 
   if (!tokenId || !tokenSecret) {
     throw new Error(
-      'Missing Mux credentials. Set MUX_TOKEN_ID / MUX_TOKEN_SECRET or MUX_ENVIRONMENT_ID / MUX_ENVIRONMENT_KEY.',
+      'Missing Mux credentials. Set MUX_ACCESS_TOKEN_ID / MUX_ACCESS_TOKEN_SECRET. MUX_TOKEN_ID / MUX_TOKEN_SECRET remain supported as aliases.',
     )
   }
 
@@ -35,7 +43,10 @@ async function muxRequest<T>(pathname: string, init?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
-    throw new Error(`Mux request failed (${response.status} ${response.statusText}) for ${pathname}`)
+    const responseBody = await response.text().catch(() => '')
+    const detail = responseBody ? `: ${responseBody.slice(0, 500)}` : ''
+
+    throw new Error(`Mux request failed (${response.status} ${response.statusText}) for ${pathname}${detail}`)
   }
 
   return response.json() as Promise<T>

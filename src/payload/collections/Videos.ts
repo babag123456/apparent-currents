@@ -30,14 +30,16 @@ type VideoDoc = TypeWithID & {
 const syncVideoHosting: CollectionBeforeChangeHook<VideoDoc> = async ({ data, req }) => {
   if (!req.file) return data
 
-  const buffer = await readPayloadUploadBuffer(req.file)
-  const sourceUpload = await uploadBufferToUploadThing({
-    buffer,
-    filename: req.file.name,
-    mimeType: req.file.mimetype,
-  })
+  let sourceUpload: null | { key: string; url: string } = null
 
   try {
+    const buffer = await readPayloadUploadBuffer(req.file)
+    sourceUpload = await uploadBufferToUploadThing({
+      buffer,
+      filename: req.file.name,
+      mimeType: req.file.mimetype,
+    })
+
     const muxAsset = await createMuxAssetFromUrl(sourceUpload.url)
 
     return {
@@ -49,7 +51,15 @@ const syncVideoHosting: CollectionBeforeChangeHook<VideoDoc> = async ({ data, re
       muxStatus: muxAsset.status,
     }
   } catch (error) {
-    await deleteUploadThingFile(sourceUpload.key)
+    console.error('Video hosting sync failed during video upload.', {
+      filename: req.file.name,
+      error,
+    })
+
+    if (sourceUpload?.key) {
+      await deleteUploadThingFile(sourceUpload.key)
+    }
+
     throw error
   }
 }
