@@ -65,5 +65,18 @@ export async function generateMetadata({
   return {
     title: entry.title,
     description: `${entry.awardBody ?? ''} ${entry.category ?? ''}`.trim() || undefined,
+    robots: {
+      index: false,
+      follow: false,
+      nocache: true,
+      googleBot: {
+        index: false,
+        follow: false,
+        noimageindex: true,
+        'max-image-preview': 'none',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+    },
   }
 }
