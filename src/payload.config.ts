@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Users } from './collections/Users.ts'
-import { loadAwardKitEnv } from './lib/loadEnv'
+import { loadAwardKitEnv } from './lib/loadEnv.ts'
 import { awardKitCollections } from './payload/award-kit.config-fragment.ts'
 
 const filename = fileURLToPath(import.meta.url)
