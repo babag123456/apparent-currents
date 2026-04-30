@@ -1,4 +1,4 @@
-import { loadAwardKitEnv } from './loadEnv'
+import { loadAwardKitEnv } from './loadEnv.ts'
 
 loadAwardKitEnv()
 

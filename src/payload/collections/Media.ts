@@ -16,7 +16,7 @@ import {
   deleteUploadThingFile,
   readPayloadUploadBuffer,
   uploadBufferToUploadThing,
-} from '../../lib/uploadthing'
+} from '../../lib/uploadthing.ts'
 
 const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true

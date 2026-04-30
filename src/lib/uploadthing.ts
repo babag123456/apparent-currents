@@ -3,7 +3,7 @@ import mime from 'mime-types'
 import path from 'path'
 import { UTApi, UTFile } from 'uploadthing/server'
 
-import { loadAwardKitEnv } from './loadEnv'
+import { loadAwardKitEnv } from './loadEnv.ts'
 
 loadAwardKitEnv()
 

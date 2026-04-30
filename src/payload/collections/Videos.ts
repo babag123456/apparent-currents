@@ -7,12 +7,12 @@ import type {
   TypeWithID,
 } from 'payload'
 
-import { createMuxAssetFromUrl, deleteMuxAsset, getMuxPlaybackUrl, getMuxThumbnailUrl } from '../../lib/mux'
+import { createMuxAssetFromUrl, deleteMuxAsset, getMuxPlaybackUrl, getMuxThumbnailUrl } from '../../lib/mux.ts'
 import {
   deleteUploadThingFile,
   readPayloadUploadBuffer,
   uploadBufferToUploadThing,
-} from '../../lib/uploadthing'
+} from '../../lib/uploadthing.ts'
 
 const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
