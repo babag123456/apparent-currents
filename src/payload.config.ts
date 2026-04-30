@@ -18,10 +18,10 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     components: {
-      beforeLogin: ['@/components/payload/GoogleLoginButton#default'],
+      beforeLogin: ['/components/payload/GoogleLoginButton#default'],
     },
     importMap: {
-      baseDir: path.resolve(dirname),
+      baseDir: path.resolve(dirname, 'src'),
     },
   },
   collections: [Users, ...awardKitCollections],

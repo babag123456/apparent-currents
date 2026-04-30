@@ -1,6 +1,4 @@
-'use client'
-
-import Link from 'next/link'
+/* eslint-disable @next/next/no-html-link-for-pages */
 
 export function GoogleLoginButton() {
   return (
@@ -11,7 +9,7 @@ export function GoogleLoginButton() {
         marginTop: '1rem',
       }}
     >
-      <Link
+      <a
         href="/api/auth/google/start"
         style={{
           alignItems: 'center',
@@ -42,7 +40,7 @@ export function GoogleLoginButton() {
           G
         </span>
         <span>Continue with Google</span>
-      </Link>
+      </a>
     </div>
   )
 }
