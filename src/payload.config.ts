@@ -17,6 +17,9 @@ loadAwardKitEnv()
 export default buildConfig({
   admin: {
     user: Users.slug,
+    components: {
+      beforeLogin: ['@/components/payload/GoogleLoginButton#default'],
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },

@@ -42,6 +42,11 @@ Standalone Next.js + Payload app for the extracted awards slice from this repo. 
    For external media, also set `UPLOADTHING_TOKEN`, plus
    `MUX_ACCESS_TOKEN_ID` / `MUX_ACCESS_TOKEN_SECRET`
    in `.env.local` for local development and in Vercel env vars for preview / production.
+   For Google admin login, also set:
+   `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and either
+   `GOOGLE_ALLOWED_EMAILS` or `GOOGLE_ALLOWED_DOMAIN`.
+   If your Google OAuth app requires an explicit callback URL, set
+   `GOOGLE_OAUTH_CALLBACK_URL` to `/api/auth/google/callback` on the correct origin.
 3. `npm install`
 4. `npm run db:start`
 5. Wait for Postgres to become healthy, or watch with `npm run db:logs`
@@ -55,6 +60,31 @@ The standalone app already wires:
 - REST and GraphQL routes under the standard Payload route group
 - frontend submission route at `/<slug>`
 - root showcase page at `/`
+
+## Google Admin Login
+
+Google login is exposed on the Payload login screen and redirects through:
+
+- `/api/auth/google/start`
+- `/api/auth/google/callback`
+
+Required environment variables:
+
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- either `GOOGLE_ALLOWED_EMAILS` as a comma-separated allowlist
+- or `GOOGLE_ALLOWED_DOMAIN` for a single approved Google Workspace domain
+
+Optional:
+
+- `GOOGLE_OAUTH_CALLBACK_URL`
+
+Typical callback URLs:
+
+- local: `http://localhost:3000/api/auth/google/callback`
+- production: `https://thisisour.agency/api/auth/google/callback`
+
+The Google callback creates or updates the matching Payload `users` record, links it by Google subject ID, and then creates a normal Payload auth cookie for `/admin`.
 
 ## CSS And Fonts
 
