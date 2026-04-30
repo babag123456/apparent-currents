@@ -1,4 +1,4 @@
-import * as nextEnv from '@next/env'
+import { createRequire } from 'module'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -10,15 +10,24 @@ let envLoaded = false
 
 type LoadEnvConfigFn = (dir: string) => unknown
 
-// `@next/env` is CJS. Depending on the loader (Next bundler, tsx + Node 24
-// strict ESM, etc.), `loadEnvConfig` is exposed either as a named ESM export
-// or hidden behind a CJS `default` interop wrapper. Resolve it defensively.
+// `@next/env` is published as CommonJS. Loading it through ESM (named or
+// namespace import) causes one of two failures under Node 24 strict ESM:
+//   - named imports throw "does not provide an export named 'loadEnvConfig'"
+//   - namespace imports introduce top-level await into the importer's graph,
+//     which in turn breaks `require()`-based loaders like the Payload CLI
+//     ("ERR_REQUIRE_ASYNC_MODULE").
+// Use `createRequire` to load it synchronously as CJS, which avoids both.
 function resolveLoadEnvConfig(): LoadEnvConfigFn | undefined {
-  const mod = nextEnv as unknown as {
-    default?: { loadEnvConfig?: LoadEnvConfigFn }
-    loadEnvConfig?: LoadEnvConfigFn
+  try {
+    const require = createRequire(import.meta.url)
+    const mod = require('@next/env') as {
+      default?: { loadEnvConfig?: LoadEnvConfigFn }
+      loadEnvConfig?: LoadEnvConfigFn
+    }
+    return mod.loadEnvConfig ?? mod.default?.loadEnvConfig
+  } catch {
+    return undefined
   }
-  return mod.loadEnvConfig ?? mod.default?.loadEnvConfig
 }
 
 export function loadAwardKitEnv() {
@@ -26,8 +35,7 @@ export function loadAwardKitEnv() {
   envLoaded = true
 
   // On Vercel and most CI runners, env vars are already injected into
-  // process.env. If `@next/env` can't be resolved (e.g. CJS interop quirk
-  // under Node strict ESM), fall through silently — there's nothing to load.
+  // process.env. If `@next/env` can't be resolved, fall through silently.
   const loadEnvConfig = resolveLoadEnvConfig()
   if (typeof loadEnvConfig === 'function') {
     loadEnvConfig(projectDir)
