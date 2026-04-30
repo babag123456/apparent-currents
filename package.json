@@ -10,7 +10,7 @@
     "db:reset": "docker compose down -v",
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "payload migrate --force-accept-warning --config src/payload.config.ts && next build",
+    "vercel-build": "node scripts/clear-dev-migration-row.mjs && payload migrate --config src/payload.config.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "migrate": "payload migrate --force-accept-warning --config src/payload.config.ts",
