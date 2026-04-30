@@ -32,6 +32,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
     blocksAsJSON: true,
+    push: true,
   }),
   sharp,
   plugins: [],
