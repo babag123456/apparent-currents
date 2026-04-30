@@ -9,9 +9,13 @@
     "db:reset": "docker compose down -v",
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "payload migrate --config src/payload.config.ts && next build",
     "start": "next start",
     "lint": "eslint",
+    "migrate": "payload migrate --config src/payload.config.ts",
+    "migrate:create": "payload migrate:create --config src/payload.config.ts",
     "generate:types": "payload generate:types --config src/payload.config.ts",
+    "generate:importmap": "payload generate:importmap --config src/payload.config.ts",
     "seed:verify": "tsx src/scripts/verify-award-assets.ts",
     "seed:import": "tsx src/scripts/import-award-kit.ts",
     "media:migrate:uploadthing": "tsx src/scripts/migrate-media-to-uploadthing.ts"

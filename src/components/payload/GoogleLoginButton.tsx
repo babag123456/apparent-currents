@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-html-link-for-pages */
+'use client'
 
 export function GoogleLoginButton() {
   return (
