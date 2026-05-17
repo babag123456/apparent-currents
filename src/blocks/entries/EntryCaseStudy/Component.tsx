@@ -40,8 +40,18 @@ function getGridCols(count: number, layout: string | null | undefined): string {
   if (layout === 'stack') return 'grid-cols-1'
   if (count === 1) return 'grid-cols-1'
   if (count === 2) return 'grid-cols-1 sm:grid-cols-2'
-  if (count >= 3) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+  if (count >= 3) return 'grid-cols-1 sm:grid-cols-2'
   return 'grid-cols-1 sm:grid-cols-2'
+}
+
+function isOddLastImage(index: number, count: number, layout: string | null | undefined): boolean {
+  return count > 1 && count % 2 === 1 && index === count - 1 && layout !== 'stack' && layout !== '3-col'
+}
+
+function getImageItemClass(index: number, count: number, layout: string | null | undefined): string {
+  if (!isOddLastImage(index, count, layout)) return 'overflow-hidden rounded-sm'
+
+  return 'overflow-hidden rounded-sm sm:col-span-2'
 }
 
 export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, body, results, links, images, imageLayout }) => {
@@ -65,13 +75,13 @@ export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, bod
         )}
 
         {results && results.length > 0 && (
-          <div className="mt-10 flex flex-wrap gap-x-8 gap-y-6 md:gap-x-12">
+          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 md:gap-12">
             {results.map((r, i) => (
               <div key={r.id ?? i}>
                 <p className="font-sans text-4xl md:text-5xl font-[500] tracking-tight" style={{ color: 'var(--entry-text)' }}>
                   {r.value}
                 </p>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.15em]" style={{ color: 'var(--entry-muted)' }}>
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.15em] leading-relaxed break-words" style={{ color: 'var(--entry-muted)' }}>
                   {r.label}
                 </p>
               </div>
@@ -103,7 +113,7 @@ export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, bod
         {imgs.length > 0 && (
           <div className={`mt-10 grid ${getGridCols(imgs.length, imageLayout)} gap-3`}>
             {imgs.map((item, i) => (
-              <div key={item.id ?? i} className="overflow-hidden rounded-sm">
+              <div key={item.id ?? i} className={getImageItemClass(i, imgs.length, imageLayout)}>
                 <img
                   src={item.image.url!}
                   alt={item.image.alt || ''}

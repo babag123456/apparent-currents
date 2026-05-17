@@ -6,7 +6,9 @@ export const EntryResults: Block = {
   labels: { singular: 'Results', plural: 'Results' },
   admin: {},
   fields: [
-    { name: 'intro', type: 'text', label: 'Intro Text', admin: { description: 'Optional heading above results' } },
+    { name: 'prehead', type: 'text', label: 'Client / Prehead' },
+    { name: 'headline', type: 'text', label: 'Headline' },
+    { name: 'intro', type: 'textarea', label: 'Intro Text' },
     {
       name: 'results',
       type: 'array',

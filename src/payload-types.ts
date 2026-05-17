@@ -356,9 +356,8 @@ export interface EntryMediaBlock {
  * via the `definition` "EntryResultsBlock".
  */
 export interface EntryResultsBlock {
-  /**
-   * Optional heading above results
-   */
+  prehead?: string | null;
+  headline?: string | null;
   intro?: string | null;
   results: {
     value: string;
@@ -691,6 +690,8 @@ export interface EntryMediaBlockSelect<T extends boolean = true> {
  * via the `definition` "EntryResultsBlock_select".
  */
 export interface EntryResultsBlockSelect<T extends boolean = true> {
+  prehead?: T;
+  headline?: T;
   intro?: T;
   results?:
     | T
