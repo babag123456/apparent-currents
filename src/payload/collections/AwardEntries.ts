@@ -20,6 +20,16 @@ export const AwardEntries: CollectionConfig = {
   labels: { singular: 'Award Entry', plural: 'Award Entries' },
   access: { create: authenticated, delete: authenticated, read: anyone, update: authenticated },
   admin: {
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          {
+            path: '@/components/payload/AwardEntryGoToPageButton',
+            exportName: 'AwardEntryGoToPageButton',
+          },
+        ],
+      },
+    },
     defaultColumns: ['title', 'awardBody', 'category', 'year', 'updatedAt'],
     useAsTitle: 'title',
   },
