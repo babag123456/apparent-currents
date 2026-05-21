@@ -11,6 +11,7 @@ import { EntryImageGridComponent } from './EntryImageGrid/Component'
 import { EntryVideoComponent } from './EntryVideo/Component'
 import { EntrySpacerComponent } from './EntrySpacer/Component'
 import { EntryDividerComponent } from './EntryDivider/Component'
+import { EntryButtonComponent } from './EntryButton/Component'
 
 type EntryBlock = {
   id?: string | number | null
@@ -28,6 +29,7 @@ const blockComponents: Record<string, React.ComponentType<any>> = {
   entryVideo: EntryVideoComponent,
   entrySpacer: EntrySpacerComponent,
   entryDivider: EntryDividerComponent,
+  entryButton: EntryButtonComponent,
 }
 
 interface Props {

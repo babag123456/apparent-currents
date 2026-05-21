@@ -14,6 +14,8 @@ const dirname = path.dirname(filename)
 
 loadAwardKitEnv()
 
+const MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -37,5 +39,14 @@ export default buildConfig({
     blocksAsJSON: true,
   }),
   sharp,
+  upload: {
+    abortOnLimit: true,
+    limits: {
+      fileSize: MAX_UPLOAD_BYTES,
+    },
+    responseOnLimit: 'Uploads must be 100MB or smaller. Please choose a smaller file and try again.',
+    uploadTimeout: 0,
+    useTempFiles: true,
+  },
   plugins: [],
 })

@@ -11,6 +11,7 @@ import { EntryImageGrid } from '../../blocks/entries/EntryImageGrid/config.ts'
 import { EntryVideo } from '../../blocks/entries/EntryVideo/config.ts'
 import { EntrySpacer } from '../../blocks/entries/EntrySpacer/config.ts'
 import { EntryDivider } from '../../blocks/entries/EntryDivider/config.ts'
+import { EntryButton } from '../../blocks/entries/EntryButton/config.ts'
 
 const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
@@ -67,6 +68,7 @@ export const AwardEntries: CollectionConfig = {
         EntryQuote,
         EntryImageGrid,
         EntryVideo,
+        EntryButton,
         EntrySpacer,
         EntryDivider,
       ],

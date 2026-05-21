@@ -177,6 +177,7 @@ export interface AwardEntry {
         | EntryQuoteBlock
         | EntryImageGridBlock
         | EntryVideoBlock
+        | EntryButtonBlock
         | EntrySpacerBlock
         | EntryDividerBlock
       )[]
@@ -439,6 +440,21 @@ export interface Video {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryButtonBlock".
+ */
+export interface EntryButtonBlock {
+  label: string;
+  /**
+   * Full URL including https://, or a relative URL starting with /
+   */
+  url: string;
+  style?: ('outline' | 'text') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'entryButton';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "EntrySpacerBlock".
  */
 export interface EntrySpacerBlock {
@@ -611,6 +627,7 @@ export interface AwardEntriesSelect<T extends boolean = true> {
         entryQuote?: T | EntryQuoteBlockSelect<T>;
         entryImageGrid?: T | EntryImageGridBlockSelect<T>;
         entryVideo?: T | EntryVideoBlockSelect<T>;
+        entryButton?: T | EntryButtonBlockSelect<T>;
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
       };
@@ -750,6 +767,17 @@ export interface EntryVideoBlockSelect<T extends boolean = true> {
   videoUrl?: T;
   poster?: T;
   caption?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryButtonBlock_select".
+ */
+export interface EntryButtonBlockSelect<T extends boolean = true> {
+  label?: T;
+  url?: T;
+  style?: T;
   id?: T;
   blockName?: T;
 }
