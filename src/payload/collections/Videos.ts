@@ -10,13 +10,16 @@ import type {
 import { createMuxAssetFromUrl, deleteMuxAsset, getMuxPlaybackUrl, getMuxThumbnailUrl } from '../../lib/mux.ts'
 import {
   deleteUploadThingFile,
+  fetchDirectUploadThingFile,
+  getDirectUploadThingContext,
   readPayloadUploadBuffer,
   uploadBufferToUploadThing,
 } from '../../lib/uploadthing.ts'
-import { limitUploadSize } from '../../lib/uploadLimits.ts'
+import { getDirectUploadLimitMB, limitUploadSize } from '../../lib/uploadLimits.ts'
 
 const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
+const directUploadLimitMB = getDirectUploadLimitMB()
 
 type VideoDoc = TypeWithID & {
   muxAssetId?: null | string
@@ -34,12 +37,21 @@ const syncVideoHosting: CollectionBeforeChangeHook<VideoDoc> = async ({ data, re
   let sourceUpload: null | { key: string; url: string } = null
 
   try {
-    const buffer = await readPayloadUploadBuffer(req.file)
-    sourceUpload = await uploadBufferToUploadThing({
-      buffer,
-      filename: req.file.name,
-      mimeType: req.file.mimetype,
-    })
+    const directUpload = getDirectUploadThingContext(req.file)
+
+    if (directUpload) {
+      sourceUpload = {
+        key: directUpload.key,
+        url: directUpload.url,
+      }
+    } else {
+      const buffer = await readPayloadUploadBuffer(req.file)
+      sourceUpload = await uploadBufferToUploadThing({
+        buffer,
+        filename: req.file.name,
+        mimeType: req.file.mimetype,
+      })
+    }
 
     const muxAsset = await createMuxAssetFromUrl(sourceUpload.url)
 
@@ -109,7 +121,19 @@ export const Videos: CollectionConfig = {
     defaultColumns: ['filename', 'updatedAt'],
   },
   hooks: {
-    beforeChange: [limitUploadSize<VideoDoc>({ collectionLabel: 'Video', limitMB: 100 }), syncVideoHosting],
+    beforeChange: [
+      ...(directUploadLimitMB
+        ? [
+            limitUploadSize<VideoDoc>({
+              collectionLabel: 'Video',
+              limitMB: directUploadLimitMB,
+              skipClientUpload: true,
+            }),
+          ]
+        : []),
+      limitUploadSize<VideoDoc>({ collectionLabel: 'Video', limitMB: 100 }),
+      syncVideoHosting,
+    ],
     afterChange: [cleanupReplacedVideoHosting],
     afterDelete: [removeDeletedVideoHosting],
     afterRead: [hydrateMuxUrls],
@@ -160,6 +184,19 @@ export const Videos: CollectionConfig = {
       typeof doc.thumbnailUrl === 'string' ? doc.thumbnailUrl : false,
     disableLocalStorage: true,
     displayPreview: false,
+    handlers: [
+      async (_req, { params }): Promise<Response> => {
+        const directUpload = getDirectUploadThingContext({
+          clientUploadContext: params.clientUploadContext,
+        })
+
+        if (!directUpload) {
+          throw new Error('Missing direct upload metadata for video upload.')
+        }
+
+        return fetchDirectUploadThingFile(directUpload)
+      },
+    ],
     mimeTypes: ['video/*'],
   },
 }

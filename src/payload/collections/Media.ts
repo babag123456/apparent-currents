@@ -14,13 +14,16 @@ import {
 
 import {
   deleteUploadThingFile,
+  fetchDirectUploadThingFile,
+  getDirectUploadThingContext,
   readPayloadUploadBuffer,
   uploadBufferToUploadThing,
 } from '../../lib/uploadthing.ts'
-import { limitUploadSize } from '../../lib/uploadLimits.ts'
+import { getDirectUploadLimitMB, limitUploadSize } from '../../lib/uploadLimits.ts'
 
 const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
+const directUploadLimitMB = getDirectUploadLimitMB()
 
 type MediaDoc = TypeWithID & {
   uploadthingKey?: null | string
@@ -30,6 +33,16 @@ type MediaDoc = TypeWithID & {
 
 const syncUploadThingMedia: CollectionBeforeChangeHook<MediaDoc> = async ({ data, req }) => {
   if (!req.file) return data
+
+  const directUpload = getDirectUploadThingContext(req.file)
+
+  if (directUpload) {
+    return {
+      ...data,
+      uploadthingKey: directUpload.key,
+      uploadthingUrl: directUpload.url,
+    }
+  }
 
   const buffer = await readPayloadUploadBuffer(req.file)
   const uploaded = await uploadBufferToUploadThing({
@@ -83,7 +96,19 @@ export const Media: CollectionConfig = {
     defaultColumns: ['filename', 'updatedAt'],
   },
   hooks: {
-    beforeChange: [limitUploadSize<MediaDoc>({ collectionLabel: 'Media', limitMB: 50 }), syncUploadThingMedia],
+    beforeChange: [
+      ...(directUploadLimitMB
+        ? [
+            limitUploadSize<MediaDoc>({
+              collectionLabel: 'Media',
+              limitMB: directUploadLimitMB,
+              skipClientUpload: true,
+            }),
+          ]
+        : []),
+      limitUploadSize<MediaDoc>({ collectionLabel: 'Media', limitMB: 50 }),
+      syncUploadThingMedia,
+    ],
     afterChange: [cleanupReplacedUploadThingMedia],
     afterDelete: [removeDeletedUploadThingMedia],
     afterRead: [hydrateUploadThingUrl],
@@ -123,6 +148,19 @@ export const Media: CollectionConfig = {
     disableLocalStorage: true,
     displayPreview: true,
     focalPoint: true,
+    handlers: [
+      async (_req, { params }): Promise<Response> => {
+        const directUpload = getDirectUploadThingContext({
+          clientUploadContext: params.clientUploadContext,
+        })
+
+        if (!directUpload) {
+          throw new Error('Missing direct upload metadata for media upload.')
+        }
+
+        return fetchDirectUploadThingFile(directUpload)
+      },
+    ],
     imageSizes: [{ name: 'thumbnail', width: 600, fit: 'cover' }],
     mimeTypes: ['image/*'],
   },

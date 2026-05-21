@@ -12,6 +12,14 @@ export type UploadThingUpload = {
   url: string
 }
 
+export type DirectUploadThingContext = {
+  key: string
+  mimeType?: string
+  name?: string
+  size?: number
+  url: string
+}
+
 type UploadBufferArgs = {
   buffer: Buffer
   filename: string
@@ -44,6 +52,36 @@ export async function readPayloadUploadBuffer(file: {
   if (file.tempFilePath) return fs.readFile(file.tempFilePath)
 
   throw new Error('Upload file buffer is empty and no tempFilePath was provided.')
+}
+
+export function getDirectUploadThingContext(file?: {
+  clientUploadContext?: unknown
+}): DirectUploadThingContext | null {
+  const context = file?.clientUploadContext
+
+  if (!context || typeof context !== 'object') return null
+
+  const { key, mimeType, name, size, url } = context as Record<string, unknown>
+
+  if (typeof key !== 'string' || typeof url !== 'string') return null
+
+  return {
+    key,
+    mimeType: typeof mimeType === 'string' ? mimeType : undefined,
+    name: typeof name === 'string' ? name : undefined,
+    size: typeof size === 'number' ? size : undefined,
+    url,
+  }
+}
+
+export async function fetchDirectUploadThingFile(context: DirectUploadThingContext) {
+  const response = await fetch(context.url)
+
+  if (!response.ok) {
+    throw new Error(`Unable to fetch uploaded file from UploadThing: ${response.status}`)
+  }
+
+  return response
 }
 
 export async function uploadBufferToUploadThing({

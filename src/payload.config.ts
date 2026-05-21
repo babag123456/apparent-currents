@@ -20,6 +20,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     components: {
+      afterNavLinks: ['@/components/payload/UploadThingUploadHandlers#UploadThingUploadHandlers'],
       beforeLogin: ['@/components/payload/GoogleLoginButton#GoogleLoginButton'],
     },
     importMap: {
