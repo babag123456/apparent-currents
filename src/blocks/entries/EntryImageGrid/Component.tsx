@@ -39,7 +39,7 @@ export const EntryImageGridComponent: React.FC<Props> = ({ images, columns = 'au
     : 'grid-cols-1 sm:grid-cols-2'
 
   return (
-    <section className="py-8">
+    <section>
       <div className="mx-auto max-w-5xl px-6">
         <div className={`grid ${colClass} gap-3`}>
           {validImages.map((item, i) => (

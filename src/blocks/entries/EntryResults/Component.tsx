@@ -10,14 +10,16 @@ interface Props {
   prehead?: string | null
   headline?: string | null
   intro?: string | null
+  columns?: '2' | '3' | null
   results: ResultItem[]
 }
 
-export const EntryResultsComponent: React.FC<Props> = ({ prehead, headline, intro, results }) => {
+export const EntryResultsComponent: React.FC<Props> = ({ prehead, headline, intro, columns = '3', results }) => {
   if (!results?.length) return null
 
+  const columnClass = columns === '2' ? 'sm:grid-cols-2' : 'sm:grid-cols-2 md:grid-cols-3'
   return (
-    <section className="py-16">
+    <section>
       <div className="mx-auto max-w-4xl px-6">
         {(prehead || headline || intro) && (
           <div className="mb-10">
@@ -38,7 +40,7 @@ export const EntryResultsComponent: React.FC<Props> = ({ prehead, headline, intr
             )}
           </div>
         )}
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 md:gap-12">
+        <div className={`grid grid-cols-1 gap-8 ${columnClass} md:gap-12`}>
           {results.map((r, i) => (
             <div key={r.id ?? i}>
               <p className="font-sans text-4xl md:text-5xl font-[500] tracking-tight" style={{ color: 'var(--entry-text)' }}>

@@ -6,6 +6,9 @@ export const EntryVideo: Block = {
   labels: { singular: 'Video', plural: 'Videos' },
   admin: {},
   fields: [
+    { name: 'prehead', type: 'text', label: 'Client / Prehead' },
+    { name: 'headline', type: 'text', label: 'Headline' },
+    { name: 'intro', type: 'textarea', label: 'Intro Text' },
     {
       name: 'source',
       type: 'select',

@@ -17,6 +17,7 @@ import {
   readPayloadUploadBuffer,
   uploadBufferToUploadThing,
 } from '../../lib/uploadthing.ts'
+import { limitUploadSize } from '../../lib/uploadLimits.ts'
 
 const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
@@ -82,7 +83,7 @@ export const Media: CollectionConfig = {
     defaultColumns: ['filename', 'updatedAt'],
   },
   hooks: {
-    beforeChange: [syncUploadThingMedia],
+    beforeChange: [limitUploadSize<MediaDoc>({ collectionLabel: 'Media', limitMB: 50 }), syncUploadThingMedia],
     afterChange: [cleanupReplacedUploadThingMedia],
     afterDelete: [removeDeletedUploadThingMedia],
     afterRead: [hydrateUploadThingUrl],

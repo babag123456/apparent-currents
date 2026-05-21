@@ -113,7 +113,7 @@ export const EntryHeroComponent: React.FC<Props> = ({
   ) : null
 
   return (
-    <section className="py-24 md:py-32">
+    <section>
       {pos === 'above' && imageBlock}
       {pos === 'above' && imageBlock && <div className="mt-12" />}
       {textBlock}

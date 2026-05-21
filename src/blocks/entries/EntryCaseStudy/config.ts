@@ -10,6 +10,16 @@ export const EntryCaseStudy: Block = {
     { name: 'headline', type: 'text', required: true },
     { name: 'body', type: 'textarea', label: 'Body Copy' },
     {
+      name: 'resultColumns',
+      type: 'select',
+      label: 'Result Columns',
+      defaultValue: '3',
+      options: [
+        { label: '2 Columns', value: '2' },
+        { label: '3 Columns', value: '3' },
+      ],
+    },
+    {
       name: 'results',
       type: 'array',
       label: 'Key Results',

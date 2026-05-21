@@ -10,7 +10,7 @@ export const EntryDividerComponent: React.FC<Props> = ({ color = 'subtle' }) => 
     : { borderColor: 'var(--entry-subtle)' }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-2">
+    <div className="mx-auto max-w-4xl px-6">
       <hr className="border-t" style={borderStyle} />
     </div>
   )

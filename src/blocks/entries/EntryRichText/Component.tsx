@@ -17,7 +17,7 @@ export const EntryRichTextComponent: React.FC<Props> = ({ richText, maxWidth = '
   if (!richText) return null
 
   return (
-    <section className="py-10">
+    <section>
       <div className={`mx-auto ${widthClass[maxWidth ?? 'narrow']} px-6`}>
         <RichText
           data={richText}

@@ -10,6 +10,16 @@ export const EntryResults: Block = {
     { name: 'headline', type: 'text', label: 'Headline' },
     { name: 'intro', type: 'textarea', label: 'Intro Text' },
     {
+      name: 'columns',
+      type: 'select',
+      label: 'Columns',
+      defaultValue: '3',
+      options: [
+        { label: '2 Columns', value: '2' },
+        { label: '3 Columns', value: '3' },
+      ],
+    },
+    {
       name: 'results',
       type: 'array',
       required: true,

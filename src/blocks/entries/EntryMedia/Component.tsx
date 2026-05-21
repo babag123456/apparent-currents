@@ -23,7 +23,7 @@ export const EntryMediaComponent: React.FC<Props> = ({ media, caption, size = 'd
   if (!img?.url) return null
 
   return (
-    <section className="py-8">
+    <section>
       <div className={sizeClass[size ?? 'default']}>
         <img
           src={img.url}

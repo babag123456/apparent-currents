@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import React, { cache } from 'react'
 
 import { RenderEntryBlocks } from '../../../blocks/entries/RenderEntryBlocks'
+import { BackToTopButton } from '../../../components/BackToTopButton'
 import { EntryThemeProvider } from '../../../components/entry-theme/EntryThemeProvider'
 import { EntryThemeToggle } from '../../../components/entry-theme/EntryThemeToggle'
 
@@ -48,6 +49,7 @@ export default async function EntryPage({
       <main>
         <RenderEntryBlocks blocks={entry.layout ?? undefined} />
       </main>
+      <BackToTopButton />
     </EntryThemeProvider>
   )
 }

@@ -8,7 +8,7 @@ interface Props {
 
 export const EntryQuoteComponent: React.FC<Props> = ({ quote, author, role }) => {
   return (
-    <section className="py-16 md:py-20">
+    <section>
       <div className="mx-auto max-w-3xl px-6">
         <blockquote className="border-l-2 border-red pl-8">
           <p className="font-sans text-2xl md:text-3xl font-[300] leading-relaxed italic" style={{ color: 'var(--entry-text)' }}>

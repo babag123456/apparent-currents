@@ -13,6 +13,7 @@ import {
   readPayloadUploadBuffer,
   uploadBufferToUploadThing,
 } from '../../lib/uploadthing.ts'
+import { limitUploadSize } from '../../lib/uploadLimits.ts'
 
 const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
@@ -108,7 +109,7 @@ export const Videos: CollectionConfig = {
     defaultColumns: ['filename', 'updatedAt'],
   },
   hooks: {
-    beforeChange: [syncVideoHosting],
+    beforeChange: [limitUploadSize<VideoDoc>({ collectionLabel: 'Video', limitMB: 100 }), syncVideoHosting],
     afterChange: [cleanupReplacedVideoHosting],
     afterDelete: [removeDeletedVideoHosting],
     afterRead: [hydrateMuxUrls],

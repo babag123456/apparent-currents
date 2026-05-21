@@ -28,6 +28,7 @@ interface Props {
   client?: string | null
   headline: string
   body?: string | null
+  resultColumns?: '2' | '3' | null
   results?: ResultItem[] | null
   links?: LinkItem[] | null
   images?: ImageItem[] | null
@@ -54,11 +55,12 @@ function getImageItemClass(index: number, count: number, layout: string | null |
   return 'overflow-hidden rounded-sm sm:col-span-2'
 }
 
-export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, body, results, links, images, imageLayout }) => {
+export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, body, resultColumns = '3', results, links, images, imageLayout }) => {
   const imgs = (images || []).filter((i) => i.image && typeof i.image === 'object') as { image: MediaLike; id?: string | null }[]
+  const resultColumnClass = resultColumns === '2' ? 'sm:grid-cols-2' : 'sm:grid-cols-2 md:grid-cols-3'
 
   return (
-    <section className="py-16 md:py-20">
+    <section>
       <div className="mx-auto max-w-4xl px-6">
         {client && (
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-red mb-3">
@@ -75,7 +77,7 @@ export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, bod
         )}
 
         {results && results.length > 0 && (
-          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 md:gap-12">
+          <div className={`mt-10 grid grid-cols-1 gap-8 ${resultColumnClass} md:gap-12`}>
             {results.map((r, i) => (
               <div key={r.id ?? i}>
                 <p className="font-sans text-4xl md:text-5xl font-[500] tracking-tight" style={{ color: 'var(--entry-text)' }}>

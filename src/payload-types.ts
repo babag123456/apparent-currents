@@ -276,6 +276,7 @@ export interface EntryCaseStudyBlock {
   client?: string | null;
   headline: string;
   body?: string | null;
+  resultColumns?: ('2' | '3') | null;
   results?:
     | {
         /**
@@ -359,6 +360,7 @@ export interface EntryResultsBlock {
   prehead?: string | null;
   headline?: string | null;
   intro?: string | null;
+  columns?: ('2' | '3') | null;
   results: {
     value: string;
     label: string;
@@ -400,6 +402,9 @@ export interface EntryImageGridBlock {
  * via the `definition` "EntryVideoBlock".
  */
 export interface EntryVideoBlock {
+  prehead?: string | null;
+  headline?: string | null;
+  intro?: string | null;
   source: 'upload' | 'vimeo';
   video?: (number | null) | Video;
   videoUrl?: string | null;
@@ -639,6 +644,7 @@ export interface EntryCaseStudyBlockSelect<T extends boolean = true> {
   client?: T;
   headline?: T;
   body?: T;
+  resultColumns?: T;
   results?:
     | T
     | {
@@ -693,6 +699,7 @@ export interface EntryResultsBlockSelect<T extends boolean = true> {
   prehead?: T;
   headline?: T;
   intro?: T;
+  columns?: T;
   results?:
     | T
     | {
@@ -735,6 +742,9 @@ export interface EntryImageGridBlockSelect<T extends boolean = true> {
  * via the `definition` "EntryVideoBlock_select".
  */
 export interface EntryVideoBlockSelect<T extends boolean = true> {
+  prehead?: T;
+  headline?: T;
+  intro?: T;
   source?: T;
   video?: T;
   videoUrl?: T;

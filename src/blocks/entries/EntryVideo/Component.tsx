@@ -8,6 +8,9 @@ interface MediaLike {
 }
 
 interface Props {
+  prehead?: string | null
+  headline?: string | null
+  intro?: string | null
   source?: 'upload' | 'vimeo' | null
   video?: string | MediaLike | null
   videoUrl?: string | null
@@ -21,7 +24,7 @@ function getVimeoEmbedUrl(url: string): string | null {
   return `https://player.vimeo.com/video/${match[1]}?title=0&byline=0&portrait=0`
 }
 
-export const EntryVideoComponent: React.FC<Props> = ({ source, video, videoUrl, poster, caption }) => {
+export const EntryVideoComponent: React.FC<Props> = ({ prehead, headline, intro, source, video, videoUrl, poster, caption }) => {
   const posterImg = poster && typeof poster === 'object' ? poster : null
 
   const isVimeo = source === 'vimeo' || (!source && videoUrl)
@@ -33,8 +36,27 @@ export const EntryVideoComponent: React.FC<Props> = ({ source, video, videoUrl, 
   if (!embedUrl && !uploadUrl) return null
 
   return (
-    <section className="py-8">
+    <section>
       <div className="mx-auto max-w-4xl px-6">
+        {(prehead || headline || intro) && (
+          <div className="mb-10">
+            {prehead && (
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-red mb-3">
+                {prehead}
+              </p>
+            )}
+            {headline && (
+              <h2 className="font-sans text-3xl md:text-5xl font-[500] leading-[1.1] tracking-tight" style={{ color: 'var(--entry-text)' }}>
+                {headline}
+              </h2>
+            )}
+            {intro && (
+              <p className="mt-5 text-base sm:text-lg md:text-xl font-[300] leading-relaxed whitespace-pre-line" style={{ color: 'var(--entry-muted)' }}>
+                {intro}
+              </p>
+            )}
+          </div>
+        )}
         {embedUrl ? (
           <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
             <iframe
