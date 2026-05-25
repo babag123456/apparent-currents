@@ -86,6 +86,47 @@ Typical callback URLs:
 
 The Google callback creates or updates the matching Payload `users` record, links it by Google subject ID, and then creates a normal Payload auth cookie for `/admin`.
 
+## Security Model
+
+The public frontend is read-only. Public routes render award-entry content server-side through Payload's Local API, while content creation and updates happen through the authenticated Payload admin and native Payload APIs.
+
+Access controls:
+
+- `award-entries`, `awards`, `media`, and `videos` allow public reads.
+- `award-entries`, `awards`, `media`, and `videos` require an authenticated Payload session for create, update, and delete.
+- Native `users` collection create, update, delete, and unlock operations are disabled. Google OAuth provisioning is the only supported user lifecycle path and uses server-side `overrideAccess`.
+- Authenticated users can only read their own user record through the native user API.
+
+Public API redaction:
+
+- Anonymous `media` responses keep display-oriented fields like `url`, `thumbnailURL`, filename, dimensions, and MIME metadata.
+- Anonymous `media` responses do not expose internal UploadThing fields such as `uploadthingKey` or `uploadthingUrl`.
+- Anonymous `videos` responses keep playable/display fields like `url` and `thumbnailUrl`.
+- Anonymous `videos` responses do not expose `sourceUploadthingKey`, `sourceUploadthingUrl`, `muxAssetId`, `muxPlaybackId`, or `muxStatus`.
+
+Input hardening:
+
+- UploadThing direct-upload metadata is only accepted when the uploaded file URL is HTTPS and hosted on an allowed UploadThing host (`utfs.io`, `*.utfs.io`, `ufs.sh`, or `*.ufs.sh`).
+- CMS-authored public links are limited to `http:`, `https:`, or root-relative paths. Unsafe schemes such as `javascript:`, `data:`, protocol-relative URLs, and malformed URLs are rejected during validation and skipped during rendering.
+- Google OAuth state tokens are generated from 32 random bytes and verified against the callback state parameter before login is completed.
+- Google login allowlisting uses exact normalized email or domain equality, avoiding wildcard or regex-style domain matching.
+
+Security smoke checks:
+
+```bash
+npm run security:smoke
+npm run lint
+npx tsc --noEmit
+```
+
+Recommended deployment checks after each preview or production deploy:
+
+- `GET /api/media?limit=1` returns public display fields but no UploadThing internal field names.
+- `GET /api/videos?limit=1` returns public display fields but no Mux or UploadThing internal field names.
+- `GET /api/users?limit=1` returns `403` when unauthenticated.
+- `POST /api/users` returns `403` when unauthenticated.
+- `/` and `/admin/login` return `200`.
+
 ## CSS And Fonts
 
 - `src/styles/award-theme.css` is imported by the frontend route-group layout.
@@ -135,6 +176,7 @@ npm run db:reset
 
 ## Validate The Seed
 
+- `npm run security:smoke`
 - `npm run lint`
 - `npx tsc --noEmit`
 - open `/mumbrella-2026`
@@ -143,7 +185,6 @@ npm run db:reset
 
 ## Deferred Decisions
 
-- auth model for create/update/delete access
 - broader site navigation and layout
 - additional awards pages beyond this extracted slice
 - any local workaround needed for `payload generate:types` in your chosen Node runtime

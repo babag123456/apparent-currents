@@ -3,6 +3,7 @@ import type {
   CollectionAfterDeleteHook,
   CollectionAfterReadHook,
   CollectionBeforeChangeHook,
+  CollectionBeforeReadHook,
   CollectionConfig,
   TypeWithID,
 } from 'payload'
@@ -20,12 +21,13 @@ import {
   uploadBufferToUploadThing,
 } from '../../lib/uploadthing.ts'
 import { getDirectUploadLimitMB, limitUploadSize } from '../../lib/uploadLimits.ts'
+import { fieldAuthenticated, isAuthenticated } from '../../lib/security/access.ts'
 
-const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
 const directUploadLimitMB = getDirectUploadLimitMB()
 
 type MediaDoc = TypeWithID & {
+  _uploadthingUrl?: null | string
   uploadthingKey?: null | string
   uploadthingUrl?: null | string
   url?: null | string
@@ -76,10 +78,20 @@ const removeDeletedUploadThingMedia: CollectionAfterDeleteHook<MediaDoc> = async
   await deleteUploadThingFile(doc.uploadthingKey)
 }
 
+const preserveUploadThingUrl: CollectionBeforeReadHook<MediaDoc> = async ({ doc }) => {
+  doc._uploadthingUrl = doc.uploadthingUrl
+
+  return doc
+}
+
 const hydrateUploadThingUrl: CollectionAfterReadHook<MediaDoc> = async ({ doc }) => {
-  if (doc.uploadthingUrl) {
-    doc.url = doc.uploadthingUrl
+  const uploadthingUrl = doc.uploadthingUrl || doc._uploadthingUrl
+
+  if (uploadthingUrl) {
+    doc.url = uploadthingUrl
   }
+
+  delete doc._uploadthingUrl
 
   return doc
 }
@@ -87,10 +99,10 @@ const hydrateUploadThingUrl: CollectionAfterReadHook<MediaDoc> = async ({ doc })
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
-    create: authenticated,
-    delete: authenticated,
+    create: isAuthenticated,
+    delete: isAuthenticated,
     read: anyone,
-    update: authenticated,
+    update: isAuthenticated,
   },
   admin: {
     defaultColumns: ['filename', 'updatedAt'],
@@ -112,6 +124,7 @@ export const Media: CollectionConfig = {
     afterChange: [cleanupReplacedUploadThingMedia],
     afterDelete: [removeDeletedUploadThingMedia],
     afterRead: [hydrateUploadThingUrl],
+    beforeRead: [preserveUploadThingUrl],
   },
   fields: [
     {
@@ -128,6 +141,11 @@ export const Media: CollectionConfig = {
     {
       name: 'uploadthingKey',
       type: 'text',
+      access: {
+        create: fieldAuthenticated,
+        read: fieldAuthenticated,
+        update: fieldAuthenticated,
+      },
       admin: {
         readOnly: true,
         hidden: true,
@@ -136,6 +154,11 @@ export const Media: CollectionConfig = {
     {
       name: 'uploadthingUrl',
       type: 'text',
+      access: {
+        create: fieldAuthenticated,
+        read: fieldAuthenticated,
+        update: fieldAuthenticated,
+      },
       admin: {
         readOnly: true,
         hidden: true,

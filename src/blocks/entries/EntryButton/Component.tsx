@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { getSafePublicHref } from '../../../lib/security/url'
+
 interface Props {
   label: string
   url: string
@@ -7,15 +9,17 @@ interface Props {
 }
 
 export const EntryButtonComponent: React.FC<Props> = ({ label, url, style = 'outline' }) => {
-  if (!label || !url) return null
+  const safeHref = getSafePublicHref(url)
+
+  if (!label || !safeHref) return null
 
   return (
     <section>
       <div className="mx-auto max-w-4xl px-6">
         <a
-          href={url}
-          target={url.startsWith('/') ? undefined : '_blank'}
-          rel={url.startsWith('/') ? undefined : 'noopener noreferrer'}
+          href={safeHref}
+          target={safeHref.startsWith('/') ? undefined : '_blank'}
+          rel={safeHref.startsWith('/') ? undefined : 'noopener noreferrer'}
           className={
             style === 'text'
               ? 'font-mono text-sm text-red transition-opacity hover:opacity-70'

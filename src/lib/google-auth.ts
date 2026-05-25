@@ -1,7 +1,10 @@
-import { createHmac, randomBytes } from 'crypto'
+import { createHmac } from 'crypto'
 
 import configPromise from '@payload-config'
 import { generatePayloadCookie, getPayload } from 'payload'
+
+import { isGoogleEmailAllowed } from './security/googleAllowlist.ts'
+import { createSecureOAuthState } from './security/oauth.ts'
 
 type GoogleUserInfo = {
   email?: string
@@ -69,7 +72,7 @@ export function buildGoogleAuthUrl(origin: string, state: string) {
 }
 
 export function createGoogleAuthState() {
-  return randomBytes(32).toString('hex')
+  return createSecureOAuthState()
 }
 
 function createDerivedGooglePassword(googleSub: string) {
@@ -146,12 +149,8 @@ export async function exchangeGoogleCodeForUser({
 function assertGoogleUserAllowed(email: string) {
   const allowedEmails = getGoogleAllowedEmails()
   const allowedDomain = getGoogleAllowedDomain()
-  const emailDomain = email.split('@')[1]?.toLowerCase() || ''
 
-  const emailAllowed = allowedEmails.length > 0 && allowedEmails.includes(email)
-  const domainAllowed = Boolean(allowedDomain) && emailDomain === allowedDomain
-
-  if (!emailAllowed && !domainAllowed) {
+  if (!isGoogleEmailAllowed({ allowedDomain, allowedEmails, email })) {
     throw new Error(
       'Google login is not permitted for this account. Set GOOGLE_ALLOWED_EMAILS or GOOGLE_ALLOWED_DOMAIN to explicitly allow it.',
     )

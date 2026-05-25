@@ -44,6 +44,15 @@ function inferMimeType(filename: string, mimeType?: string | null) {
   return mime.lookup(filename) || 'application/octet-stream'
 }
 
+function isAllowedUploadThingHost(hostname: string) {
+  return (
+    hostname === 'utfs.io' ||
+    hostname.endsWith('.utfs.io') ||
+    hostname === 'ufs.sh' ||
+    hostname.endsWith('.ufs.sh')
+  )
+}
+
 export async function readPayloadUploadBuffer(file: {
   data: Buffer
   tempFilePath?: string
@@ -65,12 +74,23 @@ export function getDirectUploadThingContext(file?: {
 
   if (typeof key !== 'string' || typeof url !== 'string') return null
 
+  let parsedUrl: URL
+  try {
+    parsedUrl = new URL(url)
+  } catch {
+    return null
+  }
+
+  if (parsedUrl.protocol !== 'https:' || !isAllowedUploadThingHost(parsedUrl.hostname)) {
+    return null
+  }
+
   return {
     key,
     mimeType: typeof mimeType === 'string' ? mimeType : undefined,
     name: typeof name === 'string' ? name : undefined,
-    size: typeof size === 'number' ? size : undefined,
-    url,
+    size: typeof size === 'number' && Number.isFinite(size) ? size : undefined,
+    url: parsedUrl.toString(),
   }
 }
 

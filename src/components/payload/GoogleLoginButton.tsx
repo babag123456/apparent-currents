@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 export function GoogleLoginButton() {
   return (
     <div
@@ -9,7 +11,7 @@ export function GoogleLoginButton() {
         marginTop: '1rem',
       }}
     >
-      <a
+      <Link
         href="/api/auth/google/start"
         style={{
           alignItems: 'center',
@@ -40,7 +42,7 @@ export function GoogleLoginButton() {
           G
         </span>
         <span>Continue with Google</span>
-      </a>
+      </Link>
     </div>
   )
 }

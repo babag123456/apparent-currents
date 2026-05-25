@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { validatePublicHref } from '../../../lib/security/url'
+
 export const EntryButton: Block = {
   slug: 'entryButton',
   interfaceName: 'EntryButtonBlock',
@@ -15,6 +17,7 @@ export const EntryButton: Block = {
       name: 'url',
       type: 'text',
       required: true,
+      validate: validatePublicHref,
       admin: { description: 'Full URL including https://, or a relative URL starting with /' },
     },
     {

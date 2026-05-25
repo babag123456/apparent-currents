@@ -1,0 +1,86 @@
+import assert from 'node:assert/strict'
+
+import { isGoogleEmailAllowed } from '../src/lib/security/googleAllowlist.ts'
+import { createSecureOAuthState } from '../src/lib/security/oauth.ts'
+import { getSafePublicHref, validatePublicHref } from '../src/lib/security/url.ts'
+import { getDirectUploadThingContext } from '../src/lib/uploadthing.ts'
+
+function assertAcceptedHref(value: string) {
+  assert.equal(validatePublicHref(value), true, `${value} should validate`)
+  assert.equal(getSafePublicHref(value), value.trim(), `${value} should remain usable`)
+}
+
+function assertRejectedHref(value: string) {
+  assert.notEqual(validatePublicHref(value), true, `${value} should be rejected`)
+  assert.equal(getSafePublicHref(value), null, `${value} should not render`)
+}
+
+function assertUploadContextAccepted(url: string) {
+  const result = getDirectUploadThingContext({
+    clientUploadContext: {
+      key: 'file-key',
+      size: 1024,
+      url,
+    },
+  })
+
+  assert.equal(result?.url, url, `${url} should be accepted`)
+}
+
+function assertUploadContextRejected(url: string) {
+  const result = getDirectUploadThingContext({
+    clientUploadContext: {
+      key: 'file-key',
+      size: 1024,
+      url,
+    },
+  })
+
+  assert.equal(result, null, `${url} should be rejected`)
+}
+
+assertAcceptedHref('https://example.com')
+assertAcceptedHref('http://example.com/path')
+assertAcceptedHref('/case-study')
+
+assertRejectedHref('javascript:alert(1)')
+assertRejectedHref('data:text/html,<script>alert(1)</script>')
+assertRejectedHref('vbscript:msgbox(1)')
+assertRejectedHref('//evil.example/path')
+assertRejectedHref('not a url')
+
+assertUploadContextRejected('http://utfs.io/file')
+assertUploadContextRejected('https://127.0.0.1/admin')
+assertUploadContextRejected('https://metadata.google.internal/')
+assertUploadContextRejected('not a url')
+assertUploadContextAccepted('https://utfs.io/f/example')
+assertUploadContextAccepted('https://abc.ufs.sh/f/example')
+
+const state = createSecureOAuthState()
+assert.match(state, /^[0-9a-f]{64}$/)
+
+assert.equal(
+  isGoogleEmailAllowed({
+    allowedDomain: 'company.com',
+    allowedEmails: [],
+    email: 'user@company.com',
+  }),
+  true,
+)
+assert.equal(
+  isGoogleEmailAllowed({
+    allowedDomain: 'company.com',
+    allowedEmails: [],
+    email: 'user@company.com.attacker.com',
+  }),
+  false,
+)
+assert.equal(
+  isGoogleEmailAllowed({
+    allowedEmails: ['Admin@Company.com'],
+    email: 'admin@company.com',
+  }),
+  true,
+)
+
+console.log('Security smoke checks passed.')

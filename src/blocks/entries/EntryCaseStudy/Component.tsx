@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react'
 
+import { getSafePublicHref } from '../../../lib/security/url'
+
 interface MediaLike {
   alt?: string | null
   url?: string | null
@@ -57,6 +59,9 @@ function getImageItemClass(index: number, count: number, layout: string | null |
 
 export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, body, resultColumns = '3', results, links, images, imageLayout }) => {
   const imgs = (images || []).filter((i) => i.image && typeof i.image === 'object') as { image: MediaLike; id?: string | null }[]
+  const safeLinks = (links || [])
+    .map((link) => ({ ...link, url: getSafePublicHref(link.url) }))
+    .filter((link): link is LinkItem & { url: string } => Boolean(link.url))
   const resultColumnClass = resultColumns === '2' ? 'sm:grid-cols-2' : 'sm:grid-cols-2 md:grid-cols-3'
 
   return (
@@ -91,9 +96,9 @@ export const EntryCaseStudyComponent: React.FC<Props> = ({ client, headline, bod
           </div>
         )}
 
-        {links && links.length > 0 && (
+        {safeLinks.length > 0 && (
           <div className="mt-8 flex flex-wrap gap-4">
-            {links.map((link, i) => (
+            {safeLinks.map((link, i) => (
               <a
                 key={link.id ?? i}
                 href={link.url}

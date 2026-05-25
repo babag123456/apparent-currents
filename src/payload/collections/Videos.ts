@@ -3,6 +3,7 @@ import type {
   CollectionAfterDeleteHook,
   CollectionAfterReadHook,
   CollectionBeforeChangeHook,
+  CollectionBeforeReadHook,
   CollectionConfig,
   TypeWithID,
 } from 'payload'
@@ -16,12 +17,14 @@ import {
   uploadBufferToUploadThing,
 } from '../../lib/uploadthing.ts'
 import { getDirectUploadLimitMB, limitUploadSize } from '../../lib/uploadLimits.ts'
+import { fieldAuthenticated, isAuthenticated } from '../../lib/security/access.ts'
 
-const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
 const directUploadLimitMB = getDirectUploadLimitMB()
 
 type VideoDoc = TypeWithID & {
+  _muxPlaybackId?: null | string
+  _sourceUploadthingUrl?: null | string
   muxAssetId?: null | string
   muxPlaybackId?: null | string
   muxStatus?: null | string
@@ -102,9 +105,22 @@ const removeDeletedVideoHosting: CollectionAfterDeleteHook<VideoDoc> = async ({ 
   ])
 }
 
-const hydrateMuxUrls: CollectionAfterReadHook<VideoDoc> = async ({ doc }) => {
-  doc.url = getMuxPlaybackUrl(doc.muxPlaybackId) || doc.sourceUploadthingUrl || doc.url
-  doc.thumbnailUrl = getMuxThumbnailUrl(doc.muxPlaybackId)
+const preserveVideoHostingFields: CollectionBeforeReadHook<VideoDoc> = async ({ doc }) => {
+  doc._muxPlaybackId = doc.muxPlaybackId
+  doc._sourceUploadthingUrl = doc.sourceUploadthingUrl
+
+  return doc
+}
+
+const hydrateMuxUrls: CollectionAfterReadHook<VideoDoc> = async ({ doc, req }) => {
+  const muxPlaybackId = doc.muxPlaybackId || doc._muxPlaybackId
+  const sourceUploadthingUrl = doc.sourceUploadthingUrl || doc._sourceUploadthingUrl
+  const muxPlaybackUrl = getMuxPlaybackUrl(muxPlaybackId)
+
+  doc.url = muxPlaybackUrl || (req.user ? sourceUploadthingUrl || doc.url : null)
+  doc.thumbnailUrl = getMuxThumbnailUrl(muxPlaybackId)
+  delete doc._muxPlaybackId
+  delete doc._sourceUploadthingUrl
 
   return doc
 }
@@ -112,10 +128,10 @@ const hydrateMuxUrls: CollectionAfterReadHook<VideoDoc> = async ({ doc }) => {
 export const Videos: CollectionConfig = {
   slug: 'videos',
   access: {
-    create: authenticated,
-    delete: authenticated,
+    create: isAuthenticated,
+    delete: isAuthenticated,
     read: anyone,
-    update: authenticated,
+    update: isAuthenticated,
   },
   admin: {
     defaultColumns: ['filename', 'updatedAt'],
@@ -137,11 +153,17 @@ export const Videos: CollectionConfig = {
     afterChange: [cleanupReplacedVideoHosting],
     afterDelete: [removeDeletedVideoHosting],
     afterRead: [hydrateMuxUrls],
+    beforeRead: [preserveVideoHostingFields],
   },
   fields: [
     {
       name: 'sourceUploadthingKey',
       type: 'text',
+      access: {
+        create: fieldAuthenticated,
+        read: fieldAuthenticated,
+        update: fieldAuthenticated,
+      },
       admin: {
         readOnly: true,
         hidden: true,
@@ -150,6 +172,11 @@ export const Videos: CollectionConfig = {
     {
       name: 'sourceUploadthingUrl',
       type: 'text',
+      access: {
+        create: fieldAuthenticated,
+        read: fieldAuthenticated,
+        update: fieldAuthenticated,
+      },
       admin: {
         readOnly: true,
         hidden: true,
@@ -158,6 +185,11 @@ export const Videos: CollectionConfig = {
     {
       name: 'muxAssetId',
       type: 'text',
+      access: {
+        create: fieldAuthenticated,
+        read: fieldAuthenticated,
+        update: fieldAuthenticated,
+      },
       admin: {
         readOnly: true,
         hidden: true,
@@ -166,6 +198,11 @@ export const Videos: CollectionConfig = {
     {
       name: 'muxPlaybackId',
       type: 'text',
+      access: {
+        create: fieldAuthenticated,
+        read: fieldAuthenticated,
+        update: fieldAuthenticated,
+      },
       admin: {
         readOnly: true,
         hidden: true,
@@ -174,6 +211,11 @@ export const Videos: CollectionConfig = {
     {
       name: 'muxStatus',
       type: 'text',
+      access: {
+        create: fieldAuthenticated,
+        read: fieldAuthenticated,
+        update: fieldAuthenticated,
+      },
       admin: {
         readOnly: true,
       },

@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { validatePublicHref } from '../../../lib/security/url'
+
 export const EntryCaseStudy: Block = {
   slug: 'entryCaseStudy',
   interfaceName: 'EntryCaseStudyBlock',
@@ -35,7 +37,7 @@ export const EntryCaseStudy: Block = {
       label: 'Links',
       fields: [
         { name: 'label', type: 'text', required: true, admin: { description: 'e.g. View live site, Read case study' } },
-        { name: 'url', type: 'text', required: true, admin: { description: 'Full URL including https://' } },
+        { name: 'url', type: 'text', required: true, validate: validatePublicHref, admin: { description: 'Full URL including https://' } },
         {
           name: 'style',
           type: 'select',
