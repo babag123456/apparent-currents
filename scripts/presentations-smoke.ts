@@ -64,6 +64,20 @@ const figmaComponentSource = readFileSync(
 assert.match(figmaComponentSource, /allowFullScreen/)
 assert.match(figmaComponentSource, /strict-origin-when-cross-origin/)
 assert.match(figmaComponentSource, /Open prototype in Figma/)
+for (const className of [
+  'figma-prototype',
+  'figma-prototype__inner',
+  'figma-prototype__frame',
+  'figma-prototype__fallback',
+]) {
+  assert.match(figmaComponentSource, new RegExp(className))
+}
+const presentationCssSource = readFileSync(
+  new URL('../src/styles/presentation.css', import.meta.url),
+  'utf8',
+)
+assert.match(presentationCssSource, /\.figma-prototype__frame\s*\{[\s\S]*?aspect-ratio:\s*16\s*\/\s*9/)
+assert.match(presentationCssSource, /\.presentation-slide \.figma-prototype__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 8rem\)/)
 
 for (const value of [
   `https://docs.google.com/presentation/d/${deckId}/edit#slide=id.p`,

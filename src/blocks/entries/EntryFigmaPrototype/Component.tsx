@@ -18,9 +18,9 @@ export function EntryFigmaPrototypeComponent({ interfaceStyle, prototypeUrl, tit
   if (!urls) return null
 
   return (
-    <section className="py-8 md:py-12">
-      <div className="mx-auto max-w-[1440px] px-4 md:px-6">
-        <div className="relative w-full bg-black" style={{ paddingBottom: '56.25%' }}>
+    <section className="figma-prototype py-8 md:py-12">
+      <div className="figma-prototype__inner mx-auto max-w-[1440px] px-4 md:px-6">
+        <div className="figma-prototype__frame">
           <iframe
             allow="fullscreen"
             allowFullScreen
@@ -31,7 +31,7 @@ export function EntryFigmaPrototypeComponent({ interfaceStyle, prototypeUrl, tit
           />
         </div>
         <a
-          className="mt-3 inline-block font-mono text-xs uppercase tracking-wider underline"
+          className="figma-prototype__fallback mt-3 inline-block font-mono text-xs uppercase tracking-wider underline"
           href={urls.openUrl}
           rel="noreferrer"
           target="_blank"
