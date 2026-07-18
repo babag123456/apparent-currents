@@ -18,6 +18,7 @@ import { Presentations } from '../src/payload/collections/Presentations.ts'
 import { sharedEntryBlocks } from '../src/blocks/entries/sharedBlocks.ts'
 import { mergeBlockJourney, mergeBlockMetrics, mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
 import { summarizePresentationVisits } from '../src/lib/presentations/summary.ts'
+import { summarizePresentationDashboard } from '../src/lib/presentations/dashboard.ts'
 import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../src/lib/presentations/slideshow.ts'
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
@@ -251,4 +252,48 @@ assert.deepEqual(summarizePresentationVisits([
   sessions: 2, totalVisits: 3, returningSessions: 1, totalActiveSeconds: 40,
   averageActiveSeconds: 20, lastSeenAt: '2026-07-18T00:02:00.000Z', linkClicks: { prototype: 3 },
   blockMetrics: {},
+})
+
+const dashboard = summarizePresentationDashboard([
+  { id: 'hero-1', blockType: 'entryHero' },
+  { id: 'results-1', blockType: 'entryResults' },
+  { id: 'quote-1', blockType: 'entryQuote' },
+], [
+  {
+    anonymousSessionId: 'session-a', visitCount: 2, activeSeconds: 60, lastSeenAt: '2026-07-18T03:00:00.000Z', deviceCategory: 'desktop',
+    blockMetrics: [
+      { blockId: 'hero-1', blockType: 'entryHero', displayMode: 'slideshow', viewed: true, activeSeconds: 20, navigationCount: 1 },
+      { blockId: 'results-1', blockType: 'entryResults', displayMode: 'slideshow', viewed: true, activeSeconds: 30, navigationCount: 1 },
+      { blockId: 'quote-1', blockType: 'entryQuote', displayMode: 'slideshow', viewed: true, activeSeconds: 10, navigationCount: 0 },
+    ],
+    blockJourney: [
+      { blockId: 'hero-1', blockType: 'entryHero', displayMode: 'slideshow', viewedAt: '2026-07-18T02:58:00.000Z' },
+      { blockId: 'results-1', blockType: 'entryResults', displayMode: 'slideshow', viewedAt: '2026-07-18T02:59:00.000Z' },
+      { blockId: 'quote-1', blockType: 'entryQuote', displayMode: 'slideshow', viewedAt: '2026-07-18T03:00:00.000Z' },
+    ],
+  },
+  {
+    anonymousSessionId: 'session-b', visitCount: 1, activeSeconds: 30, lastSeenAt: '2026-07-18T02:00:00.000Z', deviceCategory: 'mobile',
+    blockMetrics: [
+      { blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', viewed: true, activeSeconds: 20, navigationCount: 0 },
+      { blockId: 'results-1', blockType: 'entryResults', displayMode: 'scroll', viewed: true, activeSeconds: 10, navigationCount: 0 },
+      { blockId: 'deleted-1', blockType: 'entryMedia', displayMode: 'scroll', viewed: true, activeSeconds: 5, navigationCount: 0 },
+    ],
+    blockJourney: [{ blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', viewedAt: '2026-07-18T02:00:00.000Z' }],
+  },
+  { anonymousSessionId: 'session-c', visitCount: 1, activeSeconds: 0, lastSeenAt: 'invalid', deviceCategory: 'unknown', blockMetrics: [] },
+])
+assert.deepEqual(dashboard.overview, {
+  viewers: 3, totalVisits: 4, averageActiveSeconds: 30, completionRate: 33, mostViewedSlide: 1,
+})
+assert.deepEqual(dashboard.slides.map((slide) => ({ viewers: slide.viewers, reachedPercent: slide.reachedPercent, averageActiveSeconds: slide.averageActiveSeconds, dropOffCount: slide.dropOffCount })), [
+  { viewers: 2, reachedPercent: 67, averageActiveSeconds: 20, dropOffCount: 0 },
+  { viewers: 2, reachedPercent: 67, averageActiveSeconds: 20, dropOffCount: 1 },
+  { viewers: 1, reachedPercent: 33, averageActiveSeconds: 10, dropOffCount: null },
+])
+assert.equal(dashboard.sessions[0].label, 'Anonymous viewer 1')
+assert.deepEqual(dashboard.sessions[0].journey.map((entry) => entry.position), [1, 2, 3])
+assert.equal(dashboard.legacyActivity[0].blockId, 'deleted-1')
+assert.deepEqual(summarizePresentationDashboard([{ id: 'hero-1', blockType: 'entryHero' }], []).overview, {
+  viewers: 0, totalVisits: 0, averageActiveSeconds: 0, completionRate: 0, mostViewedSlide: null,
 })
