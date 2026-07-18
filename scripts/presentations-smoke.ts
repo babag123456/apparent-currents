@@ -23,7 +23,7 @@ import {
 import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
 import { Presentations } from '../src/payload/collections/Presentations.ts'
 import { sharedEntryBlocks } from '../src/blocks/entries/sharedBlocks.ts'
-import { mergeBlockJourney, mergeBlockMetrics, mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
+import { isValidPresentationBlockTarget, mergeBlockJourney, mergeBlockMetrics, mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
 import { summarizePresentationVisits } from '../src/lib/presentations/summary.ts'
 import { summarizePresentationDashboard } from '../src/lib/presentations/dashboard.ts'
 import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../src/lib/presentations/slideshow.ts'
@@ -405,6 +405,12 @@ assert.deepEqual(toPublicPresentation({
   supportingLinks: [],
 })
 assert.equal(toPublicPresentation({ title: 'Empty', layout: [] }), null)
+
+const analyticsLayout = [{ id: 'figma-1', blockType: 'entryFigmaPrototype', syncedFrames: [{ nodeId: '1:2' }, { nodeId: '1:3' }] }]
+assert.equal(isValidPresentationBlockTarget(analyticsLayout, 'figma-1--figma--1%3A2', 'entryFigmaPrototype'), true)
+assert.equal(isValidPresentationBlockTarget(analyticsLayout, 'figma-1--figma--9%3A9', 'entryFigmaPrototype'), false)
+assert.equal(isValidPresentationBlockTarget(analyticsLayout, 'figma-1--figma--1%3A2', 'entryHero'), false)
+assert.equal(isValidPresentationBlockTarget(analyticsLayout, 'forged--figma--1%3A2', 'entryFigmaPrototype'), false)
 
 assert.deepEqual(mergeLinkClicks([], 'prototype'), [{ linkId: 'prototype', count: 1 }])
 assert.deepEqual(mergeLinkClicks([{ linkId: 'prototype', count: 2 }], 'prototype'), [{ linkId: 'prototype', count: 3 }])

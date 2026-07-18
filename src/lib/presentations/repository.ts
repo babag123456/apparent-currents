@@ -194,6 +194,25 @@ export function mergeLinkClicks(current: LinkClickMetric[], linkId: string): Lin
   return found ? updated : [...updated, { linkId, count: 1 }]
 }
 
+export function isValidPresentationBlockTarget(
+  layout: unknown[],
+  blockId: string,
+  blockType: string,
+): boolean {
+  return layout.some((value) => {
+    if (!value || typeof value !== 'object') return false
+    const block = value as Record<string, unknown>
+    if (block.blockType !== blockType || typeof block.id !== 'string') return false
+    if (block.id === blockId) return true
+    if (blockType !== 'entryFigmaPrototype' || !Array.isArray(block.syncedFrames)) return false
+    return block.syncedFrames.some((frameValue) => {
+      if (!frameValue || typeof frameValue !== 'object') return false
+      const nodeId = (frameValue as Record<string, unknown>).nodeId
+      return typeof nodeId === 'string' && `${block.id}--figma--${encodeURIComponent(nodeId)}` === blockId
+    })
+  })
+}
+
 export async function recordPresentationEvent({
   shareToken,
   event,
@@ -229,8 +248,8 @@ export async function recordPresentationEvent({
     if (!validLink) return 'not-found'
   }
   if (event.type === 'blockHeartbeat' || event.type === 'slideNavigation') {
-    const validBlock = Array.isArray(presentation.layout) && presentation.layout.some((value) => value && typeof value === 'object' &&
-      (value as { id?: unknown }).id === event.blockId && (value as { blockType?: unknown }).blockType === event.blockType)
+    const validBlock = Array.isArray(presentation.layout) &&
+      isValidPresentationBlockTarget(presentation.layout, event.blockId, event.blockType)
     if (!validBlock) return 'not-found'
   }
 
