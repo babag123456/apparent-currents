@@ -24,6 +24,8 @@ import { UploadFeatureClient as UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { SlugField as SlugField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { AwardEntryGoToPageButton as AwardEntryGoToPageButton_f37f37e5ac705ee25fdbf8800c3d0acd } from '@/components/payload/AwardEntryGoToPageButton'
+import { PresentationEngagementSummary as PresentationEngagementSummary_1d6eca8eefa80a6cbe99c3affcccdab6 } from '@/components/payload/PresentationEngagementSummary'
+import { PresentationGoToPageButton as PresentationGoToPageButton_0746f536c3a4ec1c378ad6549ca967aa } from '@/components/payload/PresentationGoToPageButton'
 import { UploadThingUploadHandlers as UploadThingUploadHandlers_9db3e6784737f85f7ee521e8b7c04673 } from '@/components/payload/UploadThingUploadHandlers'
 import { GoogleLoginButton as GoogleLoginButton_02f6a64a130008c0f04d47a17e6e684e } from '@/components/payload/GoogleLoginButton'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -56,6 +58,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/next/client#SlugField": SlugField_2b8867833a34864a02ddf429b0728a40,
   "@/components/payload/AwardEntryGoToPageButton#AwardEntryGoToPageButton": AwardEntryGoToPageButton_f37f37e5ac705ee25fdbf8800c3d0acd,
+  "@/components/payload/PresentationEngagementSummary#PresentationEngagementSummary": PresentationEngagementSummary_1d6eca8eefa80a6cbe99c3affcccdab6,
+  "@/components/payload/PresentationGoToPageButton#PresentationGoToPageButton": PresentationGoToPageButton_0746f536c3a4ec1c378ad6549ca967aa,
   "@/components/payload/UploadThingUploadHandlers#UploadThingUploadHandlers": UploadThingUploadHandlers_9db3e6784737f85f7ee521e8b7c04673,
   "@/components/payload/GoogleLoginButton#GoogleLoginButton": GoogleLoginButton_02f6a64a130008c0f04d47a17e6e684e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
