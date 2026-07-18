@@ -6,14 +6,15 @@ import {
 } from '../../../lib/presentations/figma'
 
 type Props = {
+  figmaFrameNodeId?: string | null
   interfaceStyle?: FigmaInterfaceStyle | null
   prototypeUrl?: string | null
   title?: string | null
 }
 
-export function EntryFigmaPrototypeComponent({ interfaceStyle, prototypeUrl, title }: Props) {
+export function EntryFigmaPrototypeComponent({ figmaFrameNodeId, interfaceStyle, prototypeUrl, title }: Props) {
   const urls = prototypeUrl
-    ? parseFigmaPrototypeUrl(prototypeUrl, interfaceStyle === 'full' ? 'full' : 'minimal')
+    ? parseFigmaPrototypeUrl(prototypeUrl, interfaceStyle === 'full' ? 'full' : 'minimal', figmaFrameNodeId ?? undefined)
     : null
   if (!urls) return null
 

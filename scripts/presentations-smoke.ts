@@ -382,7 +382,10 @@ assert.deepEqual(toPublicPresentation({
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome', private: 'remove me' },
     { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, arbitrary: true },
-    { id: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Prototype', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, private: 'remove me' },
+    { id: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Prototype', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, syncedFrames: [
+      { nodeId: '1:2', name: 'Opening', width: 1600, height: 900 },
+      { nodeId: '1:3', name: 'Details', width: 1600, height: 900 },
+    ], figmaSyncError: 'private error', private: 'remove me' },
     { id: 'bad-figma', blockType: 'entryFigmaPrototype', prototypeUrl: `https://evil.figma.com/proto/${figmaKey}/Client-Prototype` },
     { id: 'bad-slides', blockType: 'entryGoogleSlides', slidesUrl: 'https://evil.example/deck' },
     { id: 'unknown', blockType: 'unknownBlock', headline: 'Nope' },
@@ -396,7 +399,8 @@ assert.deepEqual(toPublicPresentation({
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome' },
     { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit` },
-    { id: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Prototype', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, interfaceStyle: 'minimal' },
+    { id: 'figma-1--figma--1%3A2', sourceBlockId: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Opening', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, interfaceStyle: 'minimal', figmaFrameNodeId: '1:2' },
+    { id: 'figma-1--figma--1%3A3', sourceBlockId: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Details', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, interfaceStyle: 'minimal', figmaFrameNodeId: '1:3' },
   ],
   supportingLinks: [],
 })

@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 
 import { parseGoogleSlidesUrl } from './googleSlides.ts'
 import { parseFigmaPrototypeUrl } from './figma.ts'
+import { expandFigmaSlides } from './figmaSlides.ts'
 import { isValidPresentationShareToken } from './shareToken.ts'
 import { getSafePublicHref } from '../security/url.ts'
 import { classifyDevice, mergeVisitMetrics, type PresentationEvent } from './analytics.ts'
@@ -65,6 +66,14 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
   if (typeof block.id !== 'string' || typeof block.blockType !== 'string') return null
   if (block.blockType === 'entryFigmaPrototype') {
     if (typeof block.prototypeUrl !== 'string' || !parseFigmaPrototypeUrl(block.prototypeUrl)) return null
+    const syncedFrames = Array.isArray(block.syncedFrames) ? block.syncedFrames.flatMap((value) => {
+      if (!value || typeof value !== 'object') return []
+      const frame = value as Record<string, unknown>
+      if (typeof frame.nodeId !== 'string' || typeof frame.name !== 'string' ||
+        typeof frame.width !== 'number' || typeof frame.height !== 'number') return []
+      return [{ nodeId: frame.nodeId, name: frame.name, width: frame.width, height: frame.height }]
+    }) : []
+    if (!syncedFrames.length) return null
     const title = typeof block.title === 'string' ? block.title.trim() : ''
     return {
       id: block.id,
@@ -72,6 +81,7 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
       prototypeUrl: block.prototypeUrl,
       ...(title ? { title } : {}),
       interfaceStyle: block.interfaceStyle === 'full' ? 'full' : 'minimal',
+      syncedFrames,
     }
   }
   const fields = blockFields[block.blockType]
@@ -86,7 +96,7 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
 
 export function toPublicPresentation(doc: PresentationDocument): PublicPresentation | null {
   const canonical = typeof doc.slidesUrl === 'string' ? parseGoogleSlidesUrl(doc.slidesUrl) : null
-  const layout = Array.isArray(doc.layout) ? doc.layout.flatMap((block) => sanitiseBlock(block) ?? []) : []
+  const layout = expandFigmaSlides(Array.isArray(doc.layout) ? doc.layout.flatMap((block) => sanitiseBlock(block) ?? []) : [])
   if (!doc.title || (!canonical && layout.length === 0)) return null
 
   const cover = doc.coverImage && typeof doc.coverImage === 'object'
