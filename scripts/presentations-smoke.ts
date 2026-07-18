@@ -122,6 +122,17 @@ assert.equal(await Presentations.access?.read?.({ req: { user: { id: 1 } } } as 
 assert.equal(await PresentationVisits.access?.read?.({ req: { user: null } } as never), false)
 assert.equal(await PresentationVisits.access?.create?.({ req: { user: null } } as never), false)
 
+const presentationFields = Presentations.fields.filter((field) => 'name' in field)
+type InspectedField = { blocks?: Array<{ slug: string }>; defaultValue?: unknown }
+const presentationField = (name: string): InspectedField | undefined =>
+  presentationFields.find((field) => 'name' in field && field.name === name) as InspectedField | undefined
+assert.equal(presentationField('theme')?.defaultValue, 'light')
+assert.equal(presentationField('displayMode')?.defaultValue, 'scroll')
+assert.deepEqual(
+  presentationField('layout')?.blocks?.map((block) => block.slug) ?? [],
+  sharedEntryBlocks.map((block) => block.slug),
+)
+
 const presentationHook = Presentations.hooks?.beforeValidate?.[0]
 assert.equal(typeof presentationHook, 'function')
 if (typeof presentationHook === 'function') {
@@ -151,6 +162,9 @@ assert.deepEqual(toPublicPresentation({
   updatedAt: 'private',
 }), {
   title: 'Client deck',
+  theme: 'light',
+  displayMode: 'scroll',
+  layout: [],
   embedUrl: `https://docs.google.com/presentation/d/${deckId}/embed`,
   openUrl: `https://docs.google.com/presentation/d/${deckId}/present`,
   introduction: 'A short introduction.',
@@ -162,6 +176,30 @@ assert.equal(toPublicPresentation({
   embedUrl: 'https://evil.example/embed',
   openUrl: 'https://evil.example/open',
 }), null)
+
+assert.deepEqual(toPublicPresentation({
+  title: 'Native presentation',
+  theme: 'dark',
+  displayMode: 'slideshow',
+  layout: [
+    { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome', private: 'remove me' },
+    { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, arbitrary: true },
+    { id: 'bad-slides', blockType: 'entryGoogleSlides', slidesUrl: 'https://evil.example/deck' },
+    { id: 'unknown', blockType: 'unknownBlock', headline: 'Nope' },
+  ],
+  clientLabel: 'Private',
+  createdAt: 'private',
+}), {
+  title: 'Native presentation',
+  theme: 'dark',
+  displayMode: 'slideshow',
+  layout: [
+    { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome' },
+    { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit` },
+  ],
+  supportingLinks: [],
+})
+assert.equal(toPublicPresentation({ title: 'Empty', layout: [] }), null)
 
 assert.deepEqual(mergeLinkClicks([], 'prototype'), [{ linkId: 'prototype', count: 1 }])
 assert.deepEqual(mergeLinkClicks([{ linkId: 'prototype', count: 2 }], 'prototype'), [{ linkId: 'prototype', count: 3 }])

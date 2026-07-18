@@ -4,6 +4,7 @@ import { createPresentationShareToken, isValidPresentationShareToken } from '../
 import { parseGoogleSlidesUrl, validateGoogleSlidesUrl } from '../../lib/presentations/googleSlides.ts'
 import { isAuthenticated } from '../../lib/security/access.ts'
 import { validatePublicHref } from '../../lib/security/url.ts'
+import { sharedEntryBlocks } from '../../blocks/entries/sharedBlocks.ts'
 
 type PresentationInput = TypeWithID & {
   embedUrl?: string | null
@@ -68,9 +69,8 @@ export const Presentations: CollectionConfig = {
     {
       name: 'slidesUrl',
       type: 'text',
-      required: true,
       validate: validateGoogleSlidesUrl,
-      admin: { description: 'Paste a Google Slides sharing or published URL.' },
+      admin: { description: 'Legacy deck fallback. New presentations can use content blocks below.' },
     },
     { name: 'embedUrl', type: 'text', admin: { hidden: true, readOnly: true } },
     { name: 'openUrl', type: 'text', admin: { hidden: true, readOnly: true } },
@@ -89,6 +89,21 @@ export const Presentations: CollectionConfig = {
     { name: 'active', type: 'checkbox', defaultValue: true, admin: { position: 'sidebar' } },
     { name: 'coverImage', type: 'relationship', relationTo: 'media' },
     { name: 'introduction', type: 'textarea', maxLength: 2000 },
+    {
+      name: 'theme',
+      type: 'select',
+      defaultValue: 'light',
+      required: true,
+      options: [{ label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }],
+    },
+    {
+      name: 'displayMode',
+      type: 'select',
+      defaultValue: 'scroll',
+      required: true,
+      options: [{ label: 'Scrolling webpage', value: 'scroll' }, { label: 'Full-screen slideshow', value: 'slideshow' }],
+    },
+    { name: 'layout', type: 'blocks', blocks: sharedEntryBlocks },
     {
       name: 'supportingLinks',
       type: 'array',

@@ -11,24 +11,71 @@ type PresentationDocument = Record<string, unknown> & {
   coverImage?: unknown
   embedUrl?: string | null
   introduction?: string | null
+  layout?: unknown
   openUrl?: string | null
   slidesUrl?: string | null
   supportingLinks?: unknown
+  theme?: unknown
+  displayMode?: unknown
   title?: string | null
 }
 
+type PublicBlock = { id: string; blockType: string } & Record<string, unknown>
+
 export type PublicPresentation = {
   title: string
-  embedUrl: string
-  openUrl: string
+  theme: 'light' | 'dark'
+  displayMode: 'scroll' | 'slideshow'
+  layout: PublicBlock[]
+  embedUrl?: string
+  openUrl?: string
   introduction?: string
   coverImage?: { url: string; alt?: string }
   supportingLinks: Array<{ id: string; label: string; href: string }>
 }
 
+const blockFields: Record<string, string[]> = {
+  entryHero: ['prehead', 'headline', 'subhead', 'media', 'mediaPosition', 'heroHeight', 'mediaWidth', 'textAlign', 'theme'],
+  entryCaseStudy: ['client', 'headline', 'body', 'resultColumns', 'results', 'links', 'images', 'imageLayout'],
+  entryRichText: ['richText', 'maxWidth'],
+  entryMedia: ['media', 'caption', 'size'],
+  entryResults: ['prehead', 'headline', 'intro', 'columns', 'results'],
+  entryQuote: ['quote', 'author', 'role'],
+  entryImageGrid: ['images', 'columns'],
+  entryVideo: ['prehead', 'headline', 'intro', 'source', 'video', 'videoUrl', 'poster', 'caption'],
+  entryButton: ['label', 'url', 'style'],
+  entrySpacer: ['size'],
+  entryDivider: ['color'],
+  entryGoogleSlides: ['title', 'slidesUrl'],
+}
+
+function sanitiseValue(value: unknown): unknown {
+  if (value === null || ['string', 'number', 'boolean'].includes(typeof value)) return value
+  if (Array.isArray(value)) return value.map(sanitiseValue)
+  if (!value || typeof value !== 'object') return undefined
+  const source = value as Record<string, unknown>
+  const allowed = ['id', 'url', 'alt', 'filename', 'mimeType', 'width', 'height', 'sizes', 'thumbnailURL', 'caption', 'image', 'value', 'label', 'style', 'href', 'video', 'poster', 'richText', 'root', 'children', 'type', 'version', 'format', 'indent', 'direction', 'tag', 'text', 'detail', 'mode']
+  return Object.fromEntries(allowed.flatMap((key) => key in source ? [[key, sanitiseValue(source[key])]] : []))
+}
+
+function sanitiseBlock(value: unknown): PublicBlock | null {
+  if (!value || typeof value !== 'object') return null
+  const block = value as Record<string, unknown>
+  if (typeof block.id !== 'string' || typeof block.blockType !== 'string') return null
+  const fields = blockFields[block.blockType]
+  if (!fields) return null
+  if (block.blockType === 'entryGoogleSlides' &&
+    (typeof block.slidesUrl !== 'string' || !parseGoogleSlidesUrl(block.slidesUrl))) return null
+  return Object.fromEntries([
+    ['id', block.id], ['blockType', block.blockType],
+    ...fields.flatMap((key) => key in block ? [[key, sanitiseValue(block[key])]] : []),
+  ]) as PublicBlock
+}
+
 export function toPublicPresentation(doc: PresentationDocument): PublicPresentation | null {
   const canonical = typeof doc.slidesUrl === 'string' ? parseGoogleSlidesUrl(doc.slidesUrl) : null
-  if (!doc.title || !canonical) return null
+  const layout = Array.isArray(doc.layout) ? doc.layout.flatMap((block) => sanitiseBlock(block) ?? []) : []
+  if (!doc.title || (!canonical && layout.length === 0)) return null
 
   const cover = doc.coverImage && typeof doc.coverImage === 'object'
     ? doc.coverImage as { alt?: unknown; url?: unknown }
@@ -45,8 +92,10 @@ export function toPublicPresentation(doc: PresentationDocument): PublicPresentat
 
   return {
     title: doc.title,
-    embedUrl: canonical.embedUrl,
-    openUrl: canonical.openUrl,
+    theme: doc.theme === 'dark' ? 'dark' : 'light',
+    displayMode: doc.displayMode === 'slideshow' ? 'slideshow' : 'scroll',
+    layout,
+    ...(canonical ? { embedUrl: canonical.embedUrl, openUrl: canonical.openUrl } : {}),
     ...(doc.introduction ? { introduction: doc.introduction } : {}),
     ...(cover && typeof cover.url === 'string'
       ? { coverImage: { url: cover.url, ...(typeof cover.alt === 'string' ? { alt: cover.alt } : {}) } }
