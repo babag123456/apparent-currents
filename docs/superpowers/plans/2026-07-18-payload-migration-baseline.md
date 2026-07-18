@@ -173,4 +173,3 @@ Expected: every command exits 0; blank database is removed; working tree contain
 git add README.md
 git commit -m "docs: document blank migration verification"
 ```
-

@@ -244,4 +244,3 @@ Confirm exact-host validation, raw-HTML exclusion, both interface styles, access
 git add src/payload-types.ts 'src/app/(payload)/admin/importMap.js'
 git commit -m "chore: generate Figma block Payload artifacts"
 ```
-
