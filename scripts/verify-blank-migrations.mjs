@@ -37,20 +37,26 @@ const disposableUrl = new URL(sourceUrl)
 disposableUrl.pathname = `/${databaseName}`
 const maintenance = new Client({ connectionString: maintenanceUrl.toString() })
 let maintenanceConnected = false
-
-try {
-  await maintenance.connect()
-  maintenanceConnected = true
-  await maintenance.query(`CREATE DATABASE "${databaseName}"`)
-
-  await execFileAsync(process.execPath, [payloadBin, 'migrate', '--config', 'src/payload.config.ts'], {
+const migrate = () => execFileAsync(
+  process.execPath,
+  [payloadBin, 'migrate', '--config', 'src/payload.config.ts'],
+  {
     cwd: projectRoot,
     env: {
       ...process.env,
       DATABASE_URL: disposableUrl.toString(),
       PAYLOAD_SECRET: process.env.PAYLOAD_SECRET || 'migration-verification-only-secret',
     },
-  })
+  },
+)
+
+try {
+  await maintenance.connect()
+  maintenanceConnected = true
+  await maintenance.query(`CREATE DATABASE "${databaseName}"`)
+
+  await migrate()
+  await migrate()
 
   const verification = new Client({ connectionString: disposableUrl.toString() })
   try {
@@ -62,11 +68,17 @@ try {
     )
     const missing = rows.filter((row) => !row.exists).map((row) => row.table_name)
     if (missing.length) throw new Error(`Missing migrated tables: ${missing.join(', ')}`)
+
+    const migrations = await verification.query('SELECT name FROM payload_migrations ORDER BY id')
+    const names = migrations.rows.map((row) => row.name)
+    if (names[0] !== '20260430_162543_add_user_google_fields' || names.length !== 4) {
+      throw new Error(`Unexpected migration history: ${names.join(', ')}`)
+    }
   } finally {
     await verification.end()
   }
 
-  console.log(`Blank migration verification passed (${requiredTables.length} required tables).`)
+  console.log(`Blank migration verification passed (${requiredTables.length} required tables, rerun idempotent).`)
 } finally {
   if (!maintenanceConnected) {
     await maintenance.connect()

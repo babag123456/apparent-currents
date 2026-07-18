@@ -200,6 +200,8 @@ npm run db:reset
 
 `db:reset` removes the Docker volume and wipes the local database completely.
 
+Run `npm run migrate:verify-blank` with local PostgreSQL available to prove the committed migration history can rebuild a fresh disposable database. The script never targets the database named in `DATABASE_URL`; it creates and removes a uniquely named verification database on the same server.
+
 ## Validate The Seed
 
 - `npm run security:smoke`
