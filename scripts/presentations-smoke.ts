@@ -16,7 +16,7 @@ import {
 import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
 import { Presentations } from '../src/payload/collections/Presentations.ts'
 import { sharedEntryBlocks } from '../src/blocks/entries/sharedBlocks.ts'
-import { mergeBlockMetrics, mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
+import { mergeBlockJourney, mergeBlockMetrics, mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
 import { summarizePresentationVisits } from '../src/lib/presentations/summary.ts'
 import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../src/lib/presentations/slideshow.ts'
 
@@ -222,6 +222,22 @@ assert.deepEqual(mergeLinkClicks([{ linkId: 'download', count: 1 }], 'prototype'
 assert.deepEqual(mergeBlockMetrics([], { type: 'blockHeartbeat', sessionId, blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', activeSeconds: 15 }), [
   { blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', viewed: true, activeSeconds: 15, navigationCount: 0 },
 ])
+const viewedAt = new Date('2026-07-18T03:00:00.000Z')
+const heroEvent = { type: 'blockHeartbeat' as const, sessionId, blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll' as const, activeSeconds: 15 }
+assert.deepEqual(mergeBlockJourney([], heroEvent, viewedAt), [
+  { blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', viewedAt: viewedAt.toISOString() },
+])
+assert.equal(mergeBlockJourney(mergeBlockJourney([], heroEvent, viewedAt), heroEvent, viewedAt).length, 1)
+const resultsEvent = { ...heroEvent, blockId: 'results-1', blockType: 'entryResults' }
+const journey = mergeBlockJourney(mergeBlockJourney([], heroEvent, viewedAt), resultsEvent, viewedAt)
+assert.equal(mergeBlockJourney(journey, heroEvent, viewedAt).length, 3)
+assert.deepEqual(mergeBlockJourney([{ unsafe: true }] as never, heroEvent, viewedAt), [
+  { blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', viewedAt: viewedAt.toISOString() },
+])
+const fullJourney = Array.from({ length: 500 }, (_, index) => ({
+  blockId: `block-${index}`, blockType: 'entryHero', displayMode: 'scroll' as const, viewedAt: viewedAt.toISOString(),
+}))
+assert.equal(mergeBlockJourney(fullJourney, heroEvent, viewedAt).length, 500)
 
 assert.deepEqual(summarizePresentationVisits([]), {
   sessions: 0, totalVisits: 0, returningSessions: 0, totalActiveSeconds: 0,

@@ -128,6 +128,29 @@ export async function getPublicPresentation(shareToken: string): Promise<PublicP
 
 export type LinkClickMetric = { linkId: string; count: number }
 export type BlockMetric = { blockId: string; blockType: string; displayMode: 'scroll' | 'slideshow'; viewed: boolean; activeSeconds: number; navigationCount: number }
+export type JourneyEntry = { blockId: string; blockType: string; displayMode: 'scroll' | 'slideshow'; viewedAt: string }
+const MAX_JOURNEY_ENTRIES = 500
+
+function normalizeJourneyEntry(value: unknown): JourneyEntry | null {
+  if (!value || typeof value !== 'object') return null
+  const entry = value as Record<string, unknown>
+  if (typeof entry.blockId !== 'string' || typeof entry.blockType !== 'string' ||
+    (entry.displayMode !== 'scroll' && entry.displayMode !== 'slideshow') ||
+    typeof entry.viewedAt !== 'string' || Number.isNaN(Date.parse(entry.viewedAt))) return null
+  return { blockId: entry.blockId, blockType: entry.blockType, displayMode: entry.displayMode, viewedAt: new Date(entry.viewedAt).toISOString() }
+}
+
+export function mergeBlockJourney(
+  current: unknown[],
+  event: Extract<PresentationEvent, { type: 'blockHeartbeat' | 'slideNavigation' }>,
+  viewedAt: Date,
+): JourneyEntry[] {
+  const valid = current.flatMap((entry) => normalizeJourneyEntry(entry) ?? [])
+  const previous = valid.at(-1)
+  if (previous?.blockId === event.blockId && previous.blockType === event.blockType && previous.displayMode === event.displayMode) return valid
+  if (valid.length >= MAX_JOURNEY_ENTRIES) return valid.slice(0, MAX_JOURNEY_ENTRIES)
+  return [...valid, { blockId: event.blockId, blockType: event.blockType, displayMode: event.displayMode, viewedAt: viewedAt.toISOString() }]
+}
 
 export function mergeBlockMetrics(current: BlockMetric[], event: Extract<PresentationEvent, { type: 'blockHeartbeat' | 'slideNavigation' }>): BlockMetric[] {
   const existing = current.find((metric) => metric.blockId === event.blockId && metric.blockType === event.blockType)
@@ -207,6 +230,7 @@ export async function recordPresentationEvent({
     lastSeenAt?: string | null
     linkClicks?: LinkClickMetric[] | null
     blockMetrics?: BlockMetric[] | null
+    blockJourney?: JourneyEntry[] | null
   } | undefined
 
   if (!existing) {
@@ -223,6 +247,7 @@ export async function recordPresentationEvent({
         deviceCategory: classifyDevice(userAgent),
         linkClicks: event.type === 'linkClick' ? [{ linkId: event.linkId, count: 1 }] : [],
         blockMetrics: event.type === 'blockHeartbeat' || event.type === 'slideNavigation' ? mergeBlockMetrics([], event) : [],
+        blockJourney: event.type === 'blockHeartbeat' || event.type === 'slideNavigation' ? mergeBlockJourney([], event, now) : [],
       } as never,
     })
     return 'recorded'
@@ -244,7 +269,10 @@ export async function recordPresentationEvent({
         ? { linkClicks: mergeLinkClicks(existing.linkClicks ?? [], event.linkId) }
         : {}),
       ...(event.type === 'blockHeartbeat' || event.type === 'slideNavigation'
-        ? { blockMetrics: mergeBlockMetrics(existing.blockMetrics ?? [], event) }
+        ? {
+            blockMetrics: mergeBlockMetrics(existing.blockMetrics ?? [], event),
+            blockJourney: mergeBlockJourney(existing.blockJourney ?? [], event, now),
+          }
         : {}),
     } as never,
   })

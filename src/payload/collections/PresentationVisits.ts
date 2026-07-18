@@ -49,5 +49,13 @@ export const PresentationVisits: CollectionConfig = {
         { name: 'navigationCount', type: 'number', required: true, min: 0, defaultValue: 0 },
       ],
     },
+    {
+      name: 'blockJourney', type: 'array', admin: { readOnly: true }, fields: [
+        { name: 'blockId', type: 'text', required: true },
+        { name: 'blockType', type: 'text', required: true },
+        { name: 'displayMode', type: 'select', required: true, options: ['scroll', 'slideshow'] },
+        { name: 'viewedAt', type: 'date', required: true },
+      ],
+    },
   ],
 }
