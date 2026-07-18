@@ -127,6 +127,17 @@ export async function getPublicPresentation(shareToken: string): Promise<PublicP
 }
 
 export type LinkClickMetric = { linkId: string; count: number }
+export type BlockMetric = { blockId: string; blockType: string; displayMode: 'scroll' | 'slideshow'; viewed: boolean; activeSeconds: number; navigationCount: number }
+
+export function mergeBlockMetrics(current: BlockMetric[], event: Extract<PresentationEvent, { type: 'blockHeartbeat' | 'slideNavigation' }>): BlockMetric[] {
+  const existing = current.find((metric) => metric.blockId === event.blockId && metric.blockType === event.blockType)
+  const next: BlockMetric = {
+    blockId: event.blockId, blockType: event.blockType, displayMode: event.displayMode, viewed: true,
+    activeSeconds: Math.min(31_536_000, Math.max(0, existing?.activeSeconds ?? 0) + (event.type === 'blockHeartbeat' ? event.activeSeconds : 0)),
+    navigationCount: Math.max(0, existing?.navigationCount ?? 0) + (event.type === 'slideNavigation' ? 1 : 0),
+  }
+  return existing ? current.map((metric) => metric === existing ? next : metric) : [...current, next]
+}
 
 export function mergeLinkClicks(current: LinkClickMetric[], linkId: string): LinkClickMetric[] {
   let found = false
@@ -172,6 +183,11 @@ export async function recordPresentationEvent({
       value && typeof value === 'object' && (value as { id?: unknown }).id === event.linkId)
     if (!validLink) return 'not-found'
   }
+  if (event.type === 'blockHeartbeat' || event.type === 'slideNavigation') {
+    const validBlock = Array.isArray(presentation.layout) && presentation.layout.some((value) => value && typeof value === 'object' &&
+      (value as { id?: unknown }).id === event.blockId && (value as { blockType?: unknown }).blockType === event.blockType)
+    if (!validBlock) return 'not-found'
+  }
 
   const visits = await payload.find({
     collection: 'presentation-visits' as never,
@@ -190,6 +206,7 @@ export async function recordPresentationEvent({
     visitCount?: number | null
     lastSeenAt?: string | null
     linkClicks?: LinkClickMetric[] | null
+    blockMetrics?: BlockMetric[] | null
   } | undefined
 
   if (!existing) {
@@ -205,6 +222,7 @@ export async function recordPresentationEvent({
         activeSeconds: event.type === 'heartbeat' ? event.activeSeconds : 0,
         deviceCategory: classifyDevice(userAgent),
         linkClicks: event.type === 'linkClick' ? [{ linkId: event.linkId, count: 1 }] : [],
+        blockMetrics: event.type === 'blockHeartbeat' || event.type === 'slideNavigation' ? mergeBlockMetrics([], event) : [],
       } as never,
     })
     return 'recorded'
@@ -214,7 +232,7 @@ export async function recordPresentationEvent({
     activeSeconds: existing.activeSeconds ?? 0,
     visitCount: existing.visitCount ?? 0,
     lastSeenAt: new Date(existing.lastSeenAt ?? now),
-  }, event, now)
+  }, event.type === 'blockHeartbeat' || event.type === 'slideNavigation' ? { type: 'linkClick' } : event, now)
   await payload.update({
     collection: 'presentation-visits' as never,
     id: existing.id,
@@ -224,6 +242,9 @@ export async function recordPresentationEvent({
       lastSeenAt: metrics.lastSeenAt.toISOString(),
       ...(event.type === 'linkClick'
         ? { linkClicks: mergeLinkClicks(existing.linkClicks ?? [], event.linkId) }
+        : {}),
+      ...(event.type === 'blockHeartbeat' || event.type === 'slideNavigation'
+        ? { blockMetrics: mergeBlockMetrics(existing.blockMetrics ?? [], event) }
         : {}),
     } as never,
   })

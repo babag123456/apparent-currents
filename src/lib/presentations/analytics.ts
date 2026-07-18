@@ -1,6 +1,7 @@
 const MAX_ACTIVE_SECONDS = 31_536_000
 const SESSION_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const LINK_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/
+const BLOCK_VALUE_PATTERN = /^[A-Za-z0-9_-]{1,64}$/
 
 export type DeviceCategory = 'desktop' | 'mobile' | 'tablet' | 'unknown'
 
@@ -8,6 +9,8 @@ export type PresentationEvent =
   | { type: 'open'; sessionId: string }
   | { type: 'heartbeat'; sessionId: string; activeSeconds: number }
   | { type: 'linkClick'; sessionId: string; linkId: string }
+  | { type: 'blockHeartbeat'; sessionId: string; blockId: string; blockType: string; displayMode: 'scroll' | 'slideshow'; activeSeconds: number }
+  | { type: 'slideNavigation'; sessionId: string; blockId: string; blockType: string; displayMode: 'slideshow' }
 
 type VisitMetricEvent =
   | { type: 'open' }
@@ -49,6 +52,19 @@ export function parsePresentationEvent(value: unknown): PresentationEvent | null
 
   if (value.type === 'linkClick' && typeof value.linkId === 'string' && LINK_ID_PATTERN.test(value.linkId)) {
     return { type: 'linkClick', sessionId: value.sessionId, linkId: value.linkId }
+  }
+
+  const validBlock = typeof value.blockId === 'string' && BLOCK_VALUE_PATTERN.test(value.blockId) &&
+    typeof value.blockType === 'string' && BLOCK_VALUE_PATTERN.test(value.blockType) &&
+    (value.displayMode === 'scroll' || value.displayMode === 'slideshow')
+  if (value.type === 'blockHeartbeat' && validBlock && typeof value.activeSeconds === 'number' &&
+    Number.isInteger(value.activeSeconds) && value.activeSeconds >= 1 && value.activeSeconds <= 30) {
+    return { type: value.type, sessionId: value.sessionId, blockId: value.blockId as string,
+      blockType: value.blockType as string, displayMode: value.displayMode as 'scroll' | 'slideshow', activeSeconds: value.activeSeconds }
+  }
+  if (value.type === 'slideNavigation' && validBlock && value.displayMode === 'slideshow') {
+    return { type: value.type, sessionId: value.sessionId, blockId: value.blockId as string,
+      blockType: value.blockType as string, displayMode: 'slideshow' }
   }
 
   return null

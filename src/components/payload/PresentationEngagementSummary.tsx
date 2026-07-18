@@ -46,6 +46,11 @@ export function PresentationEngagementSummary() {
           {Object.keys(summary.linkClicks).length ? (
             <p>Supporting-link clicks: {Object.entries(summary.linkClicks).map(([id, count]) => `${id}: ${count}`).join(', ')}</p>
           ) : null}
+          {Object.keys(summary.blockMetrics).length ? (
+            <div><h4>Content blocks</h4><ul>{Object.entries(summary.blockMetrics).map(([label, metric]) => (
+              <li key={label}>{label}: {metric.activeSeconds}s active, {metric.views} views, {metric.navigationCount} navigations ({metric.displayMode})</li>
+            ))}</ul></div>
+          ) : null}
         </>
       )}
     </section>

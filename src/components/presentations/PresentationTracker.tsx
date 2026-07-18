@@ -49,6 +49,25 @@ export function PresentationTracker({ shareToken }: { shareToken: string }) {
       const linkId = element?.dataset.presentationLinkId
       if (linkId) send({ type: 'linkClick', linkId }, true)
     }
+    let activeBlock: HTMLElement | null = null
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+      if (visible) activeBlock = visible.target as HTMLElement
+    }, { threshold: [0.25, 0.5, 0.75] })
+    document.querySelectorAll<HTMLElement>('[data-presentation-block-id]').forEach((block) => observer.observe(block))
+    const blockFlusher = window.setInterval(() => {
+      const blockId = activeBlock?.dataset.presentationBlockId
+      const blockType = activeBlock?.dataset.presentationBlockType
+      if (blockId && blockType && document.visibilityState === 'visible') {
+        send({ type: 'blockHeartbeat', blockId, blockType,
+          displayMode: document.querySelector('.presentation-slideshow') ? 'slideshow' : 'scroll', activeSeconds: 15 })
+      }
+    }, 15_000)
+    const onSlideNavigation = (event: Event) => {
+      const detail = (event as CustomEvent<{ blockId?: string; blockType?: string }>).detail
+      if (detail?.blockId && detail.blockType) send({ type: 'slideNavigation', ...detail, displayMode: 'slideshow' })
+    }
+    window.addEventListener('presentation:slide-navigation', onSlideNavigation)
     document.addEventListener('visibilitychange', onVisibility)
     document.addEventListener('click', onClick)
 
@@ -56,6 +75,9 @@ export function PresentationTracker({ shareToken }: { shareToken: string }) {
       flush(true)
       window.clearInterval(counter)
       window.clearInterval(flusher)
+      window.clearInterval(blockFlusher)
+      observer.disconnect()
+      window.removeEventListener('presentation:slide-navigation', onSlideNavigation)
       activityEvents.forEach((name) => window.removeEventListener(name, markActivity))
       document.removeEventListener('visibilitychange', onVisibility)
       document.removeEventListener('click', onClick)

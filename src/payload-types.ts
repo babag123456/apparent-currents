@@ -582,6 +582,17 @@ export interface PresentationVisit {
         id?: string | null;
       }[]
     | null;
+  blockMetrics?:
+    | {
+        blockId: string;
+        blockType: string;
+        displayMode: 'scroll' | 'slideshow';
+        viewed?: boolean | null;
+        activeSeconds: number;
+        navigationCount: number;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1037,6 +1048,17 @@ export interface PresentationVisitsSelect<T extends boolean = true> {
     | {
         linkId?: T;
         count?: T;
+        id?: T;
+      };
+  blockMetrics?:
+    | T
+    | {
+        blockId?: T;
+        blockType?: T;
+        displayMode?: T;
+        viewed?: T;
+        activeSeconds?: T;
+        navigationCount?: T;
         id?: T;
       };
   updatedAt?: T;

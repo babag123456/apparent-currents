@@ -16,7 +16,7 @@ import {
 import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
 import { Presentations } from '../src/payload/collections/Presentations.ts'
 import { sharedEntryBlocks } from '../src/blocks/entries/sharedBlocks.ts'
-import { mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
+import { mergeBlockMetrics, mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
 import { summarizePresentationVisits } from '../src/lib/presentations/summary.ts'
 import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../src/lib/presentations/slideshow.ts'
 
@@ -85,6 +85,10 @@ assert.deepEqual(parsePresentationEvent({ type: 'linkClick', sessionId, linkId: 
   sessionId,
   linkId: 'prototype-link',
 })
+assert.deepEqual(parsePresentationEvent({ type: 'blockHeartbeat', sessionId, blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', activeSeconds: 15 }), {
+  type: 'blockHeartbeat', sessionId, blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', activeSeconds: 15,
+})
+assert.equal(parsePresentationEvent({ type: 'blockHeartbeat', sessionId, blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', activeSeconds: 31 }), null)
 assert.equal(parsePresentationEvent({ type: 'heartbeat', sessionId: 'bad', activeSeconds: 15 }), null)
 assert.equal(parsePresentationEvent({ type: 'heartbeat', sessionId, activeSeconds: 31 }), null)
 assert.equal(parsePresentationEvent({ type: 'heartbeat', sessionId, activeSeconds: 0 }), null)
@@ -215,10 +219,14 @@ assert.deepEqual(mergeLinkClicks([{ linkId: 'download', count: 1 }], 'prototype'
   { linkId: 'download', count: 1 },
   { linkId: 'prototype', count: 1 },
 ])
+assert.deepEqual(mergeBlockMetrics([], { type: 'blockHeartbeat', sessionId, blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', activeSeconds: 15 }), [
+  { blockId: 'hero-1', blockType: 'entryHero', displayMode: 'scroll', viewed: true, activeSeconds: 15, navigationCount: 0 },
+])
 
 assert.deepEqual(summarizePresentationVisits([]), {
   sessions: 0, totalVisits: 0, returningSessions: 0, totalActiveSeconds: 0,
   averageActiveSeconds: 0, lastSeenAt: null, linkClicks: {},
+  blockMetrics: {},
 })
 assert.deepEqual(summarizePresentationVisits([
   { visitCount: 2, activeSeconds: 30, lastSeenAt: '2026-07-18T00:01:00.000Z', linkClicks: [{ linkId: 'prototype', count: 2 }] },
@@ -226,4 +234,5 @@ assert.deepEqual(summarizePresentationVisits([
 ]), {
   sessions: 2, totalVisits: 3, returningSessions: 1, totalActiveSeconds: 40,
   averageActiveSeconds: 20, lastSeenAt: '2026-07-18T00:02:00.000Z', linkClicks: { prototype: 3 },
+  blockMetrics: {},
 })

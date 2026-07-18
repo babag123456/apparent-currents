@@ -2,6 +2,7 @@ export type PresentationVisitInput = {
   activeSeconds?: number | null
   lastSeenAt?: string | null
   linkClicks?: Array<{ count?: number | null; linkId?: string | null }> | null
+  blockMetrics?: Array<{ blockId?: string | null; blockType?: string | null; displayMode?: string | null; activeSeconds?: number | null; navigationCount?: number | null; viewed?: boolean | null }> | null
   visitCount?: number | null
 }
 
@@ -13,6 +14,7 @@ export type PresentationEngagementSummary = {
   averageActiveSeconds: number
   lastSeenAt: string | null
   linkClicks: Record<string, number>
+  blockMetrics: Record<string, { activeSeconds: number; navigationCount: number; views: number; displayMode: string }>
 }
 
 function safeCount(value: number | null | undefined): number {
@@ -28,6 +30,7 @@ export function summarizePresentationVisits(visits: PresentationVisitInput[]): P
     averageActiveSeconds: 0,
     lastSeenAt: null,
     linkClicks: {},
+    blockMetrics: {},
   }
 
   for (const visit of visits) {
@@ -39,6 +42,15 @@ export function summarizePresentationVisits(visits: PresentationVisitInput[]): P
     for (const click of visit.linkClicks ?? []) {
       if (!click.linkId) continue
       summary.linkClicks[click.linkId] = (summary.linkClicks[click.linkId] ?? 0) + safeCount(click.count)
+    }
+    for (const metric of visit.blockMetrics ?? []) {
+      if (!metric.blockId || !metric.blockType) continue
+      const key = `${metric.blockId} · ${metric.blockType}`
+      const current = summary.blockMetrics[key] ?? { activeSeconds: 0, navigationCount: 0, views: 0, displayMode: metric.displayMode ?? 'scroll' }
+      current.activeSeconds += safeCount(metric.activeSeconds)
+      current.navigationCount += safeCount(metric.navigationCount)
+      current.views += metric.viewed ? 1 : 0
+      summary.blockMetrics[key] = current
     }
   }
 

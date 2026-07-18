@@ -39,5 +39,15 @@ export const PresentationVisits: CollectionConfig = {
         { name: 'count', type: 'number', required: true, min: 1 },
       ],
     },
+    {
+      name: 'blockMetrics', type: 'array', admin: { readOnly: true }, fields: [
+        { name: 'blockId', type: 'text', required: true },
+        { name: 'blockType', type: 'text', required: true },
+        { name: 'displayMode', type: 'select', required: true, options: ['scroll', 'slideshow'] },
+        { name: 'viewed', type: 'checkbox', defaultValue: true },
+        { name: 'activeSeconds', type: 'number', required: true, min: 0, defaultValue: 0 },
+        { name: 'navigationCount', type: 'number', required: true, min: 0, defaultValue: 0 },
+      ],
+    },
   ],
 }

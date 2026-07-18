@@ -11,6 +11,7 @@ const SWIPE_THRESHOLD = 50
 export function PresentationSlideshow({ blocks, title }: { blocks: PresentationBlock[]; title: string }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const touchStart = useRef<number | null>(null)
+  const hasNavigated = useRef(false)
   const [index, setIndex] = useState(0)
   const count = blocks.length
   const goNext = useCallback(() => setIndex((current) => nextSlide(current, count)), [count])
@@ -25,7 +26,13 @@ export function PresentationSlideshow({ blocks, title }: { blocks: PresentationB
 
   useEffect(() => {
     window.history.replaceState(null, '', `#${index + 1}`)
-  }, [index])
+    if (hasNavigated.current) {
+      const block = blocks[index]
+      window.dispatchEvent(new CustomEvent('presentation:slide-navigation', { detail: { blockId: block.id, blockType: block.blockType } }))
+    } else {
+      hasNavigated.current = true
+    }
+  }, [blocks, index])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
