@@ -72,6 +72,7 @@ for (const value of [
 ]) {
   assert.equal(validateGoogleSlidesUrl(value), true, `${value} should validate`)
 }
+assert.equal(validateGoogleSlidesUrl(undefined), true, 'legacy Slides URL should be optional')
 
 assert.deepEqual(parseGoogleSlidesUrl(`https://docs.google.com/presentation/d/${deckId}/edit`), {
   embedUrl: `https://docs.google.com/presentation/d/${deckId}/embed`,

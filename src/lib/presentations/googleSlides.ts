@@ -43,7 +43,7 @@ export function parseGoogleSlidesUrl(value: string): GoogleSlidesUrls | null {
 
 export function validateGoogleSlidesUrl(value?: string | null): true | string {
   if (!value?.trim()) {
-    return 'Google Slides URL is required.'
+    return true
   }
 
   return parseGoogleSlidesUrl(value)
