@@ -14,6 +14,7 @@ import {
   parseFigmaPrototypeUrl,
   validateFigmaPrototypeUrl,
 } from '../src/lib/presentations/figma.ts'
+import { fetchFigmaPrototypeFrames, orderFigmaPrototypeFrames } from '../src/lib/presentations/figmaSync.ts'
 import {
   createPresentationShareToken,
   isValidPresentationShareToken,
@@ -151,6 +152,51 @@ const overriddenFigma = parseFigmaPrototypeUrl(
 assert.equal(overriddenFigma?.startNodeId, '1:2')
 assert.match(overriddenFigma?.embedUrl ?? '', /node-id=5-6/)
 assert.match(overriddenFigma?.embedUrl ?? '', /starting-point-node-id=1%3A2/)
+
+const figmaDocument = {
+  id: '0:0', name: 'Document', type: 'DOCUMENT', children: [{
+    id: '1:1', name: 'Page', type: 'CANVAS', children: [
+      { id: '1:2', name: 'A', type: 'FRAME', absoluteBoundingBox: { width: 1600, height: 900 }, reactions: [{ action: { destinationId: '1:3' } }] },
+      { id: '1:3', name: 'B', type: 'FRAME', absoluteBoundingBox: { width: 1600, height: 900 }, reactions: [{ action: { destinationId: '1:4' } }] },
+      { id: '1:4', name: 'C', type: 'FRAME', absoluteBoundingBox: { width: 1600, height: 900 } },
+    ],
+  }],
+}
+assert.deepEqual(orderFigmaPrototypeFrames(figmaDocument, '1:2').map((frame) => frame.name), ['A', 'B', 'C'])
+assert.throws(
+  () => orderFigmaPrototypeFrames({ ...figmaDocument, children: [{ id: '1:1', type: 'CANVAS', children: [
+    { id: '1:2', name: 'A', type: 'FRAME', reactions: [{ action: { destinationId: '1:3' } }, { action: { destinationId: '1:4' } }] },
+    { id: '1:3', name: 'B', type: 'FRAME' }, { id: '1:4', name: 'C', type: 'FRAME' },
+  ] }] }, '1:2'),
+  /branches at "A"/,
+)
+assert.throws(
+  () => orderFigmaPrototypeFrames({ ...figmaDocument, children: [{ id: '1:1', type: 'CANVAS', children: [
+    { id: '1:2', name: 'A', type: 'FRAME', reactions: [{ action: { destinationId: '1:3' } }] },
+    { id: '1:3', name: 'B', type: 'FRAME', reactions: [{ action: { destinationId: '1:2' } }] },
+  ] }] }, '1:2'),
+  /contains a loop/,
+)
+assert.throws(() => orderFigmaPrototypeFrames(figmaDocument, '9:9'), /starting frame was not found/)
+
+let figmaRequest: { init?: RequestInit; url?: string } = {}
+const fetchedFrames = await fetchFigmaPrototypeFrames({
+  fileKey: figmaKey,
+  startNodeId: '1:2',
+  token: 'secret-token',
+  fetchImpl: async (input, init) => {
+    figmaRequest = { url: String(input), init }
+    return new Response(JSON.stringify({ document: figmaDocument }), { status: 200 })
+  },
+})
+assert.equal(fetchedFrames.length, 3)
+assert.equal(figmaRequest.url, `https://api.figma.com/v1/files/${figmaKey}`)
+assert.equal(new Headers(figmaRequest.init?.headers).get('X-Figma-Token'), 'secret-token')
+assert.doesNotMatch(figmaRequest.url ?? '', /secret-token/)
+await assert.rejects(
+  fetchFigmaPrototypeFrames({ fileKey: figmaKey, startNodeId: '1:2', token: 'secret-token', fetchImpl: async () => new Response('private body', { status: 403 }) }),
+  /Figma denied access to this prototype/,
+)
 
 for (const value of [
   `http://www.figma.com/proto/${figmaKey}/Test`,
