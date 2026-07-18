@@ -122,7 +122,9 @@ assert.equal(
   minimalFigma?.openUrl,
   `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&scaling=contain`,
 )
-assert.equal(minimalFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(minimalFigma.openUrl)}&hide-ui=1`)
+assert.equal(minimalFigma?.fileKey, figmaKey)
+assert.equal(minimalFigma?.startNodeId, '1:2')
+assert.equal(minimalFigma?.embedUrl, `https://embed.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&scaling=contain&embed-host=thisisouragency&footer=false`)
 
 const fullFigma = parseFigmaPrototypeUrl(
   `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`,
@@ -132,7 +134,7 @@ assert.equal(
   fullFigma?.openUrl,
   `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4&scaling=contain`,
 )
-assert.equal(fullFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(fullFigma.openUrl)}`)
+assert.equal(fullFigma?.embedUrl, `https://embed.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4&scaling=contain&embed-host=thisisouragency`)
 
 const scaledFigma = parseFigmaPrototypeUrl(
   `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&starting-point-node-id=3%3A4&page-id=5%3A6&scaling=min-zoom&content-scaling=fixed&utm_source=remove-me`,
@@ -141,6 +143,14 @@ assert.equal(
   scaledFigma?.openUrl,
   `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&starting-point-node-id=3%3A4&page-id=5%3A6&scaling=contain&content-scaling=fixed`,
 )
+const overriddenFigma = parseFigmaPrototypeUrl(
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&scaling=min-zoom`,
+  'minimal',
+  '5:6',
+)
+assert.equal(overriddenFigma?.startNodeId, '1:2')
+assert.match(overriddenFigma?.embedUrl ?? '', /node-id=5-6/)
+assert.match(overriddenFigma?.embedUrl ?? '', /starting-point-node-id=1%3A2/)
 
 for (const value of [
   `http://www.figma.com/proto/${figmaKey}/Test`,

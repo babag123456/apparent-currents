@@ -13,12 +13,23 @@ export type FigmaInterfaceStyle = 'minimal' | 'full'
 
 export type FigmaPrototypeUrls = {
   embedUrl: string
+  fileKey: string
   openUrl: string
+  startNodeId?: string
+}
+
+function normaliseNodeId(value: string): string {
+  return value.replace('-', ':')
+}
+
+function serialiseNodeId(value: string): string {
+  return value.replace(':', '-')
 }
 
 export function parseFigmaPrototypeUrl(
   value: string,
   interfaceStyle: FigmaInterfaceStyle = 'minimal',
+  frameNodeId?: string,
 ): FigmaPrototypeUrls | null {
   let source: URL
 
@@ -44,12 +55,21 @@ export function parseFigmaPrototypeUrl(
   }
   open.searchParams.set('scaling', 'contain')
 
-  const embed = new URL('https://www.figma.com/embed')
-  embed.searchParams.set('embed_host', 'share')
-  embed.searchParams.set('url', open.toString())
-  if (interfaceStyle !== 'full') embed.searchParams.set('hide-ui', '1')
+  const startNodeParameter = source.searchParams.get('starting-point-node-id') ?? source.searchParams.get('node-id')
+  const startNodeId = startNodeParameter ? normaliseNodeId(startNodeParameter) : undefined
+  const embed = new URL(`https://embed.figma.com/${segments.join('/')}`)
+  for (const key of ALLOWED_QUERY_KEYS) {
+    const parameter = open.searchParams.get(key)
+    if (parameter) embed.searchParams.set(key, parameter)
+  }
+  if (frameNodeId) {
+    embed.searchParams.set('node-id', serialiseNodeId(frameNodeId))
+    if (startNodeId) embed.searchParams.set('starting-point-node-id', startNodeId)
+  }
+  embed.searchParams.set('embed-host', 'thisisouragency')
+  if (interfaceStyle !== 'full') embed.searchParams.set('footer', 'false')
 
-  return { embedUrl: embed.toString(), openUrl: open.toString() }
+  return { embedUrl: embed.toString(), fileKey, openUrl: open.toString(), ...(startNodeId ? { startNodeId } : {}) }
 }
 
 export function validateFigmaPrototypeUrl(value?: string | null): true | string {
