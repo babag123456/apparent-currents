@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 
 import {
   classifyDevice,
@@ -139,6 +140,12 @@ const presentationFields = Presentations.fields.filter((field) => 'name' in fiel
 type InspectedField = { blocks?: Array<{ slug: string }>; defaultValue?: unknown }
 const presentationField = (name: string): InspectedField | undefined =>
   presentationFields.find((field) => 'name' in field && field.name === name) as InspectedField | undefined
+const engagementField = presentationField('engagementSummary')
+assert.equal((engagementField as { admin?: { components?: { Field?: string } } })?.admin?.components?.Field,
+  '@/components/payload/PresentationAnalyticsDashboard#PresentationAnalyticsDashboard')
+const dashboardSource = readFileSync(new URL('../src/components/payload/PresentationAnalyticsDashboard.tsx', import.meta.url), 'utf8')
+assert.match(dashboardSource, /hasNextPage/)
+assert.match(dashboardSource, /page \+= 1/)
 assert.equal(presentationField('theme')?.defaultValue, 'light')
 assert.equal(presentationField('displayMode')?.defaultValue, 'scroll')
 assert.deepEqual(

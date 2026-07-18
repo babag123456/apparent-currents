@@ -60,7 +60,7 @@ export const Presentations: CollectionConfig = {
       type: 'ui',
       admin: {
         components: {
-          Field: '@/components/payload/PresentationEngagementSummary#PresentationEngagementSummary',
+          Field: '@/components/payload/PresentationAnalyticsDashboard#PresentationAnalyticsDashboard',
         },
       },
     },
