@@ -2,10 +2,15 @@ import React from 'react'
 
 import type { PublicPresentation } from '../../lib/presentations/repository'
 import { PresentationTracker } from './PresentationTracker'
+import { EntryThemeProvider } from '../entry-theme/EntryThemeProvider'
+import { PresentationBlocks, type PresentationBlock } from './PresentationBlocks'
+import { PresentationSlideshow } from './PresentationSlideshow'
 
 export function PresentationView({ presentation, shareToken }: { presentation: PublicPresentation; shareToken: string }) {
+  const nativeBlocks = presentation.layout as PresentationBlock[]
   return (
-    <main className="presentation-page">
+    <EntryThemeProvider initialTheme={presentation.theme}>
+    <main className={`presentation-page presentation-page--${presentation.displayMode}`}>
       <PresentationTracker shareToken={shareToken} />
       <header className="presentation-header">
         {presentation.coverImage ? (
@@ -20,7 +25,11 @@ export function PresentationView({ presentation, shareToken }: { presentation: P
         </div>
       </header>
 
-      <section className="presentation-stage" aria-label={`${presentation.title} slides`}>
+      {nativeBlocks.length ? presentation.displayMode === 'slideshow' ? (
+        <PresentationSlideshow blocks={nativeBlocks} title={presentation.title} />
+      ) : (
+        <div className="presentation-blocks"><PresentationBlocks blocks={nativeBlocks} /></div>
+      ) : presentation.embedUrl ? <section className="presentation-stage" aria-label={`${presentation.title} slides`}>
         <iframe
           allow="fullscreen"
           allowFullScreen
@@ -30,14 +39,15 @@ export function PresentationView({ presentation, shareToken }: { presentation: P
           src={presentation.embedUrl}
           title={presentation.title}
         />
-      </section>
+      </section> : null}
 
       <footer className="presentation-actions">
-        <a href={presentation.openUrl} target="_blank" rel="noreferrer">Open presentation ↗</a>
+        {presentation.openUrl ? <a href={presentation.openUrl} target="_blank" rel="noreferrer">Open presentation ↗</a> : null}
         {presentation.supportingLinks.map((link) => (
           <a key={link.id} data-presentation-link-id={link.id} href={link.href} target="_blank" rel="noreferrer">{link.label} ↗</a>
         ))}
       </footer>
     </main>
+    </EntryThemeProvider>
   )
 }

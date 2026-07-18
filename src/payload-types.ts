@@ -521,9 +521,9 @@ export interface Presentation {
   title: string;
   clientLabel?: string | null;
   /**
-   * Paste a Google Slides sharing or published URL.
+   * Legacy deck fallback. New presentations can use content blocks below.
    */
-  slidesUrl: string;
+  slidesUrl?: string | null;
   embedUrl?: string | null;
   openUrl?: string | null;
   /**
@@ -533,6 +533,24 @@ export interface Presentation {
   active?: boolean | null;
   coverImage?: (number | null) | Media;
   introduction?: string | null;
+  theme: 'light' | 'dark';
+  displayMode: 'scroll' | 'slideshow';
+  layout?:
+    | (
+        | EntryHeroBlock
+        | EntryCaseStudyBlock
+        | EntryRichTextBlock
+        | EntryMediaBlock
+        | EntryResultsBlock
+        | EntryQuoteBlock
+        | EntryImageGridBlock
+        | EntryVideoBlock
+        | EntryButtonBlock
+        | EntrySpacerBlock
+        | EntryDividerBlock
+        | EntryGoogleSlidesBlock
+      )[]
+    | null;
   supportingLinks?:
     | {
         id: string;
@@ -973,6 +991,24 @@ export interface PresentationsSelect<T extends boolean = true> {
   active?: T;
   coverImage?: T;
   introduction?: T;
+  theme?: T;
+  displayMode?: T;
+  layout?:
+    | T
+    | {
+        entryHero?: T | EntryHeroBlockSelect<T>;
+        entryCaseStudy?: T | EntryCaseStudyBlockSelect<T>;
+        entryRichText?: T | EntryRichTextBlockSelect<T>;
+        entryMedia?: T | EntryMediaBlockSelect<T>;
+        entryResults?: T | EntryResultsBlockSelect<T>;
+        entryQuote?: T | EntryQuoteBlockSelect<T>;
+        entryImageGrid?: T | EntryImageGridBlockSelect<T>;
+        entryVideo?: T | EntryVideoBlockSelect<T>;
+        entryButton?: T | EntryButtonBlockSelect<T>;
+        entrySpacer?: T | EntrySpacerBlockSelect<T>;
+        entryDivider?: T | EntryDividerBlockSelect<T>;
+        entryGoogleSlides?: T | EntryGoogleSlidesBlockSelect<T>;
+      };
   supportingLinks?:
     | T
     | {

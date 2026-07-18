@@ -18,9 +18,17 @@ import { Presentations } from '../src/payload/collections/Presentations.ts'
 import { sharedEntryBlocks } from '../src/blocks/entries/sharedBlocks.ts'
 import { mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
 import { summarizePresentationVisits } from '../src/lib/presentations/summary.ts'
+import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../src/lib/presentations/slideshow.ts'
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
 const publishedId = '2PACX-1vQwertyUiopAsdfGhjkLzxcVbnm123456'
+
+assert.equal(nextSlide(0, 3), 1)
+assert.equal(nextSlide(2, 3), 2)
+assert.equal(previousSlide(2, 3), 1)
+assert.equal(previousSlide(0, 3), 0)
+assert.equal(isInteractiveNavigationTarget({ closest: () => ({}) } as unknown as EventTarget), true)
+assert.equal(isInteractiveNavigationTarget({ closest: () => null } as unknown as EventTarget), false)
 
 assert.deepEqual(sharedEntryBlocks.map((block) => block.slug), [
   'entryHero', 'entryCaseStudy', 'entryRichText', 'entryMedia', 'entryResults', 'entryQuote',
