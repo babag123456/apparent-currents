@@ -1,5 +1,5 @@
 export type FigmaDocumentNode = {
-  absoluteBoundingBox?: { height?: number; width?: number }
+  absoluteBoundingBox?: { height?: number; width?: number; x?: number; y?: number }
   children?: FigmaDocumentNode[]
   id: string
   name?: string
@@ -40,6 +40,27 @@ export function orderFigmaPrototypeFrames(
   const firstId = normaliseNodeId(startNodeId)
   if (!index.has(firstId)) throw new Error('Figma prototype starting frame was not found.')
 
+  const firstNode = index.get(firstId) as FigmaDocumentNode
+  const firstDestinations = new Set<string>()
+  collectDestinations(firstNode, firstDestinations)
+  if (firstDestinations.size === 0) {
+    const canvas = document.type === 'CANVAS'
+      ? document
+      : [...index.values()].find((node) => node.type === 'CANVAS' && node.children?.some((child) => normaliseNodeId(child.id) === firstId))
+    const ordered = (canvas?.children ?? [])
+      .filter((node) => node.type === 'FRAME')
+      .sort((left, right) =>
+        (left.absoluteBoundingBox?.y ?? 0) - (right.absoluteBoundingBox?.y ?? 0) ||
+        (left.absoluteBoundingBox?.x ?? 0) - (right.absoluteBoundingBox?.x ?? 0))
+    const startIndex = ordered.findIndex((node) => normaliseNodeId(node.id) === firstId)
+    if (startIndex >= 0) return ordered.slice(startIndex).map((node, index) => ({
+      height: Math.max(0, node.absoluteBoundingBox?.height ?? 0),
+      name: node.name?.trim() || `Frame ${index + 1}`,
+      nodeId: normaliseNodeId(node.id),
+      width: Math.max(0, node.absoluteBoundingBox?.width ?? 0),
+    }))
+  }
+
   const frames: SyncedFigmaFrame[] = []
   const visited = new Set<string>()
   let currentId: string | undefined = firstId
@@ -68,15 +89,22 @@ type FetchLike = (input: string | URL, init?: RequestInit) => Promise<Response>
 export async function fetchFigmaPrototypeFrames({
   fetchImpl = fetch,
   fileKey,
+  pageId,
   startNodeId,
   token,
 }: {
   fetchImpl?: FetchLike
   fileKey: string
+  pageId?: string
   startNodeId: string
   token: string
 }): Promise<SyncedFigmaFrame[]> {
-  const response = await fetchImpl(`https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}`, {
+  const endpoint = new URL(`https://api.figma.com/v1/files/${encodeURIComponent(fileKey)}${pageId ? '/nodes' : ''}`)
+  if (pageId) {
+    endpoint.searchParams.set('ids', pageId)
+    endpoint.searchParams.set('depth', '1')
+  }
+  const response = await fetchImpl(endpoint, {
     headers: { 'X-Figma-Token': token },
   })
   if (!response.ok) {
@@ -84,12 +112,13 @@ export async function fetchFigmaPrototypeFrames({
     if (response.status === 429) throw new Error('Figma rate-limited the prototype sync. Try again shortly.')
     throw new Error('Figma could not sync this prototype.')
   }
-  let result: { document?: FigmaDocumentNode }
+  let result: { document?: FigmaDocumentNode; nodes?: Record<string, { document?: FigmaDocumentNode }> }
   try {
-    result = await response.json() as { document?: FigmaDocumentNode }
+    result = await response.json() as typeof result
   } catch {
     throw new Error('Figma returned an invalid prototype response.')
   }
-  if (!result.document) throw new Error('Figma returned an invalid prototype response.')
-  return orderFigmaPrototypeFrames(result.document, startNodeId)
+  const document = pageId ? result.nodes?.[pageId]?.document : result.document
+  if (!document) throw new Error('Figma returned an invalid prototype response.')
+  return orderFigmaPrototypeFrames(document, startNodeId)
 }

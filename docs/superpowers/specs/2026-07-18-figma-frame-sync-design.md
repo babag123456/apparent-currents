@@ -8,7 +8,7 @@ A single Figma prototype block should behave like a sequence of native presentat
 
 The Figma block retains one required prototype URL. A server-wide `FIGMA_ACCESS_TOKEN` authenticates sync requests; editors never enter or see credentials.
 
-Saving a presentation fetches the Figma file and follows the prototype's forward navigation connections from the shared starting frame. The block stores the resulting ordered frames, including node ID, name, dimensions, and sync timestamp. Re-saving refreshes the stored sequence.
+Saving a presentation fetches the selected Figma page and follows the prototype's forward navigation connections from the shared starting frame. When the page has no prototype connections, top-level frames are ordered by canvas position, top-to-bottom and then left-to-right. The block stores the resulting ordered frames, including node ID, name, dimensions, and sync timestamp. Re-saving refreshes the stored sequence.
 
 The first release supports linear presentation flows. If a frame has multiple forward destinations, sync stops with an explicit branching-flow validation message rather than choosing a branch silently. Loops, missing start frames, inaccessible files, and empty flows also produce actionable messages.
 
@@ -24,7 +24,7 @@ These fields are read-only in the admin UI. The Figma access token remains an en
 
 ## Sync Architecture
 
-A focused Figma API client extracts the file key and starting node from the validated prototype URL and requests the file document with the server token. A separate pure graph-ordering function indexes frames and their prototype reactions, then walks forward from the starting node.
+A focused Figma API client extracts the file key, selected page, and starting node from the validated prototype URL and requests only that page with the server token. A separate pure ordering function indexes frames and their prototype reactions, then walks forward from the starting node or applies canvas ordering when no reactions exist.
 
 The graph walker rejects ambiguous branches and cycles. Keeping API transport separate from graph interpretation allows deterministic fixture-based tests without network calls.
 

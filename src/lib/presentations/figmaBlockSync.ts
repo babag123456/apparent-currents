@@ -37,7 +37,7 @@ export async function syncFigmaBlocks({
     const parsed = typeof block.prototypeUrl === 'string' ? parseFigmaPrototypeUrl(block.prototypeUrl) : null
     if (!parsed?.startNodeId) throw new Error('Figma prototype URL must include a starting node.')
     try {
-      const syncedFrames = await fetchFrames({ fileKey: parsed.fileKey, startNodeId: parsed.startNodeId, token })
+      const syncedFrames = await fetchFrames({ fileKey: parsed.fileKey, pageId: parsed.pageId, startNodeId: parsed.startNodeId, token })
       return {
         ...block,
         syncedFrames,

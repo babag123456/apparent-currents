@@ -148,7 +148,8 @@ Authoring workflow:
 5. Use **Open presentation** to verify the private page, then copy its `/present/<token>` URL for the client.
 
 Figma prototype blocks use one pasted prototype URL. On save, the server uses
-`FIGMA_ACCESS_TOKEN` to follow the prototype's linear forward connections and
+`FIGMA_ACCESS_TOKEN` to follow the prototype's linear forward connections, or
+to use top-to-bottom/left-to-right canvas order when the page has no connections, and
 stores the resulting frame sequence. In slideshow mode, those frames become
 native presentation slides, so the site's arrows, keyboard navigation, counter,
 and analytics remain authoritative. Tokens must be configured as local or

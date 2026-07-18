@@ -4,7 +4,7 @@
 
 **Goal:** Expand one Payload Figma prototype block into an accurately counted sequence of native presentation slides discovered from the prototype's forward connections.
 
-**Architecture:** A server-only Figma client fetches the file document using `FIGMA_ACCESS_TOKEN`, while a pure graph walker converts its reactions into an ordered linear frame sequence. Payload stores that sequence on the block; public projection expands it into synthetic slide blocks rendered with direct Embed Kit 2.0 URLs.
+**Architecture:** A server-only Figma client fetches the selected page using `FIGMA_ACCESS_TOKEN`, while a pure ordering function follows reactions or falls back to top-to-bottom/left-to-right canvas order when no reactions exist. Payload stores that sequence on the block; public projection expands it into synthetic slide blocks rendered with direct Embed Kit 2.0 URLs.
 
 **Tech Stack:** TypeScript, Payload CMS 3 hooks and block fields, Next.js 16, React 19, Figma REST API, Node assertion smoke tests.
 
@@ -244,4 +244,3 @@ Open `http://localhost:3000/present/amber-orbit-canvas-river-2026-xx`. Confirm t
 - [ ] **Step 5: Commit documentation and final generated artifacts**
 
 Commit: `git add .env.example README.md src/payload-types.ts && git commit -m "docs: configure Figma prototype sync"`
-

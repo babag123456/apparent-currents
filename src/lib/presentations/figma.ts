@@ -15,6 +15,7 @@ export type FigmaPrototypeUrls = {
   embedUrl: string
   fileKey: string
   openUrl: string
+  pageId?: string
   startNodeId?: string
 }
 
@@ -57,6 +58,8 @@ export function parseFigmaPrototypeUrl(
 
   const startNodeParameter = source.searchParams.get('starting-point-node-id') ?? source.searchParams.get('node-id')
   const startNodeId = startNodeParameter ? normaliseNodeId(startNodeParameter) : undefined
+  const pageParameter = source.searchParams.get('page-id')
+  const pageId = pageParameter ? normaliseNodeId(pageParameter) : undefined
   const embed = new URL(`https://embed.figma.com/${segments.join('/')}`)
   for (const key of ALLOWED_QUERY_KEYS) {
     const parameter = open.searchParams.get(key)
@@ -69,7 +72,13 @@ export function parseFigmaPrototypeUrl(
   embed.searchParams.set('embed-host', 'thisisouragency')
   if (interfaceStyle !== 'full') embed.searchParams.set('footer', 'false')
 
-  return { embedUrl: embed.toString(), fileKey, openUrl: open.toString(), ...(startNodeId ? { startNodeId } : {}) }
+  return {
+    embedUrl: embed.toString(),
+    fileKey,
+    openUrl: open.toString(),
+    ...(pageId ? { pageId } : {}),
+    ...(startNodeId ? { startNodeId } : {}),
+  }
 }
 
 export function validateFigmaPrototypeUrl(value?: string | null): true | string {

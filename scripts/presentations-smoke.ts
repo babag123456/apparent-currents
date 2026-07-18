@@ -153,6 +153,7 @@ const overriddenFigma = parseFigmaPrototypeUrl(
 assert.equal(overriddenFigma?.startNodeId, '1:2')
 assert.match(overriddenFigma?.embedUrl ?? '', /node-id=5-6/)
 assert.match(overriddenFigma?.embedUrl ?? '', /starting-point-node-id=1%3A2/)
+assert.equal(scaledFigma?.pageId, '5:6')
 
 const figmaDocument = {
   id: '0:0', name: 'Document', type: 'DOCUMENT', children: [{
@@ -179,23 +180,33 @@ assert.throws(
   /contains a loop/,
 )
 assert.throws(() => orderFigmaPrototypeFrames(figmaDocument, '9:9'), /starting frame was not found/)
+const canvasOrderedDocument = {
+  id: '5:6', name: 'Page', type: 'CANVAS', children: [
+    { id: '1:4', name: 'Third', type: 'FRAME', absoluteBoundingBox: { x: 0, y: 100, width: 1600, height: 900 } },
+    { id: '1:3', name: 'Second', type: 'FRAME', absoluteBoundingBox: { x: 2000, y: 0, width: 1600, height: 900 } },
+    { id: '1:2', name: 'First', type: 'FRAME', absoluteBoundingBox: { x: 0, y: 0, width: 1600, height: 900 } },
+    { id: '9:9', name: 'Ignore section', type: 'SECTION', absoluteBoundingBox: { x: 0, y: -100, width: 1, height: 1 } },
+  ],
+}
+assert.deepEqual(orderFigmaPrototypeFrames(canvasOrderedDocument, '1:2').map((frame) => frame.name), ['First', 'Second', 'Third'])
 
 let figmaRequest: { init?: RequestInit; url?: string } = {}
 const fetchedFrames = await fetchFigmaPrototypeFrames({
   fileKey: figmaKey,
+  pageId: '5:6',
   startNodeId: '1:2',
   token: 'secret-token',
   fetchImpl: async (input, init) => {
     figmaRequest = { url: String(input), init }
-    return new Response(JSON.stringify({ document: figmaDocument }), { status: 200 })
+    return new Response(JSON.stringify({ nodes: { '5:6': { document: figmaDocument } } }), { status: 200 })
   },
 })
 assert.equal(fetchedFrames.length, 3)
-assert.equal(figmaRequest.url, `https://api.figma.com/v1/files/${figmaKey}`)
+assert.equal(figmaRequest.url, `https://api.figma.com/v1/files/${figmaKey}/nodes?ids=5%3A6&depth=1`)
 assert.equal(new Headers(figmaRequest.init?.headers).get('X-Figma-Token'), 'secret-token')
 assert.doesNotMatch(figmaRequest.url ?? '', /secret-token/)
 await assert.rejects(
-  fetchFigmaPrototypeFrames({ fileKey: figmaKey, startNodeId: '1:2', token: 'secret-token', fetchImpl: async () => new Response('private body', { status: 403 }) }),
+  fetchFigmaPrototypeFrames({ fileKey: figmaKey, pageId: '5:6', startNodeId: '1:2', token: 'secret-token', fetchImpl: async () => new Response('private body', { status: 403 }) }),
   /Figma denied access to this prototype/,
 )
 
