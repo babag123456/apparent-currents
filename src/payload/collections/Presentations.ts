@@ -54,6 +54,15 @@ export const Presentations: CollectionConfig = {
   hooks: { beforeValidate: [preparePresentation] },
   versions: { drafts: true },
   fields: [
+    {
+      name: 'engagementSummary',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/payload/PresentationEngagementSummary#PresentationEngagementSummary',
+        },
+      },
+    },
     { name: 'title', type: 'text', required: true },
     { name: 'clientLabel', type: 'text', label: 'Client / project (internal)' },
     {
