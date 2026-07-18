@@ -11,6 +11,10 @@ import {
   validateGoogleSlidesUrl,
 } from '../src/lib/presentations/googleSlides.ts'
 import {
+  parseFigmaPrototypeUrl,
+  validateFigmaPrototypeUrl,
+} from '../src/lib/presentations/figma.ts'
+import {
   createPresentationShareToken,
   isValidPresentationShareToken,
 } from '../src/lib/presentations/shareToken.ts'
@@ -24,6 +28,7 @@ import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../src/
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
 const publishedId = '2PACX-1vQwertyUiopAsdfGhjkLzxcVbnm123456'
+const figmaKey = 'AbCdEfGhIjKlMnOpQrStUv'
 
 assert.equal(nextSlide(0, 3), 1)
 assert.equal(nextSlide(2, 3), 2)
@@ -62,6 +67,39 @@ for (const value of [
 ]) {
   assert.notEqual(validateGoogleSlidesUrl(value), true, `${value} should be rejected`)
   assert.equal(parseGoogleSlidesUrl(value), null)
+}
+
+for (const value of [
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`,
+  `https://www.figma.com/design/${figmaKey}/Client-Prototype?node-id=1-2`,
+  `https://figma.com/file/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`,
+]) {
+  assert.equal(validateFigmaPrototypeUrl(value), true, `${value} should validate`)
+}
+
+const minimalFigma = parseFigmaPrototypeUrl(
+  `https://figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&utm_source=unsafe`,
+)
+assert.equal(minimalFigma?.openUrl, `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`)
+assert.equal(minimalFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(minimalFigma.openUrl)}&hide-ui=1`)
+
+const fullFigma = parseFigmaPrototypeUrl(
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`,
+  'full',
+)
+assert.equal(fullFigma?.openUrl, `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`)
+assert.equal(fullFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(fullFigma.openUrl)}`)
+
+for (const value of [
+  `http://www.figma.com/proto/${figmaKey}/Test`,
+  `https://figma.example/proto/${figmaKey}/Test`,
+  `https://evil.figma.com/proto/${figmaKey}/Test`,
+  `https://user:pass@www.figma.com/proto/${figmaKey}/Test`,
+  'https://www.figma.com/community/file/123',
+  'javascript:alert(1)',
+]) {
+  assert.equal(parseFigmaPrototypeUrl(value), null)
+  assert.notEqual(validateFigmaPrototypeUrl(value), true)
 }
 
 const tokens = new Set(Array.from({ length: 100 }, createPresentationShareToken))
