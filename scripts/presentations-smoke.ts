@@ -13,6 +13,8 @@ import {
   createPresentationShareToken,
   isValidPresentationShareToken,
 } from '../src/lib/presentations/shareToken.ts'
+import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
+import { Presentations } from '../src/payload/collections/Presentations.ts'
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
 const publishedId = '2PACX-1vQwertyUiopAsdfGhjkLzxcVbnm123456'
@@ -104,3 +106,21 @@ assert.deepEqual(
 )
 
 console.log('Presentation smoke checks passed.')
+
+assert.equal(Presentations.slug, 'presentations')
+assert.equal(PresentationVisits.slug, 'presentation-visits')
+assert.equal(await Presentations.access?.read?.({ req: { user: null } } as never), false)
+assert.equal(await PresentationVisits.access?.read?.({ req: { user: null } } as never), false)
+assert.equal(await PresentationVisits.access?.create?.({ req: { user: null } } as never), false)
+
+const presentationHook = Presentations.hooks?.beforeValidate?.[0]
+assert.equal(typeof presentationHook, 'function')
+if (typeof presentationHook === 'function') {
+  const hooked = await presentationHook({
+    data: { slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit` },
+    operation: 'create',
+  } as never)
+  assert.equal(isValidPresentationShareToken(String(hooked?.shareToken)), true)
+  assert.equal(hooked?.embedUrl, `https://docs.google.com/presentation/d/${deckId}/embed`)
+  assert.equal(hooked?.openUrl, `https://docs.google.com/presentation/d/${deckId}/present`)
+}
