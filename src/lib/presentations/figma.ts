@@ -1,7 +1,13 @@
 const FIGMA_HOSTS = new Set(['figma.com', 'www.figma.com'])
 const FIGMA_PATH_TYPES = new Set(['proto', 'design', 'file'])
 const FILE_KEY_PATTERN = /^[A-Za-z0-9]{10,}$/
-const ALLOWED_QUERY_KEYS = ['node-id', 'starting-point-node-id'] as const
+const ALLOWED_QUERY_KEYS = [
+  'node-id',
+  'starting-point-node-id',
+  'page-id',
+  'scaling',
+  'content-scaling',
+] as const
 
 export type FigmaInterfaceStyle = 'minimal' | 'full'
 

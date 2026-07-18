@@ -114,6 +114,14 @@ const fullFigma = parseFigmaPrototypeUrl(
 assert.equal(fullFigma?.openUrl, `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`)
 assert.equal(fullFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(fullFigma.openUrl)}`)
 
+const scaledFigma = parseFigmaPrototypeUrl(
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&starting-point-node-id=3%3A4&page-id=5%3A6&scaling=scale-down&content-scaling=fixed&utm_source=remove-me`,
+)
+assert.equal(
+  scaledFigma?.openUrl,
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&starting-point-node-id=3%3A4&page-id=5%3A6&scaling=scale-down&content-scaling=fixed`,
+)
+
 for (const value of [
   `http://www.figma.com/proto/${figmaKey}/Test`,
   `https://figma.example/proto/${figmaKey}/Test`,
