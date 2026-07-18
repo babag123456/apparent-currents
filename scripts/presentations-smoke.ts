@@ -15,6 +15,7 @@ import {
 } from '../src/lib/presentations/shareToken.ts'
 import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
 import { Presentations } from '../src/payload/collections/Presentations.ts'
+import { toPublicPresentation } from '../src/lib/presentations/repository.ts'
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
 const publishedId = '2PACX-1vQwertyUiopAsdfGhjkLzxcVbnm123456'
@@ -124,3 +125,26 @@ if (typeof presentationHook === 'function') {
   assert.equal(hooked?.embedUrl, `https://docs.google.com/presentation/d/${deckId}/embed`)
   assert.equal(hooked?.openUrl, `https://docs.google.com/presentation/d/${deckId}/present`)
 }
+
+assert.deepEqual(toPublicPresentation({
+  id: 42,
+  title: 'Client deck',
+  clientLabel: 'Secret client',
+  embedUrl: `https://docs.google.com/presentation/d/${deckId}/embed`,
+  openUrl: `https://docs.google.com/presentation/d/${deckId}/present`,
+  introduction: 'A short introduction.',
+  coverImage: { url: 'https://example.com/cover.jpg', alt: 'Cover' },
+  supportingLinks: [
+    { id: 'prototype', label: 'Prototype', href: 'https://example.com/prototype' },
+    { id: 'unsafe', label: 'Unsafe', href: 'javascript:alert(1)' },
+  ],
+  createdAt: 'private',
+  updatedAt: 'private',
+}), {
+  title: 'Client deck',
+  embedUrl: `https://docs.google.com/presentation/d/${deckId}/embed`,
+  openUrl: `https://docs.google.com/presentation/d/${deckId}/present`,
+  introduction: 'A short introduction.',
+  coverImage: { url: 'https://example.com/cover.jpg', alt: 'Cover' },
+  supportingLinks: [{ id: 'prototype', label: 'Prototype', href: 'https://example.com/prototype' }],
+})
