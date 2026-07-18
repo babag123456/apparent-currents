@@ -1,6 +1,6 @@
 import type { CollectionBeforeValidateHook, CollectionConfig, TypeWithID } from 'payload'
 
-import { createPresentationShareToken } from '../../lib/presentations/shareToken.ts'
+import { createPresentationShareToken, isValidPresentationShareToken } from '../../lib/presentations/shareToken.ts'
 import { parseGoogleSlidesUrl, validateGoogleSlidesUrl } from '../../lib/presentations/googleSlides.ts'
 import { isAuthenticated, denyAccess } from '../../lib/security/access.ts'
 import { validatePublicHref } from '../../lib/security/url.ts'
@@ -79,6 +79,7 @@ export const Presentations: CollectionConfig = {
       type: 'text',
       unique: true,
       index: true,
+      validate: (value: null | string | undefined) => !value || isValidPresentationShareToken(value) || 'Private token must be a 32-character URL-safe token.',
       admin: {
         description: 'Clear and save to invalidate the old private link and generate a new one.',
         position: 'sidebar',

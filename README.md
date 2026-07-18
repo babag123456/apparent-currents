@@ -133,6 +133,28 @@ Recommended deployment checks after each preview or production deploy:
 - Local fonts already live under `public/fonts`.
 - Keep the font filenames unchanged.
 
+## Client Presentations
+
+Payload administrators can publish unbranded Google Slides presentations at private, unlisted URLs.
+
+Authoring workflow:
+
+1. In Google Slides, set the deck to **Anyone with the link can view**.
+2. In Payload, create a Presentation and paste the normal sharing or published Slides URL.
+3. Add an optional cover image, introduction, and supporting links.
+4. Publish the document and leave **Active** enabled.
+5. Use **Open presentation** to verify the private page, then copy its `/present/<token>` URL for the client.
+
+The URL token is generated from cryptographically secure random bytes and does not contain the client or project name. Presentation pages are excluded from navigation and search indexing. Clearing the token and saving generates a replacement link; disabling **Active** immediately makes the current link return not found.
+
+Anonymous engagement records page opens, repeat visits from the same browser, approximate active viewing time, coarse device category, and clicks on supporting links. It does not store names, emails, raw IP addresses, precise location, or activity inside the Google Slides iframe. Google Slides must remain link-viewable, and this MVP does not provide password protection.
+
+Run presentation-specific checks with:
+
+```bash
+npm run presentations:smoke
+```
+
 ## Award Media
 
 - Put recovered binaries under `award-kit/public/award-media` for seed imports and UploadThing migrations.

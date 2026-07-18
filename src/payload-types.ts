@@ -72,6 +72,8 @@ export interface Config {
     awards: Award;
     media: Media;
     videos: Video;
+    presentations: Presentation;
+    'presentation-visits': PresentationVisit;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +86,8 @@ export interface Config {
     awards: AwardsSelect<false> | AwardsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
+    presentations: PresentationsSelect<false> | PresentationsSelect<true>;
+    'presentation-visits': PresentationVisitsSelect<false> | PresentationVisitsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -498,6 +502,61 @@ export interface Award {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presentations".
+ */
+export interface Presentation {
+  id: number;
+  title: string;
+  clientLabel?: string | null;
+  /**
+   * Paste a Google Slides sharing or published URL.
+   */
+  slidesUrl: string;
+  embedUrl?: string | null;
+  openUrl?: string | null;
+  /**
+   * Clear and save to invalidate the old private link and generate a new one.
+   */
+  shareToken?: string | null;
+  active?: boolean | null;
+  coverImage?: (number | null) | Media;
+  introduction?: string | null;
+  supportingLinks?:
+    | {
+        id: string;
+        label: string;
+        href: string;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presentation-visits".
+ */
+export interface PresentationVisit {
+  id: number;
+  presentation: number | Presentation;
+  anonymousSessionId: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  visitCount: number;
+  activeSeconds: number;
+  deviceCategory: 'desktop' | 'tablet' | 'mobile' | 'unknown';
+  linkClicks?:
+    | {
+        linkId: string;
+        count: number;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -539,6 +598,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'videos';
         value: number | Video;
+      } | null)
+    | ({
+        relationTo: 'presentations';
+        value: number | Presentation;
+      } | null)
+    | ({
+        relationTo: 'presentation-visits';
+        value: number | PresentationVisit;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -868,6 +935,53 @@ export interface VideosSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presentations_select".
+ */
+export interface PresentationsSelect<T extends boolean = true> {
+  title?: T;
+  clientLabel?: T;
+  slidesUrl?: T;
+  embedUrl?: T;
+  openUrl?: T;
+  shareToken?: T;
+  active?: T;
+  coverImage?: T;
+  introduction?: T;
+  supportingLinks?:
+    | T
+    | {
+        id?: T;
+        label?: T;
+        href?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presentation-visits_select".
+ */
+export interface PresentationVisitsSelect<T extends boolean = true> {
+  presentation?: T;
+  anonymousSessionId?: T;
+  firstSeenAt?: T;
+  lastSeenAt?: T;
+  visitCount?: T;
+  activeSeconds?: T;
+  deviceCategory?: T;
+  linkClicks?:
+    | T
+    | {
+        linkId?: T;
+        count?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

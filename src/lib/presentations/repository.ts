@@ -28,9 +28,7 @@ export type PublicPresentation = {
 
 export function toPublicPresentation(doc: PresentationDocument): PublicPresentation | null {
   const canonical = typeof doc.slidesUrl === 'string' ? parseGoogleSlidesUrl(doc.slidesUrl) : null
-  const embedUrl = canonical?.embedUrl ?? doc.embedUrl
-  const openUrl = canonical?.openUrl ?? doc.openUrl
-  if (!doc.title || !embedUrl || !openUrl) return null
+  if (!doc.title || !canonical) return null
 
   const cover = doc.coverImage && typeof doc.coverImage === 'object'
     ? doc.coverImage as { alt?: unknown; url?: unknown }
@@ -47,8 +45,8 @@ export function toPublicPresentation(doc: PresentationDocument): PublicPresentat
 
   return {
     title: doc.title,
-    embedUrl,
-    openUrl,
+    embedUrl: canonical.embedUrl,
+    openUrl: canonical.openUrl,
     ...(doc.introduction ? { introduction: doc.introduction } : {}),
     ...(cover && typeof cover.url === 'string'
       ? { coverImage: { url: cover.url, ...(typeof cover.alt === 'string' ? { alt: cover.alt } : {}) } }

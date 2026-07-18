@@ -4,6 +4,10 @@ import { isGoogleEmailAllowed } from '../src/lib/security/googleAllowlist.ts'
 import { createSecureOAuthState } from '../src/lib/security/oauth.ts'
 import { getSafePublicHref, validatePublicHref } from '../src/lib/security/url.ts'
 import { getDirectUploadThingContext } from '../src/lib/uploadthing.ts'
+import { parseGoogleSlidesUrl } from '../src/lib/presentations/googleSlides.ts'
+import { isValidPresentationShareToken } from '../src/lib/presentations/shareToken.ts'
+import { Presentations } from '../src/payload/collections/Presentations.ts'
+import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
 
 function assertAcceptedHref(value: string) {
   assert.equal(validatePublicHref(value), true, `${value} should validate`)
@@ -82,5 +86,16 @@ assert.equal(
   }),
   true,
 )
+
+assert.equal(isValidPresentationShareToken('guessable'), false)
+assert.equal(
+  parseGoogleSlidesUrl('https://evil.example/presentation/d/1AbCdEfGhIjKlMnOpQrStUvWxYz_123456/edit'),
+  null,
+)
+assert.equal(await Presentations.access?.read?.({ req: { user: null } } as never), false)
+assert.equal(await PresentationVisits.access?.read?.({ req: { user: null } } as never), false)
+assert.equal(await PresentationVisits.access?.create?.({ req: { user: null } } as never), false)
+assert.equal(await PresentationVisits.access?.update?.({ req: { user: null } } as never), false)
+assert.equal(await PresentationVisits.access?.delete?.({ req: { user: null } } as never), false)
 
 console.log('Security smoke checks passed.')

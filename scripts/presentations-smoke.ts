@@ -131,6 +131,7 @@ assert.deepEqual(toPublicPresentation({
   id: 42,
   title: 'Client deck',
   clientLabel: 'Secret client',
+  slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`,
   embedUrl: `https://docs.google.com/presentation/d/${deckId}/embed`,
   openUrl: `https://docs.google.com/presentation/d/${deckId}/present`,
   introduction: 'A short introduction.',
@@ -149,6 +150,11 @@ assert.deepEqual(toPublicPresentation({
   coverImage: { url: 'https://example.com/cover.jpg', alt: 'Cover' },
   supportingLinks: [{ id: 'prototype', label: 'Prototype', href: 'https://example.com/prototype' }],
 })
+assert.equal(toPublicPresentation({
+  title: 'Unsafe deck',
+  embedUrl: 'https://evil.example/embed',
+  openUrl: 'https://evil.example/open',
+}), null)
 
 assert.deepEqual(mergeLinkClicks([], 'prototype'), [{ linkId: 'prototype', count: 1 }])
 assert.deepEqual(mergeLinkClicks([{ linkId: 'prototype', count: 2 }], 'prototype'), [{ linkId: 'prototype', count: 3 }])

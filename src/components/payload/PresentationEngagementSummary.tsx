@@ -34,14 +34,19 @@ export function PresentationEngagementSummary() {
     <section style={{ border: '1px solid var(--theme-elevation-150)', padding: '1rem', marginBlock: '1rem' }}>
       <h3 style={{ marginTop: 0 }}>Anonymous engagement</h3>
       {loading ? <p>Loading…</p> : (
-        <dl style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(9rem, 1fr))', gap: '1rem' }}>
-          <div><dt>Sessions</dt><dd>{summary.sessions}</dd></div>
-          <div><dt>Total visits</dt><dd>{summary.totalVisits}</dd></div>
-          <div><dt>Returning</dt><dd>{summary.returningSessions}</dd></div>
-          <div><dt>Active time</dt><dd>{Math.round(summary.totalActiveSeconds / 60)} min</dd></div>
-          <div><dt>Average</dt><dd>{summary.averageActiveSeconds} sec</dd></div>
-          <div><dt>Last viewed</dt><dd>{summary.lastSeenAt ? new Date(summary.lastSeenAt).toLocaleString() : 'Never'}</dd></div>
-        </dl>
+        <>
+          <dl style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(9rem, 1fr))', gap: '1rem' }}>
+            <div><dt>Sessions</dt><dd>{summary.sessions}</dd></div>
+            <div><dt>Total visits</dt><dd>{summary.totalVisits}</dd></div>
+            <div><dt>Returning</dt><dd>{summary.returningSessions}</dd></div>
+            <div><dt>Active time</dt><dd>{Math.round(summary.totalActiveSeconds / 60)} min</dd></div>
+            <div><dt>Average</dt><dd>{summary.averageActiveSeconds} sec</dd></div>
+            <div><dt>Last viewed</dt><dd>{summary.lastSeenAt ? new Date(summary.lastSeenAt).toLocaleString() : 'Never'}</dd></div>
+          </dl>
+          {Object.keys(summary.linkClicks).length ? (
+            <p>Supporting-link clicks: {Object.entries(summary.linkClicks).map(([id, count]) => `${id}: ${count}`).join(', ')}</p>
+          ) : null}
+        </>
       )}
     </section>
   )
