@@ -112,6 +112,7 @@ console.log('Presentation smoke checks passed.')
 assert.equal(Presentations.slug, 'presentations')
 assert.equal(PresentationVisits.slug, 'presentation-visits')
 assert.equal(await Presentations.access?.read?.({ req: { user: null } } as never), false)
+assert.equal(await Presentations.access?.read?.({ req: { user: { id: 1 } } } as never), true)
 assert.equal(await PresentationVisits.access?.read?.({ req: { user: null } } as never), false)
 assert.equal(await PresentationVisits.access?.create?.({ req: { user: null } } as never), false)
 

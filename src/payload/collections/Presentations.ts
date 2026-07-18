@@ -2,7 +2,7 @@ import type { CollectionBeforeValidateHook, CollectionConfig, TypeWithID } from 
 
 import { createPresentationShareToken, isValidPresentationShareToken } from '../../lib/presentations/shareToken.ts'
 import { parseGoogleSlidesUrl, validateGoogleSlidesUrl } from '../../lib/presentations/googleSlides.ts'
-import { isAuthenticated, denyAccess } from '../../lib/security/access.ts'
+import { isAuthenticated } from '../../lib/security/access.ts'
 import { validatePublicHref } from '../../lib/security/url.ts'
 
 type PresentationInput = TypeWithID & {
@@ -36,7 +36,7 @@ export const Presentations: CollectionConfig = {
   access: {
     create: isAuthenticated,
     delete: isAuthenticated,
-    read: denyAccess,
+    read: isAuthenticated,
     update: isAuthenticated,
   },
   admin: {
