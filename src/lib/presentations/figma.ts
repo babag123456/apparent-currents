@@ -42,7 +42,7 @@ export function parseFigmaPrototypeUrl(
     const parameter = source.searchParams.get(key)
     if (parameter) open.searchParams.set(key, parameter)
   }
-  if (!open.searchParams.has('scaling')) open.searchParams.set('scaling', 'contain')
+  open.searchParams.set('scaling', 'contain')
 
   const embed = new URL('https://www.figma.com/embed')
   embed.searchParams.set('embed_host', 'share')

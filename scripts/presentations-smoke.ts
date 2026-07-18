@@ -135,11 +135,11 @@ assert.equal(
 assert.equal(fullFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(fullFigma.openUrl)}`)
 
 const scaledFigma = parseFigmaPrototypeUrl(
-  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&starting-point-node-id=3%3A4&page-id=5%3A6&scaling=scale-down&content-scaling=fixed&utm_source=remove-me`,
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&starting-point-node-id=3%3A4&page-id=5%3A6&scaling=min-zoom&content-scaling=fixed&utm_source=remove-me`,
 )
 assert.equal(
   scaledFigma?.openUrl,
-  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&starting-point-node-id=3%3A4&page-id=5%3A6&scaling=scale-down&content-scaling=fixed`,
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&starting-point-node-id=3%3A4&page-id=5%3A6&scaling=contain&content-scaling=fixed`,
 )
 
 for (const value of [
