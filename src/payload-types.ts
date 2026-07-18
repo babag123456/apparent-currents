@@ -184,6 +184,7 @@ export interface AwardEntry {
         | EntryButtonBlock
         | EntrySpacerBlock
         | EntryDividerBlock
+        | EntryGoogleSlidesBlock
       )[]
     | null;
   /**
@@ -479,6 +480,17 @@ export interface EntryDividerBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryGoogleSlidesBlock".
+ */
+export interface EntryGoogleSlidesBlock {
+  title?: string | null;
+  slidesUrl: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'entryGoogleSlides';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "awards".
  */
 export interface Award {
@@ -697,6 +709,7 @@ export interface AwardEntriesSelect<T extends boolean = true> {
         entryButton?: T | EntryButtonBlockSelect<T>;
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
+        entryGoogleSlides?: T | EntryGoogleSlidesBlockSelect<T>;
       };
   generateSlug?: T;
   slug?: T;
@@ -863,6 +876,16 @@ export interface EntrySpacerBlockSelect<T extends boolean = true> {
  */
 export interface EntryDividerBlockSelect<T extends boolean = true> {
   color?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryGoogleSlidesBlock_select".
+ */
+export interface EntryGoogleSlidesBlockSelect<T extends boolean = true> {
+  title?: T;
+  slidesUrl?: T;
   id?: T;
   blockName?: T;
 }

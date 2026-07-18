@@ -15,11 +15,17 @@ import {
 } from '../src/lib/presentations/shareToken.ts'
 import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
 import { Presentations } from '../src/payload/collections/Presentations.ts'
+import { sharedEntryBlocks } from '../src/blocks/entries/sharedBlocks.ts'
 import { mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
 import { summarizePresentationVisits } from '../src/lib/presentations/summary.ts'
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
 const publishedId = '2PACX-1vQwertyUiopAsdfGhjkLzxcVbnm123456'
+
+assert.deepEqual(sharedEntryBlocks.map((block) => block.slug), [
+  'entryHero', 'entryCaseStudy', 'entryRichText', 'entryMedia', 'entryResults', 'entryQuote',
+  'entryImageGrid', 'entryVideo', 'entryButton', 'entrySpacer', 'entryDivider', 'entryGoogleSlides',
+])
 
 for (const value of [
   `https://docs.google.com/presentation/d/${deckId}/edit#slide=id.p`,
