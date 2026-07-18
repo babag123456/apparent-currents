@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { parseGoogleSlidesUrl } from './googleSlides.ts'
+import { parseFigmaPrototypeUrl } from './figma.ts'
 import { isValidPresentationShareToken } from './shareToken.ts'
 import { getSafePublicHref } from '../security/url.ts'
 import { classifyDevice, mergeVisitMetrics, type PresentationEvent } from './analytics.ts'
@@ -62,6 +63,17 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
   if (!value || typeof value !== 'object') return null
   const block = value as Record<string, unknown>
   if (typeof block.id !== 'string' || typeof block.blockType !== 'string') return null
+  if (block.blockType === 'entryFigmaPrototype') {
+    if (typeof block.prototypeUrl !== 'string' || !parseFigmaPrototypeUrl(block.prototypeUrl)) return null
+    const title = typeof block.title === 'string' ? block.title.trim() : ''
+    return {
+      id: block.id,
+      blockType: 'entryFigmaPrototype',
+      prototypeUrl: block.prototypeUrl,
+      ...(title ? { title } : {}),
+      interfaceStyle: block.interfaceStyle === 'full' ? 'full' : 'minimal',
+    }
+  }
   const fields = blockFields[block.blockType]
   if (!fields) return null
   if (block.blockType === 'entryGoogleSlides' &&

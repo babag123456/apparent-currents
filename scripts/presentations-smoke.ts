@@ -265,6 +265,8 @@ assert.deepEqual(toPublicPresentation({
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome', private: 'remove me' },
     { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, arbitrary: true },
+    { id: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Prototype', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, private: 'remove me' },
+    { id: 'bad-figma', blockType: 'entryFigmaPrototype', prototypeUrl: `https://evil.figma.com/proto/${figmaKey}/Client-Prototype` },
     { id: 'bad-slides', blockType: 'entryGoogleSlides', slidesUrl: 'https://evil.example/deck' },
     { id: 'unknown', blockType: 'unknownBlock', headline: 'Nope' },
   ],
@@ -277,6 +279,7 @@ assert.deepEqual(toPublicPresentation({
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome' },
     { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit` },
+    { id: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Prototype', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, interfaceStyle: 'minimal' },
   ],
   supportingLinks: [],
 })
