@@ -14,7 +14,7 @@ export default async function PresentationPage({ params }: { params: Promise<{ s
   const { shareToken } = await params
   const presentation = await getPresentation(shareToken)
   if (!presentation) return notFound()
-  return <PresentationView presentation={presentation} />
+  return <PresentationView presentation={presentation} shareToken={shareToken} />
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ shareToken: string }> }): Promise<Metadata> {

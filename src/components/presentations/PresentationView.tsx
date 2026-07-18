@@ -1,10 +1,12 @@
 import React from 'react'
 
 import type { PublicPresentation } from '../../lib/presentations/repository'
+import { PresentationTracker } from './PresentationTracker'
 
-export function PresentationView({ presentation }: { presentation: PublicPresentation }) {
+export function PresentationView({ presentation, shareToken }: { presentation: PublicPresentation; shareToken: string }) {
   return (
     <main className="presentation-page">
+      <PresentationTracker shareToken={shareToken} />
       <header className="presentation-header">
         {presentation.coverImage ? (
           // Payload media URLs may be remote and are already server-authored.
@@ -33,7 +35,7 @@ export function PresentationView({ presentation }: { presentation: PublicPresent
       <footer className="presentation-actions">
         <a href={presentation.openUrl} target="_blank" rel="noreferrer">Open presentation ↗</a>
         {presentation.supportingLinks.map((link) => (
-          <a key={link.id} href={link.href} target="_blank" rel="noreferrer">{link.label} ↗</a>
+          <a key={link.id} data-presentation-link-id={link.id} href={link.href} target="_blank" rel="noreferrer">{link.label} ↗</a>
         ))}
       </footer>
     </main>

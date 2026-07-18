@@ -15,7 +15,7 @@ import {
 } from '../src/lib/presentations/shareToken.ts'
 import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
 import { Presentations } from '../src/payload/collections/Presentations.ts'
-import { toPublicPresentation } from '../src/lib/presentations/repository.ts'
+import { mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
 const publishedId = '2PACX-1vQwertyUiopAsdfGhjkLzxcVbnm123456'
@@ -148,3 +148,10 @@ assert.deepEqual(toPublicPresentation({
   coverImage: { url: 'https://example.com/cover.jpg', alt: 'Cover' },
   supportingLinks: [{ id: 'prototype', label: 'Prototype', href: 'https://example.com/prototype' }],
 })
+
+assert.deepEqual(mergeLinkClicks([], 'prototype'), [{ linkId: 'prototype', count: 1 }])
+assert.deepEqual(mergeLinkClicks([{ linkId: 'prototype', count: 2 }], 'prototype'), [{ linkId: 'prototype', count: 3 }])
+assert.deepEqual(mergeLinkClicks([{ linkId: 'download', count: 1 }], 'prototype'), [
+  { linkId: 'download', count: 1 },
+  { linkId: 'prototype', count: 1 },
+])
