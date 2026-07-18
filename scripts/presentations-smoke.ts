@@ -40,7 +40,30 @@ assert.equal(isInteractiveNavigationTarget({ closest: () => null } as unknown as
 assert.deepEqual(sharedEntryBlocks.map((block) => block.slug), [
   'entryHero', 'entryCaseStudy', 'entryRichText', 'entryMedia', 'entryResults', 'entryQuote',
   'entryImageGrid', 'entryVideo', 'entryButton', 'entrySpacer', 'entryDivider', 'entryGoogleSlides',
+  'entryFigmaPrototype',
 ])
+
+const figmaBlock = sharedEntryBlocks.find((block) => block.slug === 'entryFigmaPrototype')
+assert.ok(figmaBlock)
+const figmaFields = figmaBlock.fields.filter((field) => 'name' in field) as Array<{
+  defaultValue?: unknown
+  name: string
+  options?: Array<{ value: unknown }>
+  required?: boolean
+}>
+assert.equal(figmaFields.find((field) => field.name === 'prototypeUrl')?.required, true)
+assert.equal(figmaFields.find((field) => field.name === 'interfaceStyle')?.defaultValue, 'minimal')
+assert.deepEqual(
+  figmaFields.find((field) => field.name === 'interfaceStyle')?.options?.map((option) => option.value),
+  ['minimal', 'full'],
+)
+const figmaComponentSource = readFileSync(
+  new URL('../src/blocks/entries/EntryFigmaPrototype/Component.tsx', import.meta.url),
+  'utf8',
+)
+assert.match(figmaComponentSource, /allowFullScreen/)
+assert.match(figmaComponentSource, /strict-origin-when-cross-origin/)
+assert.match(figmaComponentSource, /Open prototype in Figma/)
 
 for (const value of [
   `https://docs.google.com/presentation/d/${deckId}/edit#slide=id.p`,
