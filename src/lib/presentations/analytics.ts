@@ -32,6 +32,16 @@ export function parsePresentationEvent(value: unknown): PresentationEvent | null
     return null
   }
 
+  const allowedKeys: Record<string, string[]> = {
+    open: ['type', 'sessionId'],
+    heartbeat: ['type', 'sessionId', 'activeSeconds'],
+    linkClick: ['type', 'sessionId', 'linkId'],
+    blockHeartbeat: ['type', 'sessionId', 'blockId', 'blockType', 'displayMode', 'activeSeconds'],
+    slideNavigation: ['type', 'sessionId', 'blockId', 'blockType', 'displayMode'],
+  }
+  const eventType = typeof value.type === 'string' ? value.type : null
+  if (!eventType || !allowedKeys[eventType] || Object.keys(value).some((key) => !allowedKeys[eventType].includes(key))) return null
+
   if (value.type === 'open') {
     return { type: 'open', sessionId: value.sessionId }
   }

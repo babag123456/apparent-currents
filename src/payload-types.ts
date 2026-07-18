@@ -593,6 +593,15 @@ export interface PresentationVisit {
         id?: string | null;
       }[]
     | null;
+  blockJourney?:
+    | {
+        blockId: string;
+        blockType: string;
+        displayMode: 'scroll' | 'slideshow';
+        viewedAt: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1059,6 +1068,15 @@ export interface PresentationVisitsSelect<T extends boolean = true> {
         viewed?: T;
         activeSeconds?: T;
         navigationCount?: T;
+        id?: T;
+      };
+  blockJourney?:
+    | T
+    | {
+        blockId?: T;
+        blockType?: T;
+        displayMode?: T;
+        viewedAt?: T;
         id?: T;
       };
   updatedAt?: T;

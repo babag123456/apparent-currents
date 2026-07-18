@@ -149,6 +149,10 @@ The URL token is generated from cryptographically secure random bytes and does n
 
 Anonymous engagement records page opens, repeat visits from the same browser, approximate active viewing time, coarse device category, supporting-link clicks, block viewing time, and slideshow navigation. It does not store authored block content, presentation URLs, names, emails, raw IP addresses, precise location, or activity inside a Google Slides iframe. Existing Slides-only presentations continue to render as a legacy fallback. Google Slides must remain link-viewable, and this MVP does not provide password protection.
 
+Authenticated Payload administrators can view **Presentation analytics** inside each Presentation. The dashboard shows anonymous viewers, total visits, average active time, completion, the most-viewed slide, per-slide reach/time/drop-off, and expandable anonymous session journeys. In scrolling mode these are content blocks; in slideshow mode each native block is a slide. Google Slides is measured as one iframe block because activity inside Google's iframe is not observable.
+
+Session journeys store only block ID/type, display mode, and a server timestamp. Consecutive duplicate entries collapse and each visit is limited to 500 journey entries. Dashboard results are calculated from visit records and align historical activity by stable block ID plus type; deleted blocks remain labelled as legacy activity rather than being reassigned by position.
+
 Run presentation-specific checks with:
 
 ```bash
