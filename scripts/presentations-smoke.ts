@@ -11,6 +11,10 @@ import {
   validateGoogleSlidesUrl,
 } from '../src/lib/presentations/googleSlides.ts'
 import {
+  parseFigmaPrototypeUrl,
+  validateFigmaPrototypeUrl,
+} from '../src/lib/presentations/figma.ts'
+import {
   createPresentationShareToken,
   isValidPresentationShareToken,
 } from '../src/lib/presentations/shareToken.ts'
@@ -24,6 +28,7 @@ import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../src/
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
 const publishedId = '2PACX-1vQwertyUiopAsdfGhjkLzxcVbnm123456'
+const figmaKey = 'AbCdEfGhIjKlMnOpQrStUv'
 
 assert.equal(nextSlide(0, 3), 1)
 assert.equal(nextSlide(2, 3), 2)
@@ -35,7 +40,30 @@ assert.equal(isInteractiveNavigationTarget({ closest: () => null } as unknown as
 assert.deepEqual(sharedEntryBlocks.map((block) => block.slug), [
   'entryHero', 'entryCaseStudy', 'entryRichText', 'entryMedia', 'entryResults', 'entryQuote',
   'entryImageGrid', 'entryVideo', 'entryButton', 'entrySpacer', 'entryDivider', 'entryGoogleSlides',
+  'entryFigmaPrototype',
 ])
+
+const figmaBlock = sharedEntryBlocks.find((block) => block.slug === 'entryFigmaPrototype')
+assert.ok(figmaBlock)
+const figmaFields = figmaBlock.fields.filter((field) => 'name' in field) as Array<{
+  defaultValue?: unknown
+  name: string
+  options?: Array<{ value: unknown }>
+  required?: boolean
+}>
+assert.equal(figmaFields.find((field) => field.name === 'prototypeUrl')?.required, true)
+assert.equal(figmaFields.find((field) => field.name === 'interfaceStyle')?.defaultValue, 'minimal')
+assert.deepEqual(
+  figmaFields.find((field) => field.name === 'interfaceStyle')?.options?.map((option) => option.value),
+  ['minimal', 'full'],
+)
+const figmaComponentSource = readFileSync(
+  new URL('../src/blocks/entries/EntryFigmaPrototype/Component.tsx', import.meta.url),
+  'utf8',
+)
+assert.match(figmaComponentSource, /allowFullScreen/)
+assert.match(figmaComponentSource, /strict-origin-when-cross-origin/)
+assert.match(figmaComponentSource, /Open prototype in Figma/)
 
 for (const value of [
   `https://docs.google.com/presentation/d/${deckId}/edit#slide=id.p`,
@@ -62,6 +90,39 @@ for (const value of [
 ]) {
   assert.notEqual(validateGoogleSlidesUrl(value), true, `${value} should be rejected`)
   assert.equal(parseGoogleSlidesUrl(value), null)
+}
+
+for (const value of [
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`,
+  `https://www.figma.com/design/${figmaKey}/Client-Prototype?node-id=1-2`,
+  `https://figma.com/file/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`,
+]) {
+  assert.equal(validateFigmaPrototypeUrl(value), true, `${value} should validate`)
+}
+
+const minimalFigma = parseFigmaPrototypeUrl(
+  `https://figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&utm_source=unsafe`,
+)
+assert.equal(minimalFigma?.openUrl, `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`)
+assert.equal(minimalFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(minimalFigma.openUrl)}&hide-ui=1`)
+
+const fullFigma = parseFigmaPrototypeUrl(
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`,
+  'full',
+)
+assert.equal(fullFigma?.openUrl, `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`)
+assert.equal(fullFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(fullFigma.openUrl)}`)
+
+for (const value of [
+  `http://www.figma.com/proto/${figmaKey}/Test`,
+  `https://figma.example/proto/${figmaKey}/Test`,
+  `https://evil.figma.com/proto/${figmaKey}/Test`,
+  `https://user:pass@www.figma.com/proto/${figmaKey}/Test`,
+  'https://www.figma.com/community/file/123',
+  'javascript:alert(1)',
+]) {
+  assert.equal(parseFigmaPrototypeUrl(value), null)
+  assert.notEqual(validateFigmaPrototypeUrl(value), true)
 }
 
 const tokens = new Set(Array.from({ length: 100 }, createPresentationShareToken))
@@ -204,6 +265,8 @@ assert.deepEqual(toPublicPresentation({
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome', private: 'remove me' },
     { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, arbitrary: true },
+    { id: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Prototype', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, private: 'remove me' },
+    { id: 'bad-figma', blockType: 'entryFigmaPrototype', prototypeUrl: `https://evil.figma.com/proto/${figmaKey}/Client-Prototype` },
     { id: 'bad-slides', blockType: 'entryGoogleSlides', slidesUrl: 'https://evil.example/deck' },
     { id: 'unknown', blockType: 'unknownBlock', headline: 'Nope' },
   ],
@@ -216,6 +279,7 @@ assert.deepEqual(toPublicPresentation({
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome' },
     { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit` },
+    { id: 'figma-1', blockType: 'entryFigmaPrototype', title: 'Prototype', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`, interfaceStyle: 'minimal' },
   ],
   supportingLinks: [],
 })

@@ -13,6 +13,7 @@ import { EntrySpacerComponent } from './EntrySpacer/Component'
 import { EntryDividerComponent } from './EntryDivider/Component'
 import { EntryButtonComponent } from './EntryButton/Component'
 import { EntryGoogleSlidesComponent } from './EntryGoogleSlides/Component'
+import { EntryFigmaPrototypeComponent } from './EntryFigmaPrototype/Component'
 
 type EntryBlock = {
   id?: string | number | null
@@ -32,6 +33,7 @@ const blockComponents: Record<string, React.ComponentType<any>> = {
   entryDivider: EntryDividerComponent,
   entryButton: EntryButtonComponent,
   entryGoogleSlides: EntryGoogleSlidesComponent,
+  entryFigmaPrototype: EntryFigmaPrototypeComponent,
 }
 
 interface Props {

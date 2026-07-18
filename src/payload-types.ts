@@ -185,6 +185,7 @@ export interface AwardEntry {
         | EntrySpacerBlock
         | EntryDividerBlock
         | EntryGoogleSlidesBlock
+        | EntryFigmaPrototypeBlock
       )[]
     | null;
   /**
@@ -491,6 +492,18 @@ export interface EntryGoogleSlidesBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryFigmaPrototypeBlock".
+ */
+export interface EntryFigmaPrototypeBlock {
+  title?: string | null;
+  prototypeUrl: string;
+  interfaceStyle: 'minimal' | 'full';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'entryFigmaPrototype';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "awards".
  */
 export interface Award {
@@ -549,6 +562,7 @@ export interface Presentation {
         | EntrySpacerBlock
         | EntryDividerBlock
         | EntryGoogleSlidesBlock
+        | EntryFigmaPrototypeBlock
       )[]
     | null;
   supportingLinks?:
@@ -748,6 +762,7 @@ export interface AwardEntriesSelect<T extends boolean = true> {
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
         entryGoogleSlides?: T | EntryGoogleSlidesBlockSelect<T>;
+        entryFigmaPrototype?: T | EntryFigmaPrototypeBlockSelect<T>;
       };
   generateSlug?: T;
   slug?: T;
@@ -929,6 +944,17 @@ export interface EntryGoogleSlidesBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryFigmaPrototypeBlock_select".
+ */
+export interface EntryFigmaPrototypeBlockSelect<T extends boolean = true> {
+  title?: T;
+  prototypeUrl?: T;
+  interfaceStyle?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "awards_select".
  */
 export interface AwardsSelect<T extends boolean = true> {
@@ -1028,6 +1054,7 @@ export interface PresentationsSelect<T extends boolean = true> {
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
         entryGoogleSlides?: T | EntryGoogleSlidesBlockSelect<T>;
+        entryFigmaPrototype?: T | EntryFigmaPrototypeBlockSelect<T>;
       };
   supportingLinks?:
     | T
