@@ -28,7 +28,7 @@ A dedicated parser accepts supported HTTPS Figma prototype/file URLs on the exac
 - URLs without a supported file or prototype path and identifier.
 - Credentials or other malformed URL forms.
 
-The parser constructs both the embed URL and the direct-open URL internally. Query parameters are allowlisted according to the chosen interface style; arbitrary browser-supplied parameters are not reflected into the iframe.
+The parser constructs both the embed URL and the direct-open URL internally. It preserves only Figma's safe prototype-navigation and scaling parameters: `node-id`, `starting-point-node-id`, `page-id`, `scaling`, and `content-scaling`. Arbitrary browser-supplied parameters are not reflected into the iframe.
 
 The public Presentation projection allowlists only the block ID, block type, prototype URL, accessible title, and interface style. It re-validates the stored URL before rendering. Invalid legacy or manipulated blocks are omitted from public output.
 
@@ -36,7 +36,8 @@ The public Presentation projection allowlists only the block ID, block type, pro
 
 The renderer follows the existing Google Slides block structure:
 
-- Responsive 16:9 frame.
+- Responsive frame that fits within both the available width and viewport height.
+- A 16:9 default aspect ratio with clean centred letterboxing instead of cropping or distortion.
 - Fullscreen permission.
 - Strict referrer policy.
 - Accessible iframe title.
@@ -45,6 +46,8 @@ The renderer follows the existing Google Slides block structure:
 `minimal` is the polished client-facing default. `full` exposes the supported Figma controls for inspection and navigation. If Figma refuses or cannot load the embed because of sharing permissions, the surrounding page remains usable and the direct-open fallback remains available.
 
 The block uses the existing presentation wrapper, slideshow navigation safeguards, theme system, and responsive spacing. Interactions inside the cross-origin Figma iframe must not trigger parent slideshow navigation.
+
+In scrolling mode, the frame uses the content width but is capped to the viewport height. In slideshow mode, it expands into the slide's available height after control-safe spacing. The same component and CSS classes serve both modes; the CMS does not gain another fit setting.
 
 ## Analytics and privacy
 
@@ -67,6 +70,8 @@ Test-first coverage will verify:
 - Accepted Figma share/prototype URL shapes and exact-host enforcement.
 - Rejection of HTTP, lookalike hosts, malformed paths, unsafe credentials, and unsupported URLs.
 - Deterministic embed and open URL generation for both interface styles.
+- Preservation of the safe Figma scaling parameters and removal of unrelated query parameters.
+- Shared width/height constraints and slideshow-specific viewport fitting without cropping.
 - Shared block registration and default interface style.
 - Public projection allowlisting and invalid-block removal.
 - Renderer safety attributes, fallback copy, and presentation compatibility.
