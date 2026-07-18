@@ -133,6 +133,32 @@ Recommended deployment checks after each preview or production deploy:
 - Local fonts already live under `public/fonts`.
 - Keep the font filenames unchanged.
 
+## Client Presentations
+
+Payload administrators can publish unbranded, block-based presentations at private, unlisted URLs. Presentations reuse the same content blocks as Award Entries; Google Slides is available as an optional block alongside images, video, rich text, results, quotes, and other native blocks.
+
+Authoring workflow:
+
+1. In Payload, create a Presentation and add content blocks in the desired order.
+2. Choose a light or dark theme and either **Scrolling webpage** or **Full-screen slideshow** mode.
+3. Optionally add a Google Slides block. Set that deck to **Anyone with the link can view**, then paste its sharing or published URL.
+4. Add an optional cover image, introduction, and supporting links, then publish with **Active** enabled.
+5. Use **Open presentation** to verify the private page, then copy its `/present/<token>` URL for the client.
+
+The URL token is generated from cryptographically secure random bytes and does not contain the client or project name. Presentation pages are excluded from navigation and search indexing. Clearing the token and saving generates a replacement link; disabling **Active** immediately makes the current link return not found.
+
+Anonymous engagement records page opens, repeat visits from the same browser, approximate active viewing time, coarse device category, supporting-link clicks, block viewing time, and slideshow navigation. It does not store authored block content, presentation URLs, names, emails, raw IP addresses, precise location, or activity inside a Google Slides iframe. Existing Slides-only presentations continue to render as a legacy fallback. Google Slides must remain link-viewable, and this MVP does not provide password protection.
+
+Authenticated Payload administrators can view **Presentation analytics** inside each Presentation. The dashboard shows anonymous viewers, total visits, average active time, completion, the most-viewed slide, per-slide reach/time/drop-off, and expandable anonymous session journeys. In scrolling mode these are content blocks; in slideshow mode each native block is a slide. Google Slides is measured as one iframe block because activity inside Google's iframe is not observable.
+
+Session journeys store only block ID/type, display mode, and a server timestamp. Consecutive duplicate entries collapse and each visit is limited to 500 journey entries. Dashboard results are calculated from visit records and align historical activity by stable block ID plus type; deleted blocks remain labelled as legacy activity rather than being reassigned by position.
+
+Run presentation-specific checks with:
+
+```bash
+npm run presentations:smoke
+```
+
 ## Award Media
 
 - Put recovered binaries under `award-kit/public/award-media` for seed imports and UploadThing migrations.
