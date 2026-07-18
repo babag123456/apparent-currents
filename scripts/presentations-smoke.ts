@@ -118,14 +118,20 @@ for (const value of [
 const minimalFigma = parseFigmaPrototypeUrl(
   `https://figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&utm_source=unsafe`,
 )
-assert.equal(minimalFigma?.openUrl, `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2`)
+assert.equal(
+  minimalFigma?.openUrl,
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?node-id=1-2&scaling=contain`,
+)
 assert.equal(minimalFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(minimalFigma.openUrl)}&hide-ui=1`)
 
 const fullFigma = parseFigmaPrototypeUrl(
   `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`,
   'full',
 )
-assert.equal(fullFigma?.openUrl, `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4`)
+assert.equal(
+  fullFigma?.openUrl,
+  `https://www.figma.com/proto/${figmaKey}/Client-Prototype?starting-point-node-id=3%3A4&scaling=contain`,
+)
 assert.equal(fullFigma?.embedUrl, `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(fullFigma.openUrl)}`)
 
 const scaledFigma = parseFigmaPrototypeUrl(
