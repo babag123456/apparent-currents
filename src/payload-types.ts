@@ -498,6 +498,17 @@ export interface EntryFigmaPrototypeBlock {
   title?: string | null;
   prototypeUrl: string;
   interfaceStyle: 'minimal' | 'full';
+  syncedFrames?:
+    | {
+        nodeId: string;
+        name: string;
+        width: number;
+        height: number;
+        id?: string | null;
+      }[]
+    | null;
+  figmaSyncedAt?: string | null;
+  figmaSyncError?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'entryFigmaPrototype';
@@ -950,6 +961,17 @@ export interface EntryFigmaPrototypeBlockSelect<T extends boolean = true> {
   title?: T;
   prototypeUrl?: T;
   interfaceStyle?: T;
+  syncedFrames?:
+    | T
+    | {
+        nodeId?: T;
+        name?: T;
+        width?: T;
+        height?: T;
+        id?: T;
+      };
+  figmaSyncedAt?: T;
+  figmaSyncError?: T;
   id?: T;
   blockName?: T;
 }

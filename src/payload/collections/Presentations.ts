@@ -5,6 +5,7 @@ import { parseGoogleSlidesUrl, validateGoogleSlidesUrl } from '../../lib/present
 import { isAuthenticated } from '../../lib/security/access.ts'
 import { validatePublicHref } from '../../lib/security/url.ts'
 import { sharedEntryBlocks } from '../../blocks/entries/sharedBlocks.ts'
+import { syncFigmaBlocks } from '../../lib/presentations/figmaBlockSync.ts'
 
 type PresentationInput = TypeWithID & {
   embedUrl?: string | null
@@ -12,9 +13,10 @@ type PresentationInput = TypeWithID & {
   shareToken?: string | null
   slidesUrl?: string | null
   supportingLinks?: Array<{ href?: string | null; id?: string | null; label?: string | null }> | null
+  layout?: Array<Record<string, unknown>> | null
 }
 
-const preparePresentation: CollectionBeforeValidateHook<PresentationInput> = async ({ data }) => {
+const preparePresentation: CollectionBeforeValidateHook<PresentationInput> = async ({ data, originalDoc }) => {
   if (!data) return data
 
   const urls = data.slidesUrl ? parseGoogleSlidesUrl(data.slidesUrl) : null
@@ -28,6 +30,13 @@ const preparePresentation: CollectionBeforeValidateHook<PresentationInput> = asy
     ...(urls ? urls : {}),
     shareToken: data.shareToken || createPresentationShareToken(),
     ...(supportingLinks ? { supportingLinks } : {}),
+    ...(data.layout ? {
+      layout: await syncFigmaBlocks({
+        layout: data.layout,
+        previousLayout: Array.isArray(originalDoc?.layout) ? originalDoc.layout as Array<Record<string, unknown>> : [],
+        token: process.env.FIGMA_ACCESS_TOKEN ?? '',
+      }),
+    } : {}),
   }
 }
 

@@ -15,6 +15,7 @@ import {
   validateFigmaPrototypeUrl,
 } from '../src/lib/presentations/figma.ts'
 import { fetchFigmaPrototypeFrames, orderFigmaPrototypeFrames } from '../src/lib/presentations/figmaSync.ts'
+import { syncFigmaBlocks } from '../src/lib/presentations/figmaBlockSync.ts'
 import {
   createPresentationShareToken,
   isValidPresentationShareToken,
@@ -196,6 +197,37 @@ assert.doesNotMatch(figmaRequest.url ?? '', /secret-token/)
 await assert.rejects(
   fetchFigmaPrototypeFrames({ fileKey: figmaKey, startNodeId: '1:2', token: 'secret-token', fetchImpl: async () => new Response('private body', { status: 403 }) }),
   /Figma denied access to this prototype/,
+)
+
+const unsyncedLayout = [{ id: 'figma-sync-1', blockType: 'entryFigmaPrototype', prototypeUrl: `https://www.figma.com/proto/${figmaKey}/Deck?node-id=1-2` }]
+let syncCalls = 0
+const syncedLayout = await syncFigmaBlocks({
+  layout: unsyncedLayout,
+  now: new Date('2026-07-18T12:00:00.000Z'),
+  token: 'secret-token',
+  fetchFrames: async () => { syncCalls += 1; return orderFigmaPrototypeFrames(figmaDocument, '1:2') },
+})
+assert.equal(syncCalls, 1)
+assert.equal(syncedLayout[0].syncedFrames?.length, 3)
+assert.equal(syncedLayout[0].figmaSyncedAt, '2026-07-18T12:00:00.000Z')
+await syncFigmaBlocks({
+  layout: syncedLayout,
+  previousLayout: syncedLayout,
+  token: 'secret-token',
+  fetchFrames: async () => { syncCalls += 1; return [] },
+})
+assert.equal(syncCalls, 1)
+const staleLayout = await syncFigmaBlocks({
+  layout: syncedLayout.map((block) => ({ ...block, forceFigmaSync: true })),
+  previousLayout: syncedLayout,
+  token: 'secret-token',
+  fetchFrames: async () => { throw new Error('Figma could not sync this prototype.') },
+})
+assert.equal(staleLayout[0].syncedFrames?.length, 3)
+assert.equal(staleLayout[0].figmaSyncError, 'Figma could not sync this prototype.')
+await assert.rejects(
+  syncFigmaBlocks({ layout: unsyncedLayout, token: '', fetchFrames: async () => [] }),
+  /FIGMA_ACCESS_TOKEN/,
 )
 
 for (const value of [

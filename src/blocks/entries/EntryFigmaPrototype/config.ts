@@ -19,5 +19,18 @@ export const EntryFigmaPrototype: Block = {
         { label: 'Full controls', value: 'full' },
       ],
     },
+    {
+      name: 'syncedFrames',
+      type: 'array',
+      admin: { hidden: true, readOnly: true },
+      fields: [
+        { name: 'nodeId', type: 'text', required: true },
+        { name: 'name', type: 'text', required: true },
+        { name: 'width', type: 'number', required: true },
+        { name: 'height', type: 'number', required: true },
+      ],
+    },
+    { name: 'figmaSyncedAt', type: 'date', admin: { hidden: true, readOnly: true } },
+    { name: 'figmaSyncError', type: 'text', admin: { hidden: true, readOnly: true } },
   ],
 }
