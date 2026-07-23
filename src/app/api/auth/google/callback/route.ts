@@ -40,7 +40,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const googleUser = await exchangeGoogleCodeForUser({ code, origin })
+    const googleUser = await exchangeGoogleCodeForUser({ code })
     const { cookie } = await loginOrProvisionGoogleUser({
       email: googleUser.email,
       googleSub: googleUser.sub,

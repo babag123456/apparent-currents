@@ -27,10 +27,12 @@ export async function GET(request: Request) {
 
   const state = createGoogleAuthState()
 
-  // Set the one-time state cookie directly on the redirect response so the Set-Cookie
-  // header is guaranteed to accompany the 3xx to Google (setting it via next/headers
-  // cookies() does not reliably attach to a separately-constructed redirect response).
-  const response = NextResponse.redirect(buildGoogleAuthUrl(origin, state))
+  // The redirect target is built purely from constants + configured env (no request-derived
+  // data), so it always points at Google's fixed auth endpoint. Set the one-time state cookie
+  // directly on the redirect response so the Set-Cookie header is guaranteed to accompany the
+  // 3xx (setting it via next/headers cookies() does not reliably attach to a separately-
+  // constructed redirect response).
+  const response = NextResponse.redirect(buildGoogleAuthUrl(state))
 
   response.cookies.set(getGoogleStateCookieName(), state, {
     httpOnly: true,
