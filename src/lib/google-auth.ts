@@ -25,8 +25,49 @@ function getGoogleClientSecret() {
   return process.env.GOOGLE_CLIENT_SECRET || ''
 }
 
-function getGoogleCallbackUrl(origin: string) {
-  return process.env.GOOGLE_OAUTH_CALLBACK_URL || new URL('/api/auth/google/callback', origin).toString()
+function getGoogleCallbackUrl() {
+  // Must be an explicitly configured, trusted URL — never derived from the incoming
+  // request. This keeps request-controlled data (e.g. a spoofed Host header) out of the
+  // OAuth redirect entirely.
+  const callbackUrl = process.env.GOOGLE_OAUTH_CALLBACK_URL
+  if (!callbackUrl) {
+    throw new Error('Missing GOOGLE_OAUTH_CALLBACK_URL.')
+  }
+  return callbackUrl
+}
+
+// Allowlist of origins this app is permitted to operate on. Derived from the configured
+// OAuth callback URL (the canonical app origin) plus any explicit extras. Used to reject
+// spoofed Host headers before a request-derived origin is ever used to build a redirect.
+export function getTrustedOrigins(): string[] {
+  const origins = new Set<string>()
+
+  const callbackUrl = process.env.GOOGLE_OAUTH_CALLBACK_URL
+  if (callbackUrl) {
+    try {
+      origins.add(new URL(callbackUrl).origin)
+    } catch {
+      // Ignore an unparseable callback URL; a misconfigured value simply contributes nothing.
+    }
+  }
+
+  for (const value of (process.env.GOOGLE_OAUTH_ALLOWED_ORIGINS || '').split(',')) {
+    const trimmed = value.trim()
+    if (!trimmed) continue
+    try {
+      origins.add(new URL(trimmed).origin)
+    } catch {
+      // Skip malformed allowlist entries.
+    }
+  }
+
+  return [...origins]
+}
+
+// Returns true only when `origin` is on the configured allowlist. If nothing is configured
+// (no callback URL, no extras), no origin can be trusted and this returns false.
+export function isTrustedOrigin(origin: string): boolean {
+  return getTrustedOrigins().includes(origin)
 }
 
 function getGoogleAllowedEmails() {
@@ -41,14 +82,16 @@ function getGoogleAllowedDomain() {
 }
 
 export function isGoogleAuthConfigured() {
-  return Boolean(getGoogleClientId() && getGoogleClientSecret())
+  return Boolean(
+    getGoogleClientId() && getGoogleClientSecret() && process.env.GOOGLE_OAUTH_CALLBACK_URL,
+  )
 }
 
 export function getGoogleStateCookieName() {
   return GOOGLE_AUTH_COOKIE
 }
 
-export function buildGoogleAuthUrl(origin: string, state: string) {
+export function buildGoogleAuthUrl(state: string) {
   const clientId = getGoogleClientId()
 
   if (!clientId) {
@@ -57,7 +100,7 @@ export function buildGoogleAuthUrl(origin: string, state: string) {
 
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth')
   url.searchParams.set('client_id', clientId)
-  url.searchParams.set('redirect_uri', getGoogleCallbackUrl(origin))
+  url.searchParams.set('redirect_uri', getGoogleCallbackUrl())
   url.searchParams.set('response_type', 'code')
   url.searchParams.set('scope', GOOGLE_AUTH_SCOPE)
   url.searchParams.set('state', state)
@@ -87,10 +130,8 @@ function createDerivedGooglePassword(googleSub: string) {
 
 export async function exchangeGoogleCodeForUser({
   code,
-  origin,
 }: {
   code: string
-  origin: string
 }): Promise<Required<Pick<GoogleUserInfo, 'email' | 'sub'>> & GoogleUserInfo> {
   const clientId = getGoogleClientId()
   const clientSecret = getGoogleClientSecret()
@@ -109,7 +150,7 @@ export async function exchangeGoogleCodeForUser({
       client_secret: clientSecret,
       code,
       grant_type: 'authorization_code',
-      redirect_uri: getGoogleCallbackUrl(origin),
+      redirect_uri: getGoogleCallbackUrl(),
     }),
   })
 
