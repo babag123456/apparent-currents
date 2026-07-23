@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 import {
@@ -18,9 +17,13 @@ export async function GET(request: Request) {
 
   const origin = new URL(request.url).origin
   const state = createGoogleAuthState()
-  const cookieStore = await cookies()
 
-  cookieStore.set(getGoogleStateCookieName(), state, {
+  // Set the one-time state cookie directly on the redirect response so the Set-Cookie
+  // header is guaranteed to accompany the 3xx to Google (setting it via next/headers
+  // cookies() does not reliably attach to a separately-constructed redirect response).
+  const response = NextResponse.redirect(buildGoogleAuthUrl(origin, state))
+
+  response.cookies.set(getGoogleStateCookieName(), state, {
     httpOnly: true,
     maxAge: 60 * 10,
     path: '/',
@@ -28,5 +31,5 @@ export async function GET(request: Request) {
     secure: origin.startsWith('https://'),
   })
 
-  return NextResponse.redirect(buildGoogleAuthUrl(origin, state))
+  return response
 }

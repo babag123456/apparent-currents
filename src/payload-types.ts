@@ -69,7 +69,6 @@ export interface Config {
   collections: {
     users: User;
     'award-entries': AwardEntry;
-    awards: Award;
     media: Media;
     videos: Video;
     'payload-kv': PayloadKv;
@@ -81,7 +80,6 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     'award-entries': AwardEntriesSelect<false> | AwardEntriesSelect<true>;
-    awards: AwardsSelect<false> | AwardsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -166,6 +164,10 @@ export interface AwardEntry {
    */
   category?: string | null;
   year?: number | null;
+  /**
+   * Hides this page from the Pages list and disables its public URL (404). The record is retained — it is not deleted.
+   */
+  archived?: boolean | null;
   theme?: ('light' | 'dark') | null;
   layout?:
     | (
@@ -189,6 +191,7 @@ export interface AwardEntry {
   slug: string;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -475,29 +478,6 @@ export interface EntryDividerBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "awards".
- */
-export interface Award {
-  id: number;
-  /**
-   * Campaign or work title the award is for
-   */
-  title: string;
-  /**
-   * e.g. Campaign Asia Awards, B&T Awards
-   */
-  awardBody: string;
-  /**
-   * e.g. Agency of the Year, Campaign of the Year
-   */
-  category?: string | null;
-  year: number;
-  result: 'won' | 'finalist' | 'shortlisted';
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -527,10 +507,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'award-entries';
         value: number | AwardEntry;
-      } | null)
-    | ({
-        relationTo: 'awards';
-        value: number | Award;
       } | null)
     | ({
         relationTo: 'media';
@@ -615,6 +591,7 @@ export interface AwardEntriesSelect<T extends boolean = true> {
   awardBody?: T;
   category?: T;
   year?: T;
+  archived?: T;
   theme?: T;
   layout?:
     | T
@@ -635,6 +612,7 @@ export interface AwardEntriesSelect<T extends boolean = true> {
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -798,19 +776,6 @@ export interface EntryDividerBlockSelect<T extends boolean = true> {
   color?: T;
   id?: T;
   blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "awards_select".
- */
-export interface AwardsSelect<T extends boolean = true> {
-  title?: T;
-  awardBody?: T;
-  category?: T;
-  year?: T;
-  result?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
