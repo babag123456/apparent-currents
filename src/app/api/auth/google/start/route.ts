@@ -5,6 +5,7 @@ import {
   createGoogleAuthState,
   getGoogleStateCookieName,
   isGoogleAuthConfigured,
+  isTrustedOrigin,
 } from '../../../../../lib/google-auth'
 
 export async function GET(request: Request) {
@@ -16,6 +17,14 @@ export async function GET(request: Request) {
   }
 
   const origin = new URL(request.url).origin
+
+  // Only proceed for allowlisted origins. This prevents a spoofed Host header from
+  // influencing the OAuth redirect (the redirect target is always Google, but the
+  // request-derived origin must still be trusted before it is used).
+  if (!isTrustedOrigin(origin)) {
+    return NextResponse.json({ error: 'Untrusted request origin.' }, { status: 400 })
+  }
+
   const state = createGoogleAuthState()
 
   // Set the one-time state cookie directly on the redirect response so the Set-Cookie

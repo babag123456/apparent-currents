@@ -29,6 +29,40 @@ function getGoogleCallbackUrl(origin: string) {
   return process.env.GOOGLE_OAUTH_CALLBACK_URL || new URL('/api/auth/google/callback', origin).toString()
 }
 
+// Allowlist of origins this app is permitted to operate on. Derived from the configured
+// OAuth callback URL (the canonical app origin) plus any explicit extras. Used to reject
+// spoofed Host headers before a request-derived origin is ever used to build a redirect.
+export function getTrustedOrigins(): string[] {
+  const origins = new Set<string>()
+
+  const callbackUrl = process.env.GOOGLE_OAUTH_CALLBACK_URL
+  if (callbackUrl) {
+    try {
+      origins.add(new URL(callbackUrl).origin)
+    } catch {
+      // Ignore an unparseable callback URL; a misconfigured value simply contributes nothing.
+    }
+  }
+
+  for (const value of (process.env.GOOGLE_OAUTH_ALLOWED_ORIGINS || '').split(',')) {
+    const trimmed = value.trim()
+    if (!trimmed) continue
+    try {
+      origins.add(new URL(trimmed).origin)
+    } catch {
+      // Skip malformed allowlist entries.
+    }
+  }
+
+  return [...origins]
+}
+
+// Returns true only when `origin` is on the configured allowlist. If nothing is configured
+// (no callback URL, no extras), no origin can be trusted and this returns false.
+export function isTrustedOrigin(origin: string): boolean {
+  return getTrustedOrigins().includes(origin)
+}
+
 function getGoogleAllowedEmails() {
   return (process.env.GOOGLE_ALLOWED_EMAILS || '')
     .split(',')
