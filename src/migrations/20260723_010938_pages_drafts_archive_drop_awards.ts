@@ -55,6 +55,26 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_award_entries_v_updated_at_idx" ON "_award_entries_v" USING btree ("updated_at");
   CREATE INDEX "_award_entries_v_latest_idx" ON "_award_entries_v" USING btree ("latest");
 
+  -- Backfill a latest=true version row for every existing page. Enabling drafts on a
+  -- collection that already has data leaves the versions table empty, and Payload's
+  -- versioned admin list resolves each doc through its latest version — so without this
+  -- backfill the pre-existing (published) pages drop out of the admin entirely. This
+  -- mirrors the version row Payload writes when a doc is published through the admin.
+  INSERT INTO "_award_entries_v"
+    ("parent_id", "version_title", "version_award_body", "version_category", "version_year",
+     "version_archived", "version_theme", "version_layout", "version_generate_slug", "version_slug",
+     "version_updated_at", "version_created_at", "version__status", "created_at", "updated_at", "latest")
+  SELECT
+    e."id", e."title", e."award_body", e."category", e."year",
+    e."archived",
+    e."theme"::text::"enum__award_entries_v_version_theme",
+    e."layout", e."generate_slug", e."slug",
+    e."updated_at", e."created_at",
+    e."_status"::text::"enum__award_entries_v_version_status",
+    now(), now(), true
+  FROM "award_entries" e
+  WHERE NOT EXISTS (SELECT 1 FROM "_award_entries_v" v WHERE v."parent_id" = e."id");
+
   -- 3: remove the Awards collection -----------------------------------------------------
   ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_awards_fk";
   DROP INDEX IF EXISTS "payload_locked_documents_rels_awards_id_idx";

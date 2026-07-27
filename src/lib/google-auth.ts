@@ -36,6 +36,10 @@ function getGoogleCallbackUrl() {
   return callbackUrl
 }
 
+export function getGoogleCallbackOrigin() {
+  return new URL(getGoogleCallbackUrl()).origin
+}
+
 // Allowlist of origins this app is permitted to operate on. Derived from the configured
 // OAuth callback URL (the canonical app origin) plus any explicit extras. Used to reject
 // spoofed Host headers before a request-derived origin is ever used to build a redirect.
@@ -45,7 +49,7 @@ export function getTrustedOrigins(): string[] {
   const callbackUrl = process.env.GOOGLE_OAUTH_CALLBACK_URL
   if (callbackUrl) {
     try {
-      origins.add(new URL(callbackUrl).origin)
+      origins.add(getGoogleCallbackOrigin())
     } catch {
       // Ignore an unparseable callback URL; a misconfigured value simply contributes nothing.
     }
