@@ -8,7 +8,10 @@ import {
   isGoogleAuthConfigured,
   isTrustedOrigin,
 } from '../../../../../lib/google-auth'
-import { areApexWWWOriginSiblings } from '../../../../../lib/security/origin.ts'
+import {
+  areApexWWWOriginSiblings,
+  getApexWWWCookieDomain,
+} from '../../../../../lib/security/origin.ts'
 
 export async function GET(request: Request) {
   if (!isGoogleAuthConfigured()) {
@@ -21,15 +24,12 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const origin = requestUrl.origin
   const callbackOrigin = getGoogleCallbackOrigin()
-
-  if (origin !== callbackOrigin && areApexWWWOriginSiblings(origin, callbackOrigin)) {
-    return NextResponse.redirect(new URL(requestUrl.pathname, callbackOrigin))
-  }
+  const isEquivalentOrigin = areApexWWWOriginSiblings(origin, callbackOrigin)
 
   // Only proceed for allowlisted origins. This prevents a spoofed Host header from
   // influencing the OAuth redirect (the redirect target is always Google, but the
   // request-derived origin must still be trusted before it is used).
-  if (!isTrustedOrigin(origin)) {
+  if (!isTrustedOrigin(origin) && !isEquivalentOrigin) {
     return NextResponse.json({ error: 'Untrusted request origin.' }, { status: 400 })
   }
 
@@ -42,7 +42,10 @@ export async function GET(request: Request) {
   // constructed redirect response).
   const response = NextResponse.redirect(buildGoogleAuthUrl(state))
 
+  const cookieDomain = getApexWWWCookieDomain(origin, callbackOrigin)
+
   response.cookies.set(getGoogleStateCookieName(), state, {
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
     httpOnly: true,
     maxAge: 60 * 10,
     path: '/',

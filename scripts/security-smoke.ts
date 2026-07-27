@@ -2,7 +2,10 @@ import assert from 'node:assert/strict'
 
 import { isGoogleEmailAllowed } from '../src/lib/security/googleAllowlist.ts'
 import { createSecureOAuthState } from '../src/lib/security/oauth.ts'
-import { areApexWWWOriginSiblings } from '../src/lib/security/origin.ts'
+import {
+  areApexWWWOriginSiblings,
+  getApexWWWCookieDomain,
+} from '../src/lib/security/origin.ts'
 import { getSafePublicHref, validatePublicHref } from '../src/lib/security/url.ts'
 import { getDirectUploadThingContext } from '../src/lib/uploadthing.ts'
 
@@ -68,6 +71,14 @@ assert.equal(
 assert.equal(
   areApexWWWOriginSiblings('https://login.thisisour.agency', 'https://thisisour.agency'),
   false,
+)
+assert.equal(
+  getApexWWWCookieDomain('https://www.thisisour.agency', 'https://thisisour.agency'),
+  'thisisour.agency',
+)
+assert.equal(
+  getApexWWWCookieDomain('https://login.thisisour.agency', 'https://thisisour.agency'),
+  null,
 )
 
 const state = createSecureOAuthState()

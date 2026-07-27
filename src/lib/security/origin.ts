@@ -25,3 +25,14 @@ export function areApexWWWOriginSiblings(firstOrigin: string, secondOrigin: stri
     secondHostname === `www.${firstHostname}`
   )
 }
+
+export function getApexWWWCookieDomain(firstOrigin: string, secondOrigin: string): string | null {
+  if (!areApexWWWOriginSiblings(firstOrigin, secondOrigin)) {
+    return null
+  }
+
+  const firstHostname = new URL(firstOrigin).hostname.toLowerCase()
+  const secondHostname = new URL(secondOrigin).hostname.toLowerCase()
+
+  return firstHostname.startsWith('www.') ? firstHostname.slice(4) : secondHostname.slice(4)
+}
