@@ -3,10 +3,12 @@ import { NextResponse } from 'next/server'
 import {
   buildGoogleAuthUrl,
   createGoogleAuthState,
+  getGoogleCallbackOrigin,
   getGoogleStateCookieName,
   isGoogleAuthConfigured,
   isTrustedOrigin,
 } from '../../../../../lib/google-auth'
+import { areApexWWWOriginSiblings } from '../../../../../lib/security/origin.ts'
 
 export async function GET(request: Request) {
   if (!isGoogleAuthConfigured()) {
@@ -16,7 +18,13 @@ export async function GET(request: Request) {
     )
   }
 
-  const origin = new URL(request.url).origin
+  const requestUrl = new URL(request.url)
+  const origin = requestUrl.origin
+  const callbackOrigin = getGoogleCallbackOrigin()
+
+  if (origin !== callbackOrigin && areApexWWWOriginSiblings(origin, callbackOrigin)) {
+    return NextResponse.redirect(new URL(requestUrl.pathname, callbackOrigin))
+  }
 
   // Only proceed for allowlisted origins. This prevents a spoofed Host header from
   // influencing the OAuth redirect (the redirect target is always Google, but the

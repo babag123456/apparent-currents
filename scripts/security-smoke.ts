@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 
 import { isGoogleEmailAllowed } from '../src/lib/security/googleAllowlist.ts'
 import { createSecureOAuthState } from '../src/lib/security/oauth.ts'
+import { areApexWWWOriginSiblings } from '../src/lib/security/origin.ts'
 import { getSafePublicHref, validatePublicHref } from '../src/lib/security/url.ts'
 import { getDirectUploadThingContext } from '../src/lib/uploadthing.ts'
 
@@ -55,6 +56,19 @@ assertUploadContextRejected('https://metadata.google.internal/')
 assertUploadContextRejected('not a url')
 assertUploadContextAccepted('https://utfs.io/f/example')
 assertUploadContextAccepted('https://abc.ufs.sh/f/example')
+
+assert.equal(
+  areApexWWWOriginSiblings('https://www.thisisour.agency', 'https://thisisour.agency'),
+  true,
+)
+assert.equal(
+  areApexWWWOriginSiblings('http://www.thisisour.agency', 'https://thisisour.agency'),
+  false,
+)
+assert.equal(
+  areApexWWWOriginSiblings('https://login.thisisour.agency', 'https://thisisour.agency'),
+  false,
+)
 
 const state = createSecureOAuthState()
 assert.match(state, /^[0-9a-f]{64}$/)
