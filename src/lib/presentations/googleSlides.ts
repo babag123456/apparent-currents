@@ -6,6 +6,44 @@ export type GoogleSlidesUrls = {
   openUrl: string
 }
 
+export type GoogleSlidesIdentity = {
+  presentationId: string
+  published: boolean
+}
+
+/**
+ * Extracts the raw presentation identifier from a sharing or published URL.
+ * The Slides API can only read standard `/presentation/d/{id}` files, so
+ * callers that sync via the API must reject published (`/d/e/{id}`) URLs.
+ */
+export function extractGoogleSlidesId(value: string): GoogleSlidesIdentity | null {
+  let url: URL
+
+  try {
+    url = new URL(value.trim())
+  } catch {
+    return null
+  }
+
+  if (url.protocol !== 'https:' || url.hostname !== GOOGLE_SLIDES_HOSTNAME) {
+    return null
+  }
+
+  const segments = url.pathname.split('/').filter(Boolean)
+  if (segments[0] !== 'presentation' || segments[1] !== 'd') {
+    return null
+  }
+
+  const published = segments[2] === 'e'
+  const presentationId = published ? segments[3] : segments[2]
+
+  if (!presentationId || !PRESENTATION_ID_PATTERN.test(presentationId)) {
+    return null
+  }
+
+  return { presentationId, published }
+}
+
 export function parseGoogleSlidesUrl(value: string): GoogleSlidesUrls | null {
   let url: URL
 

@@ -1,9 +1,9 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { parseGoogleSlidesUrl } from './googleSlides.ts'
+import { parseGoogleSlidesUrl, extractGoogleSlidesId } from './googleSlides.ts'
 import { parseFigmaPrototypeUrl } from './figma.ts'
-import { expandFigmaSlides } from './figmaSlides.ts'
+import { expandFigmaSlides, expandGoogleSlideDecks } from './figmaSlides.ts'
 import { isValidPresentationShareToken } from './shareToken.ts'
 import { getSafePublicHref } from '../security/url.ts'
 import { classifyDevice, mergeVisitMetrics, type PresentationEvent } from './analytics.ts'
@@ -84,6 +84,24 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
       syncedFrames,
     }
   }
+  if (block.blockType === 'entryGoogleSlidesDeck') {
+    if (typeof block.slidesUrl !== 'string' || !extractGoogleSlidesId(block.slidesUrl)) return null
+    const syncedSlides = Array.isArray(block.syncedSlides) ? block.syncedSlides.flatMap((value) => {
+      if (!value || typeof value !== 'object') return []
+      const slide = value as Record<string, unknown>
+      if (typeof slide.objectId !== 'string' || typeof slide.title !== 'string' ||
+        typeof slide.imageUrl !== 'string' || typeof slide.width !== 'number' || typeof slide.height !== 'number') return []
+      return [{ objectId: slide.objectId, title: slide.title, imageUrl: slide.imageUrl, width: slide.width, height: slide.height }]
+    }) : []
+    const title = typeof block.title === 'string' ? block.title.trim() : ''
+    return {
+      id: block.id,
+      blockType: 'entryGoogleSlidesDeck',
+      slidesUrl: block.slidesUrl,
+      ...(title ? { title } : {}),
+      syncedSlides,
+    }
+  }
   const fields = blockFields[block.blockType]
   if (!fields) return null
   if (block.blockType === 'entryGoogleSlides' &&
@@ -96,7 +114,7 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
 
 export function toPublicPresentation(doc: PresentationDocument): PublicPresentation | null {
   const canonical = typeof doc.slidesUrl === 'string' ? parseGoogleSlidesUrl(doc.slidesUrl) : null
-  const layout = expandFigmaSlides(Array.isArray(doc.layout) ? doc.layout.flatMap((block) => sanitiseBlock(block) ?? []) : [])
+  const layout = expandGoogleSlideDecks(expandFigmaSlides(Array.isArray(doc.layout) ? doc.layout.flatMap((block) => sanitiseBlock(block) ?? []) : []))
   if (!doc.title || (!canonical && layout.length === 0)) return null
 
   const cover = doc.coverImage && typeof doc.coverImage === 'object'
@@ -204,12 +222,21 @@ export function isValidPresentationBlockTarget(
     const block = value as Record<string, unknown>
     if (block.blockType !== blockType || typeof block.id !== 'string') return false
     if (block.id === blockId) return true
-    if (blockType !== 'entryFigmaPrototype' || !Array.isArray(block.syncedFrames)) return false
-    return block.syncedFrames.some((frameValue) => {
-      if (!frameValue || typeof frameValue !== 'object') return false
-      const nodeId = (frameValue as Record<string, unknown>).nodeId
-      return typeof nodeId === 'string' && `${block.id}--figma--${encodeURIComponent(nodeId)}` === blockId
-    })
+    if (blockType === 'entryFigmaPrototype' && Array.isArray(block.syncedFrames)) {
+      return block.syncedFrames.some((frameValue) => {
+        if (!frameValue || typeof frameValue !== 'object') return false
+        const nodeId = (frameValue as Record<string, unknown>).nodeId
+        return typeof nodeId === 'string' && `${block.id}--figma--${encodeURIComponent(nodeId)}` === blockId
+      })
+    }
+    if (blockType === 'entryGoogleSlidesDeck' && Array.isArray(block.syncedSlides)) {
+      return block.syncedSlides.some((slideValue) => {
+        if (!slideValue || typeof slideValue !== 'object') return false
+        const objectId = (slideValue as Record<string, unknown>).objectId
+        return typeof objectId === 'string' && `${block.id}--gslide--${encodeURIComponent(objectId)}` === blockId
+      })
+    }
+    return false
   })
 }
 

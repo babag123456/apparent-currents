@@ -185,6 +185,7 @@ export interface AwardEntry {
         | EntrySpacerBlock
         | EntryDividerBlock
         | EntryGoogleSlidesBlock
+        | EntryGoogleSlidesDeckBlock
         | EntryFigmaPrototypeBlock
       )[]
     | null;
@@ -492,6 +493,37 @@ export interface EntryGoogleSlidesBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryGoogleSlidesDeckBlock".
+ */
+export interface EntryGoogleSlidesDeckBlock {
+  title?: string | null;
+  /**
+   * Editable sharing URL (https://docs.google.com/presentation/d/…). Share the deck with the service-account email.
+   */
+  slidesUrl: string;
+  /**
+   * Tick and save to pull the latest slides even if the URL is unchanged.
+   */
+  forceSlidesSync?: boolean | null;
+  syncedSlides?:
+    | {
+        objectId: string;
+        title: string;
+        imageUrl: string;
+        imageKey: string;
+        width: number;
+        height: number;
+        id?: string | null;
+      }[]
+    | null;
+  slidesSyncedAt?: string | null;
+  slidesSyncError?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'entryGoogleSlidesDeck';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "EntryFigmaPrototypeBlock".
  */
 export interface EntryFigmaPrototypeBlock {
@@ -573,6 +605,7 @@ export interface Presentation {
         | EntrySpacerBlock
         | EntryDividerBlock
         | EntryGoogleSlidesBlock
+        | EntryGoogleSlidesDeckBlock
         | EntryFigmaPrototypeBlock
       )[]
     | null;
@@ -773,6 +806,7 @@ export interface AwardEntriesSelect<T extends boolean = true> {
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
         entryGoogleSlides?: T | EntryGoogleSlidesBlockSelect<T>;
+        entryGoogleSlidesDeck?: T | EntryGoogleSlidesDeckBlockSelect<T>;
         entryFigmaPrototype?: T | EntryFigmaPrototypeBlockSelect<T>;
       };
   generateSlug?: T;
@@ -955,6 +989,30 @@ export interface EntryGoogleSlidesBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryGoogleSlidesDeckBlock_select".
+ */
+export interface EntryGoogleSlidesDeckBlockSelect<T extends boolean = true> {
+  title?: T;
+  slidesUrl?: T;
+  forceSlidesSync?: T;
+  syncedSlides?:
+    | T
+    | {
+        objectId?: T;
+        title?: T;
+        imageUrl?: T;
+        imageKey?: T;
+        width?: T;
+        height?: T;
+        id?: T;
+      };
+  slidesSyncedAt?: T;
+  slidesSyncError?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "EntryFigmaPrototypeBlock_select".
  */
 export interface EntryFigmaPrototypeBlockSelect<T extends boolean = true> {
@@ -1076,6 +1134,7 @@ export interface PresentationsSelect<T extends boolean = true> {
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
         entryGoogleSlides?: T | EntryGoogleSlidesBlockSelect<T>;
+        entryGoogleSlidesDeck?: T | EntryGoogleSlidesDeckBlockSelect<T>;
         entryFigmaPrototype?: T | EntryFigmaPrototypeBlockSelect<T>;
       };
   supportingLinks?:

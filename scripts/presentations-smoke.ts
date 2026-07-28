@@ -7,9 +7,13 @@ import {
   parsePresentationEvent,
 } from '../src/lib/presentations/analytics.ts'
 import {
+  extractGoogleSlidesId,
   parseGoogleSlidesUrl,
   validateGoogleSlidesUrl,
 } from '../src/lib/presentations/googleSlides.ts'
+import { deriveSlideTitle, orderGoogleSlides } from '../src/lib/presentations/googleSlidesSync.ts'
+import { syncGoogleSlidesDecks } from '../src/lib/presentations/googleSlidesBlockSync.ts'
+import { expandGoogleSlideDecks } from '../src/lib/presentations/figmaSlides.ts'
 import {
   parseFigmaPrototypeUrl,
   validateFigmaPrototypeUrl,
@@ -42,7 +46,7 @@ assert.equal(isInteractiveNavigationTarget({ closest: () => null } as unknown as
 assert.deepEqual(sharedEntryBlocks.map((block) => block.slug), [
   'entryHero', 'entryCaseStudy', 'entryRichText', 'entryMedia', 'entryResults', 'entryQuote',
   'entryImageGrid', 'entryVideo', 'entryButton', 'entrySpacer', 'entryDivider', 'entryGoogleSlides',
-  'entryFigmaPrototype',
+  'entryGoogleSlidesDeck', 'entryFigmaPrototype',
 ])
 
 const figmaBlock = sharedEntryBlocks.find((block) => block.slug === 'entryFigmaPrototype')
@@ -80,6 +84,23 @@ const presentationCssSource = readFileSync(
 )
 assert.match(presentationCssSource, /\.figma-prototype__frame\s*\{[\s\S]*?aspect-ratio:\s*16\s*\/\s*9/)
 assert.match(presentationCssSource, /\.presentation-slide \.figma-prototype__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 8rem\)/)
+assert.match(presentationCssSource, /\.google-slides-deck__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 8rem\)/)
+assert.match(presentationCssSource, /\.presentation-slide \.google-slides-deck__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 8rem\)/)
+
+const deckComponentSource = readFileSync(
+  new URL('../src/blocks/entries/EntryGoogleSlidesDeck/Component.tsx', import.meta.url),
+  'utf8',
+)
+assert.match(deckComponentSource, /object-contain/)
+assert.match(deckComponentSource, /strict-origin-when-cross-origin/)
+for (const className of ['google-slides-deck', 'google-slides-deck__inner', 'google-slides-deck__frame', 'google-slides-deck__fallback']) {
+  assert.match(deckComponentSource, new RegExp(className))
+}
+const deckBlock = sharedEntryBlocks.find((block) => block.slug === 'entryGoogleSlidesDeck')
+assert.ok(deckBlock)
+const deckFields = deckBlock.fields.filter((field) => 'name' in field) as Array<{ name: string; required?: boolean }>
+assert.equal(deckFields.find((field) => field.name === 'slidesUrl')?.required, true)
+assert.ok(deckFields.some((field) => field.name === 'syncedSlides'))
 
 for (const value of [
   `https://docs.google.com/presentation/d/${deckId}/edit#slide=id.p`,
@@ -422,6 +443,77 @@ assert.equal(isValidPresentationBlockTarget(analyticsLayout, 'figma-1--figma--1%
 assert.equal(isValidPresentationBlockTarget(analyticsLayout, 'figma-1--figma--9%3A9', 'entryFigmaPrototype'), false)
 assert.equal(isValidPresentationBlockTarget(analyticsLayout, 'figma-1--figma--1%3A2', 'entryHero'), false)
 assert.equal(isValidPresentationBlockTarget(analyticsLayout, 'forged--figma--1%3A2', 'entryFigmaPrototype'), false)
+
+// ── Google Slides deck sync ──────────────────────────────────────────────
+assert.deepEqual(extractGoogleSlidesId(`https://docs.google.com/presentation/d/${deckId}/edit`), { presentationId: deckId, published: false })
+assert.deepEqual(extractGoogleSlidesId(`https://docs.google.com/presentation/d/e/${publishedId}/pub`), { presentationId: publishedId, published: true })
+assert.equal(extractGoogleSlidesId('https://evil.example/presentation/d/x/edit'), null)
+
+assert.equal(deriveSlideTitle({ pageElements: [{ shape: { text: { textElements: [{ textRun: { content: '  Quarterly \n review  ' } }] } } }] }, 0), 'Quarterly review')
+assert.equal(deriveSlideTitle({ pageElements: [] }, 4), 'Slide 5')
+assert.deepEqual(orderGoogleSlides({ slides: [{ objectId: 'p1', pageElements: [{ shape: { text: { textElements: [{ textRun: { content: 'Intro' } }] } } }] }, { objectId: 'p2' }] }), [
+  { objectId: 'p1', title: 'Intro' },
+  { objectId: 'p2', title: 'Slide 2' },
+])
+assert.throws(() => orderGoogleSlides({ slides: [] }), /no slides/)
+
+// Expansion turns a synced deck into one tracked block per slide, dropping the
+// editable deck URL and the server-only UploadThing key.
+const expandedDeck = expandGoogleSlideDecks([
+  { id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, syncedSlides: [
+    { objectId: 'p1', title: 'Intro', imageUrl: 'https://utfs.io/f/p1.png', imageKey: 'p1key', width: 1600, height: 900 },
+    { objectId: 'p2', title: 'Details', imageUrl: 'https://utfs.io/f/p2.png', imageKey: 'p2key', width: 1600, height: 900 },
+  ] },
+])
+assert.deepEqual(expandedDeck, [
+  { id: 'deck-1--gslide--p1', sourceBlockId: 'deck-1', blockType: 'entryGoogleSlidesDeck', title: 'Intro', googleSlideObjectId: 'p1', googleSlideImageUrl: 'https://utfs.io/f/p1.png', googleSlideWidth: 1600, googleSlideHeight: 900 },
+  { id: 'deck-1--gslide--p2', sourceBlockId: 'deck-1', blockType: 'entryGoogleSlidesDeck', title: 'Details', googleSlideObjectId: 'p2', googleSlideImageUrl: 'https://utfs.io/f/p2.png', googleSlideWidth: 1600, googleSlideHeight: 900 },
+])
+// An unsynced deck passes through untouched so the live-embed fallback renders.
+assert.deepEqual(expandGoogleSlideDecks([{ id: 'deck-2', blockType: 'entryGoogleSlidesDeck', slidesUrl: 'x', syncedSlides: [] }]), [
+  { id: 'deck-2', blockType: 'entryGoogleSlidesDeck', slidesUrl: 'x', syncedSlides: [] },
+])
+
+// A synced deck expands through the public sanitiser (imageKey + slidesUrl are stripped).
+const publicDeck = toPublicPresentation({
+  title: 'Deck presentation', theme: 'light', displayMode: 'slideshow',
+  layout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, syncedSlides: [
+    { objectId: 'p1', title: 'Intro', imageUrl: 'https://utfs.io/f/p1.png', imageKey: 'secret-key', width: 1600, height: 900 },
+  ] }],
+})
+assert.deepEqual(publicDeck?.layout, [
+  { id: 'deck-1--gslide--p1', sourceBlockId: 'deck-1', blockType: 'entryGoogleSlidesDeck', title: 'Intro', googleSlideObjectId: 'p1', googleSlideImageUrl: 'https://utfs.io/f/p1.png', googleSlideWidth: 1600, googleSlideHeight: 900 },
+])
+
+const deckAnalyticsLayout = [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', syncedSlides: [{ objectId: 'p1' }, { objectId: 'p2' }] }]
+assert.equal(isValidPresentationBlockTarget(deckAnalyticsLayout, 'deck-1--gslide--p1', 'entryGoogleSlidesDeck'), true)
+assert.equal(isValidPresentationBlockTarget(deckAnalyticsLayout, 'deck-1--gslide--p9', 'entryGoogleSlidesDeck'), false)
+assert.equal(isValidPresentationBlockTarget(deckAnalyticsLayout, 'forged--gslide--p1', 'entryGoogleSlidesDeck'), false)
+
+// Block sync: unchanged URL is skipped; forced re-sync pulls fresh slides.
+const fakeDeck = async () => [{ objectId: 'p1', title: 'Intro', imageUrl: 'https://utfs.io/f/p1.png', imageKey: 'k1', width: 1600, height: 900 }]
+const deckUrl = `https://docs.google.com/presentation/d/${deckId}/edit`
+const skipped = await syncGoogleSlidesDecks({
+  configured: true, fetchDeck: fakeDeck as never, removeImage: async () => undefined,
+  layout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: deckUrl, syncedSlides: [{ objectId: 'old', title: 'Old', imageUrl: 'u', imageKey: 'k', width: 1, height: 1 }] }],
+  previousLayout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: deckUrl, syncedSlides: [{ objectId: 'old', title: 'Old', imageUrl: 'u', imageKey: 'k', width: 1, height: 1 }] }],
+})
+assert.equal((skipped[0].syncedSlides as unknown[]).length, 1)
+assert.equal((skipped[0].syncedSlides as Array<{ objectId: string }>)[0].objectId, 'old')
+
+const resynced = await syncGoogleSlidesDecks({
+  configured: true, fetchDeck: fakeDeck as never, now: new Date('2026-07-18T00:00:00.000Z'), removeImage: async () => undefined,
+  layout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: deckUrl, forceSlidesSync: true, syncedSlides: [] }],
+})
+assert.equal((resynced[0].syncedSlides as Array<{ objectId: string }>)[0].objectId, 'p1')
+assert.equal(resynced[0].slidesSyncError, undefined)
+
+// Unconfigured: authors can still save; the deck degrades to the live embed.
+const unconfigured = await syncGoogleSlidesDecks({
+  configured: false, fetchDeck: fakeDeck as never, removeImage: async () => undefined,
+  layout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: deckUrl, syncedSlides: [] }],
+})
+assert.match(String(unconfigured[0].slidesSyncError), /not configured/)
 
 assert.deepEqual(mergeLinkClicks([], 'prototype'), [{ linkId: 'prototype', count: 1 }])
 assert.deepEqual(mergeLinkClicks([{ linkId: 'prototype', count: 2 }], 'prototype'), [{ linkId: 'prototype', count: 3 }])
