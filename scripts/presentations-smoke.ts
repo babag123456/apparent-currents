@@ -85,7 +85,7 @@ const presentationCssSource = readFileSync(
 assert.match(presentationCssSource, /\.figma-prototype__frame\s*\{[\s\S]*?aspect-ratio:\s*16\s*\/\s*9/)
 assert.match(presentationCssSource, /\.presentation-slide \.figma-prototype__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 8rem\)/)
 assert.match(presentationCssSource, /\.google-slides-deck__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 8rem\)/)
-assert.match(presentationCssSource, /\.presentation-slide \.google-slides-deck__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 8rem\)/)
+assert.match(presentationCssSource, /\.presentation-slide \.google-slides-deck__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 5rem\)/)
 
 const deckComponentSource = readFileSync(
   new URL('../src/blocks/entries/EntryGoogleSlidesDeck/Component.tsx', import.meta.url),
@@ -96,6 +96,20 @@ assert.match(deckComponentSource, /strict-origin-when-cross-origin/)
 for (const className of ['google-slides-deck', 'google-slides-deck__inner', 'google-slides-deck__frame', 'google-slides-deck__fallback']) {
   assert.match(deckComponentSource, new RegExp(className))
 }
+// The inline (module) player is native images with its own nav — no Google
+// iframe, so viewers never reach presenter notes or the deck menu.
+const deckPlayerSource = readFileSync(
+  new URL('../src/components/presentations/GoogleSlidesDeckPlayer.tsx', import.meta.url),
+  'utf8',
+)
+assert.doesNotMatch(deckPlayerSource, /<iframe/)
+assert.match(deckPlayerSource, /requestFullscreen/)
+for (const className of ['google-slides-player', 'google-slides-player__frame', 'google-slides-player__controls']) {
+  assert.match(deckPlayerSource, new RegExp(className))
+}
+assert.match(deckComponentSource, /GoogleSlidesDeckPlayer/)
+assert.match(presentationCssSource, /\.presentation-slideshow:fullscreen[\s\S]*?max-height:\s*100dvh/)
+
 const deckBlock = sharedEntryBlocks.find((block) => block.slug === 'entryGoogleSlidesDeck')
 assert.ok(deckBlock)
 const deckFields = deckBlock.fields.filter((field) => 'name' in field) as Array<{ name: string; required?: boolean }>
