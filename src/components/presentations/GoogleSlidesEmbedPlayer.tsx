@@ -4,18 +4,46 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../../lib/presentations/slideshow'
 
-export type DeckPlayerSlide = { imageUrl: string; title: string; width: number; height: number }
+export type EmbedSlide = { objectId: string; title: string }
 
 const SWIPE_THRESHOLD = 50
 
 /**
- * Self-contained native slideshow for an inline (module) Google Slides deck:
- * re-hosted slide images with prev/next, keyboard, swipe and true fullscreen —
- * no Google chrome, so viewers never reach presenter notes or the deck menu.
+ * Builds the embed URL for a specific slide. `rm=minimal` trims Google's chrome
+ * and the `#slide=id.<objectId>` fragment opens the deck on that slide.
  */
-export function GoogleSlidesDeckPlayer({ slides, title }: { slides: DeckPlayerSlide[]; title?: string | null }) {
+function slideSrc(embedUrl: string, objectId?: string): string {
+  const url = new URL(embedUrl)
+  url.searchParams.set('rm', 'minimal')
+  url.searchParams.set('start', 'false')
+  url.searchParams.set('loop', 'false')
+  return objectId ? `${url.toString()}#slide=id.${objectId}` : url.toString()
+}
+
+/**
+ * Renders a Google Slides deck with its live embed (so video and animation
+ * play) but with our own navigation instead of Google's. Because we own the
+ * current-slide state we can deep-link each slide and, when tracking is on,
+ * report it so the analytics engine records per-slide dwell and popularity.
+ *
+ * Changing slide remounts the iframe (via `key`) so it loads at the target
+ * slide — a deliberate trade-off: motion is preserved at the cost of a brief
+ * reload on navigation.
+ */
+export function GoogleSlidesEmbedPlayer({
+  embedUrl,
+  slides,
+  title,
+  trackAnalytics = false,
+}: {
+  embedUrl: string
+  slides: EmbedSlide[]
+  title?: string | null
+  trackAnalytics?: boolean
+}) {
   const rootRef = useRef<HTMLDivElement>(null)
   const touchStart = useRef<number | null>(null)
+  const hasNavigated = useRef(false)
   const [index, setIndex] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const count = slides.length
@@ -24,7 +52,6 @@ export function GoogleSlidesDeckPlayer({ slides, title }: { slides: DeckPlayerSl
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      // Only steer with the keyboard while this player owns focus.
       if (!rootRef.current?.contains(document.activeElement) && !document.fullscreenElement) return
       if (isInteractiveNavigationTarget(event.target)) return
       if (event.key === 'ArrowRight' || event.key === 'PageDown') { event.preventDefault(); goNext() }
@@ -40,12 +67,24 @@ export function GoogleSlidesDeckPlayer({ slides, title }: { slides: DeckPlayerSl
     return () => document.removeEventListener('fullscreenchange', onChange)
   }, [])
 
+  // Let the analytics tracker attribute navigation to the slide we moved to.
+  useEffect(() => {
+    if (!trackAnalytics) return
+    if (!hasNavigated.current) { hasNavigated.current = true; return }
+    const slide = slides[index]
+    if (slide) {
+      window.dispatchEvent(new CustomEvent('presentation:slide-navigation', {
+        detail: { blockId: slide.objectId, blockType: 'googleSlide' },
+      }))
+    }
+  }, [index, slides, trackAnalytics])
+
   const toggleFullscreen = async () => {
     if (document.fullscreenElement) await document.exitFullscreen()
     else await rootRef.current?.requestFullscreen()
   }
 
-  if (!count) return null
+  if (!count || !embedUrl) return null
   const slide = slides[index]
   const accessibleTitle = title?.trim() || 'Google Slides presentation'
 
@@ -56,6 +95,8 @@ export function GoogleSlidesDeckPlayer({ slides, title }: { slides: DeckPlayerSl
       className="google-slides-player"
       ref={rootRef}
       tabIndex={0}
+      // The tracker reads these to attribute dwell to the current slide.
+      {...(trackAnalytics ? { 'data-presentation-block-id': slide.objectId, 'data-presentation-block-type': 'googleSlide' } : {})}
       onTouchEnd={(event) => {
         if (touchStart.current === null) return
         const delta = event.changedTouches[0].clientX - touchStart.current
@@ -65,10 +106,16 @@ export function GoogleSlidesDeckPlayer({ slides, title }: { slides: DeckPlayerSl
       }}
       onTouchStart={(event) => { touchStart.current = event.changedTouches[0].clientX }}
     >
-      <div className="google-slides-player__frame" style={{ aspectRatio: slide.width && slide.height ? `${slide.width} / ${slide.height}` : '16 / 9' }}>
-        {/* Slide images are synced server-side and re-hosted on UploadThing. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="absolute inset-0 h-full w-full object-contain" src={slide.imageUrl} alt={slide.title || accessibleTitle} loading={index === 0 ? 'eager' : 'lazy'} />
+      <div className="google-slides-player__frame">
+        <iframe
+          key={slide.objectId}
+          className="absolute inset-0 h-full w-full border-0"
+          src={slideSrc(embedUrl, slide.objectId)}
+          title={`${accessibleTitle} — ${slide.title}`}
+          allow="autoplay; fullscreen"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
       </div>
       <nav aria-label="Slideshow controls" className="google-slides-player__controls">
         <button aria-label="Previous slide" disabled={index === 0} onClick={goPrevious} type="button">←</button>
