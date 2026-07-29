@@ -38,7 +38,7 @@ assert.equal(isInteractiveNavigationTarget({ closest: () => null } as unknown as
 
 assert.deepEqual(sharedEntryBlocks.map((block) => block.slug), [
   'entryHero', 'entryCaseStudy', 'entryRichText', 'entryMedia', 'entryResults', 'entryQuote',
-  'entryImageGrid', 'entryVideo', 'entryButton', 'entrySpacer', 'entryDivider', 'entryGoogleSlides',
+  'entryImageGrid', 'entryVideo', 'entryButton', 'entrySpacer', 'entryDivider',
   'entryGoogleSlidesDeck',
 ])
 
@@ -246,8 +246,6 @@ assert.deepEqual(toPublicPresentation({
   displayMode: 'slideshow',
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome', private: 'remove me' },
-    { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, arbitrary: true },
-    { id: 'bad-slides', blockType: 'entryGoogleSlides', slidesUrl: 'https://evil.example/deck' },
     { id: 'unknown', blockType: 'unknownBlock', headline: 'Nope' },
   ],
   clientLabel: 'Private',
@@ -258,7 +256,6 @@ assert.deepEqual(toPublicPresentation({
   displayMode: 'slideshow',
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome' },
-    { id: 'slides-1', blockType: 'entryGoogleSlides', title: 'Research', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit` },
   ],
   supportingLinks: [],
 })

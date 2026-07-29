@@ -47,7 +47,6 @@ const blockFields: Record<string, string[]> = {
   entryButton: ['label', 'url', 'style'],
   entrySpacer: ['size'],
   entryDivider: ['color'],
-  entryGoogleSlides: ['title', 'slidesUrl'],
 }
 
 function sanitiseValue(value: unknown): unknown {
@@ -83,8 +82,6 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
   }
   const fields = blockFields[block.blockType]
   if (!fields) return null
-  if (block.blockType === 'entryGoogleSlides' &&
-    (typeof block.slidesUrl !== 'string' || !parseGoogleSlidesUrl(block.slidesUrl))) return null
   return Object.fromEntries([
     ['id', block.id], ['blockType', block.blockType],
     ...fields.flatMap((key) => key in block ? [[key, sanitiseValue(block[key])]] : []),

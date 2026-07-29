@@ -5,7 +5,7 @@ import { validateGoogleSlidesUrl } from '../../../lib/presentations/googleSlides
 export const EntryGoogleSlidesDeck: Block = {
   slug: 'entryGoogleSlidesDeck',
   interfaceName: 'EntryGoogleSlidesDeckBlock',
-  labels: { singular: 'Google Slides Deck', plural: 'Google Slides Decks' },
+  labels: { singular: 'Google Slide Embed', plural: 'Google Slide Embeds' },
   fields: [
     { name: 'prehead', type: 'text', label: 'Client / Prehead' },
     { name: 'headline', type: 'text', label: 'Headline' },

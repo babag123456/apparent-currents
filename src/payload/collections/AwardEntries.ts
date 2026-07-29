@@ -1,10 +1,24 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 import { slugField } from 'payload'
 
 import { sharedEntryBlocks } from '../../blocks/entries/sharedBlocks.ts'
+import { syncGoogleSlidesDecks } from '../../lib/presentations/googleSlidesBlockSync.ts'
 
 const authenticated = ({ req }: { req: { user?: unknown } }) => Boolean(req.user)
 const anyone = () => true
+
+// Sync any embedded Google Slides deck the same way the Presentations
+// collection does, so decks embedded on a page pull their slide images.
+const syncPageDecks: CollectionBeforeValidateHook = async ({ data, originalDoc }) => {
+  if (!data?.layout) return data
+  return {
+    ...data,
+    layout: await syncGoogleSlidesDecks({
+      layout: data.layout as Array<Record<string, unknown>>,
+      previousLayout: Array.isArray(originalDoc?.layout) ? (originalDoc.layout as Array<Record<string, unknown>>) : [],
+    }),
+  }
+}
 
 export const AwardEntries: CollectionConfig = {
   slug: 'award-entries',
@@ -12,6 +26,7 @@ export const AwardEntries: CollectionConfig = {
   // No-delete (archive-only) model: deletes are only possible via direct Neon SQL,
   // never through the CMS admin, REST, GraphQL, or non-overridden Local API.
   access: { create: authenticated, delete: () => false, read: anyone, update: authenticated },
+  hooks: { beforeValidate: [syncPageDecks] },
   versions: { drafts: true },
   admin: {
     // Hide archived pages from the default list view. Editors can still reach them by

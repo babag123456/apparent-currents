@@ -12,7 +12,6 @@ import { EntryVideoComponent } from './EntryVideo/Component'
 import { EntrySpacerComponent } from './EntrySpacer/Component'
 import { EntryDividerComponent } from './EntryDivider/Component'
 import { EntryButtonComponent } from './EntryButton/Component'
-import { EntryGoogleSlidesComponent } from './EntryGoogleSlides/Component'
 import { EntryGoogleSlidesDeckComponent } from './EntryGoogleSlidesDeck/Component'
 
 type EntryBlock = {
@@ -32,7 +31,6 @@ const blockComponents: Record<string, React.ComponentType<any>> = {
   entrySpacer: EntrySpacerComponent,
   entryDivider: EntryDividerComponent,
   entryButton: EntryButtonComponent,
-  entryGoogleSlides: EntryGoogleSlidesComponent,
   entryGoogleSlidesDeck: EntryGoogleSlidesDeckComponent,
 }
 

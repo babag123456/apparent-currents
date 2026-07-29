@@ -10,11 +10,10 @@ import { EntryVideo } from './EntryVideo/config.ts'
 import { EntryButton } from './EntryButton/config.ts'
 import { EntrySpacer } from './EntrySpacer/config.ts'
 import { EntryDivider } from './EntryDivider/config.ts'
-import { EntryGoogleSlides } from './EntryGoogleSlides/config.ts'
 import { EntryGoogleSlidesDeck } from './EntryGoogleSlidesDeck/config.ts'
 
 export const sharedEntryBlocks: Block[] = [
   EntryHero, EntryCaseStudy, EntryRichText, EntryMedia, EntryResults, EntryQuote,
-  EntryImageGrid, EntryVideo, EntryButton, EntrySpacer, EntryDivider, EntryGoogleSlides,
+  EntryImageGrid, EntryVideo, EntryButton, EntrySpacer, EntryDivider,
   EntryGoogleSlidesDeck,
 ]

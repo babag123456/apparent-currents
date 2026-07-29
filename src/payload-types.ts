@@ -186,7 +186,6 @@ export interface AwardEntry {
         | EntryButtonBlock
         | EntrySpacerBlock
         | EntryDividerBlock
-        | EntryGoogleSlidesBlock
         | EntryGoogleSlidesDeckBlock
       )[]
     | null;
@@ -484,17 +483,6 @@ export interface EntryDividerBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EntryGoogleSlidesBlock".
- */
-export interface EntryGoogleSlidesBlock {
-  title?: string | null;
-  slidesUrl: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'entryGoogleSlides';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "EntryGoogleSlidesDeckBlock".
  */
 export interface EntryGoogleSlidesDeckBlock {
@@ -567,7 +555,6 @@ export interface Presentation {
         | EntryButtonBlock
         | EntrySpacerBlock
         | EntryDividerBlock
-        | EntryGoogleSlidesBlock
         | EntryGoogleSlidesDeckBlock
       )[]
     | null;
@@ -764,7 +751,6 @@ export interface AwardEntriesSelect<T extends boolean = true> {
         entryButton?: T | EntryButtonBlockSelect<T>;
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
-        entryGoogleSlides?: T | EntryGoogleSlidesBlockSelect<T>;
         entryGoogleSlidesDeck?: T | EntryGoogleSlidesDeckBlockSelect<T>;
       };
   generateSlug?: T;
@@ -938,16 +924,6 @@ export interface EntryDividerBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "EntryGoogleSlidesBlock_select".
- */
-export interface EntryGoogleSlidesBlockSelect<T extends boolean = true> {
-  title?: T;
-  slidesUrl?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "EntryGoogleSlidesDeckBlock_select".
  */
 export interface EntryGoogleSlidesDeckBlockSelect<T extends boolean = true> {
@@ -1061,7 +1037,6 @@ export interface PresentationsSelect<T extends boolean = true> {
         entryButton?: T | EntryButtonBlockSelect<T>;
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
-        entryGoogleSlides?: T | EntryGoogleSlidesBlockSelect<T>;
         entryGoogleSlidesDeck?: T | EntryGoogleSlidesDeckBlockSelect<T>;
       };
   supportingLinks?:
