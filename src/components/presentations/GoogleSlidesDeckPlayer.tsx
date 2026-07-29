@@ -17,6 +17,7 @@ export function GoogleSlidesDeckPlayer({ slides, title }: { slides: DeckPlayerSl
   const rootRef = useRef<HTMLDivElement>(null)
   const touchStart = useRef<number | null>(null)
   const [index, setIndex] = useState(0)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const count = slides.length
   const goNext = useCallback(() => setIndex((current) => nextSlide(current, count)), [count])
   const goPrevious = useCallback(() => setIndex((current) => previousSlide(current, count)), [count])
@@ -32,6 +33,12 @@ export function GoogleSlidesDeckPlayer({ slides, title }: { slides: DeckPlayerSl
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [goNext, goPrevious])
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
 
   const toggleFullscreen = async () => {
     if (document.fullscreenElement) await document.exitFullscreen()
@@ -67,7 +74,7 @@ export function GoogleSlidesDeckPlayer({ slides, title }: { slides: DeckPlayerSl
         <button aria-label="Previous slide" disabled={index === 0} onClick={goPrevious} type="button">←</button>
         <span aria-live="polite">{index + 1} / {count}</span>
         <button aria-label="Next slide" disabled={index === count - 1} onClick={goNext} type="button">→</button>
-        <button aria-label="Toggle full screen" onClick={() => void toggleFullscreen()} type="button">Full screen</button>
+        <button aria-label={isFullscreen ? 'Exit full screen' : 'Full screen'} onClick={() => void toggleFullscreen()} type="button">{isFullscreen ? 'Exit full screen' : 'Full screen'}</button>
       </nav>
       <div aria-hidden="true" className="google-slides-player__progress"><span style={{ width: `${((index + 1) / count) * 100}%` }} /></div>
     </div>

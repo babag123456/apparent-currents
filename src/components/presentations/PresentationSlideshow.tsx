@@ -13,6 +13,7 @@ export function PresentationSlideshow({ blocks, title }: { blocks: PresentationB
   const touchStart = useRef<number | null>(null)
   const hasNavigated = useRef(false)
   const [index, setIndex] = useState(0)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const count = blocks.length
   const goNext = useCallback(() => setIndex((current) => nextSlide(current, count)), [count])
   const goPrevious = useCallback(() => setIndex((current) => previousSlide(current, count)), [count])
@@ -44,6 +45,12 @@ export function PresentationSlideshow({ blocks, title }: { blocks: PresentationB
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [goNext, goPrevious])
 
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
   const toggleFullscreen = async () => {
     if (document.fullscreenElement) await document.exitFullscreen()
     else await rootRef.current?.requestFullscreen()
@@ -72,7 +79,7 @@ export function PresentationSlideshow({ blocks, title }: { blocks: PresentationB
         <button disabled={index === 0} onClick={goPrevious} type="button" aria-label="Previous slide">←</button>
         <span aria-live="polite">{index + 1} / {count}</span>
         <button disabled={index === count - 1} onClick={goNext} type="button" aria-label="Next slide">→</button>
-        <button onClick={() => void toggleFullscreen()} type="button">Full screen</button>
+        <button onClick={() => void toggleFullscreen()} type="button" aria-label={isFullscreen ? 'Exit full screen' : 'Full screen'}>{isFullscreen ? 'Exit full screen' : 'Full screen'}</button>
       </nav>
       <div className="presentation-progress" aria-hidden="true"><span style={{ width: `${((index + 1) / count) * 100}%` }} /></div>
     </div>
