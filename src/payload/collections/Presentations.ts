@@ -46,9 +46,11 @@ async function resolveSlides(
     const slides = await fetchGoogleSlideList({ slidesUrl: data.slidesUrl })
     return { slides, slidesSyncedAt: now.toISOString(), slidesSyncError: null, forceSlidesSync: false }
   } catch (error) {
-    if (!existing.length) throw error
+    // Never block the save on a sync failure (e.g. the deck isn't shared with
+    // the service account yet). Keep any previously synced slides, record the
+    // reason, and let the page fall back to Google's live player meanwhile.
     return {
-      slides: existing,
+      ...(existing.length ? { slides: existing } : {}),
       slidesSyncError: error instanceof Error ? error.message : 'Google could not sync this presentation.',
       forceSlidesSync: false,
     }
@@ -129,8 +131,8 @@ export const Presentations: CollectionConfig = {
         { name: 'title', type: 'text', required: true },
       ],
     },
-    { name: 'slidesSyncedAt', type: 'date', admin: { hidden: true, readOnly: true } },
-    { name: 'slidesSyncError', type: 'text', admin: { hidden: true, readOnly: true } },
+    { name: 'slidesSyncedAt', type: 'date', admin: { readOnly: true, description: 'When the slide list was last synced from Google.' } },
+    { name: 'slidesSyncError', type: 'text', admin: { readOnly: true, description: 'Last sync problem, if any (e.g. share the deck with the service-account email, then tick “Force re-sync” and save).' } },
     { name: 'embedUrl', type: 'text', admin: { hidden: true, readOnly: true } },
     { name: 'openUrl', type: 'text', admin: { hidden: true, readOnly: true } },
     {
