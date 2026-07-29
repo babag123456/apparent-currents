@@ -86,6 +86,11 @@ Typical callback URLs:
 - local: `http://localhost:3000/api/auth/google/callback`
 - production: `https://thisisour.agency/api/auth/google/callback`
 
+The callback URL is the canonical OAuth origin. If production is visited through the
+equivalent `www` or apex host, `/api/auth/google/start` is allowed to begin the flow
+and stores the OAuth state cookie on the shared parent domain so the canonical
+callback can verify it.
+
 The Google callback creates or updates the matching Payload `users` record, links it by Google subject ID, and then creates a normal Payload auth cookie for `/admin`.
 
 ## Security Model

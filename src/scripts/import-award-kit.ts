@@ -71,13 +71,6 @@ function remapLegacyMedia(blocks: Array<Record<string, unknown>>, mediaIds: Map<
   })
 }
 
-async function createAward(payload: Payload, awardData: Record<string, unknown>) {
-  await payload.create({
-    collection: 'awards',
-    data: awardData as never,
-  })
-}
-
 async function createAwardEntry(payload: Payload, entryData: Record<string, unknown>) {
   await payload.create({
     collection: 'award-entries',
@@ -90,7 +83,6 @@ async function main() {
   const manifest = await readJson<AssetManifestEntry[]>('asset-manifest.json')
   const mediaDocs = await readJson<MediaImportDoc[]>('media.json')
   const awardEntries = await readJson<AwardEntryImportDoc[]>('award-entries.json')
-  const awards = await readJson<Array<Record<string, unknown>>>('awards.json')
 
   const assetMap = new Map(manifest.map((asset) => [asset.legacyId, asset]))
   const mediaIdMap = new Map<string, string>()
@@ -130,14 +122,8 @@ async function main() {
     })
   }
 
-  for (const award of awards) {
-    const { legacyId, ...awardData } = award as { legacyId?: string } & Record<string, unknown>
-    void legacyId
-    await createAward(payload, awardData)
-  }
-
   console.log(
-    `Imported ${mediaIdMap.size} media, ${awardEntries.length} award entries, and ${awards.length} awards`,
+    `Imported ${mediaIdMap.size} media and ${awardEntries.length} award entries`,
   )
 }
 

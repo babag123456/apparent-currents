@@ -11,7 +11,14 @@ export function GoogleLoginButton() {
         marginTop: '1rem',
       }}
     >
+      {/*
+        prefetch={false} is required, not cosmetic: next/link otherwise speculatively
+        prefetches this href, executing the /api/auth/google/start GET handler and rotating
+        the one-time OAuth state cookie before the real click — which causes
+        google_oauth_state_mismatch on the first login attempt.
+      */}
       <Link
+        prefetch={false}
         href="/api/auth/google/start"
         style={{
           alignItems: 'center',

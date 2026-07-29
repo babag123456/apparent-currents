@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import {
   exchangeGoogleCodeForUser,
   getGoogleStateCookieName,
+  isTrustedOrigin,
   loginOrProvisionGoogleUser,
 } from '../../../../../lib/google-auth'
 
@@ -16,6 +17,12 @@ function redirectToAdminError(origin: string, message: string) {
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const origin = url.origin
+
+  // Reject spoofed Host headers before the request-derived origin is used in any redirect.
+  if (!isTrustedOrigin(origin)) {
+    return NextResponse.json({ error: 'Untrusted request origin.' }, { status: 400 })
+  }
+
   const cookieStore = await cookies()
   const expectedState = cookieStore.get(getGoogleStateCookieName())?.value
   const code = url.searchParams.get('code')
@@ -33,7 +40,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const googleUser = await exchangeGoogleCodeForUser({ code, origin })
+    const googleUser = await exchangeGoogleCodeForUser({ code })
     const { cookie } = await loginOrProvisionGoogleUser({
       email: googleUser.email,
       googleSub: googleUser.sub,

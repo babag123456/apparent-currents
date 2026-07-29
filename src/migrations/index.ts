@@ -1,7 +1,5 @@
 import * as migration_20260430_162543_add_user_google_fields from './20260430_162543_add_user_google_fields';
-import * as migration_20260718_011824 from './20260718_011824';
-import * as migration_20260718_025007 from './20260718_025007';
-import * as migration_20260718_070309 from './20260718_070309';
+import * as migration_20260723_010938_pages_drafts_archive_drop_awards from './20260723_010938_pages_drafts_archive_drop_awards';
 
 export const migrations = [
   {
@@ -10,18 +8,8 @@ export const migrations = [
     name: '20260430_162543_add_user_google_fields',
   },
   {
-    up: migration_20260718_011824.up,
-    down: migration_20260718_011824.down,
-    name: '20260718_011824',
-  },
-  {
-    up: migration_20260718_025007.up,
-    down: migration_20260718_025007.down,
-    name: '20260718_025007',
-  },
-  {
-    up: migration_20260718_070309.up,
-    down: migration_20260718_070309.down,
-    name: '20260718_070309'
+    up: migration_20260723_010938_pages_drafts_archive_drop_awards.up,
+    down: migration_20260723_010938_pages_drafts_archive_drop_awards.down,
+    name: '20260723_010938_pages_drafts_archive_drop_awards'
   },
 ];

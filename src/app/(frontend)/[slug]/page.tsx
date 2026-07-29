@@ -24,7 +24,13 @@ const getEntry = cache(async (slug: string): Promise<EntryDoc | null> => {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'award-entries',
-    where: { slug: { equals: slug } },
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { _status: { equals: 'published' } },
+        { archived: { not_equals: true } },
+      ],
+    },
     depth: 2,
     limit: 1,
     pagination: false,
