@@ -7,7 +7,17 @@ export const EntryGoogleSlidesDeck: Block = {
   interfaceName: 'EntryGoogleSlidesDeckBlock',
   labels: { singular: 'Google Slides Deck', plural: 'Google Slides Decks' },
   fields: [
+    { name: 'prehead', type: 'text', label: 'Client / Prehead' },
+    { name: 'headline', type: 'text', label: 'Headline' },
+    { name: 'intro', type: 'textarea', label: 'Intro Text' },
     { name: 'title', type: 'text', label: 'Accessible title' },
+    {
+      name: 'linkedPresentation',
+      type: 'relationship',
+      relationTo: 'presentations' as never,
+      label: 'Linked presentation page',
+      admin: { description: 'Optional. Links this module to a presentation page; shows an “Open presentation” button and keeps the two connected for reporting.' },
+    },
     {
       name: 'slidesUrl',
       type: 'text',

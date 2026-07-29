@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import React, { cache } from 'react'
 
 import { RenderEntryBlocks } from '../../../blocks/entries/RenderEntryBlocks'
+import { resolveLinkedPresentationHref } from '../../../lib/presentations/repository'
 import { BackToTopButton } from '../../../components/BackToTopButton'
 import { EntryThemeProvider } from '../../../components/entry-theme/EntryThemeProvider'
 import { EntryThemeToggle } from '../../../components/entry-theme/EntryThemeToggle'
@@ -36,7 +37,19 @@ const getEntry = cache(async (slug: string): Promise<EntryDoc | null> => {
     pagination: false,
   })
 
-  return (result.docs[0] as unknown as EntryDoc | undefined) ?? null
+  const entry = (result.docs[0] as unknown as EntryDoc | undefined) ?? null
+  if (entry?.layout) {
+    // Resolve each Google Slides deck's linked presentation to a share link
+    // here (server-side, overrideAccess) so the block component stays sync.
+    await Promise.all(
+      entry.layout.map(async (block) => {
+        if (block?.blockType === 'entryGoogleSlidesDeck' && block.linkedPresentation) {
+          block.linkedPresentationHref = await resolveLinkedPresentationHref(block.linkedPresentation)
+        }
+      }),
+    )
+  }
+  return entry
 })
 
 export default async function EntryPage({

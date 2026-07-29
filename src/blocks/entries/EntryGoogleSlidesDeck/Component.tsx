@@ -1,31 +1,39 @@
 import React from 'react'
 
-import { parseGoogleSlidesUrl } from '../../../lib/presentations/googleSlides'
 import { GoogleSlidesDeckPlayer, type DeckPlayerSlide } from '../../../components/presentations/GoogleSlidesDeckPlayer'
 
 type SyncedSlide = { imageUrl?: string | null; title?: string | null; width?: number | null; height?: number | null }
 
 type Props = {
+  prehead?: string | null
+  headline?: string | null
+  intro?: string | null
+  title?: string | null
+  // Set only on the presentation page, where each deck is expanded to one
+  // tracked block per slide.
   googleSlideImageUrl?: string | null
   googleSlideWidth?: number | null
   googleSlideHeight?: number | null
-  slidesUrl?: string | null
+  // Present in the inline (module) context, straight from the stored block.
   syncedSlides?: SyncedSlide[] | null
-  title?: string | null
+  // Resolved server-side in the page loader when a presentation is linked.
+  linkedPresentationHref?: string | null
 }
 
 export function EntryGoogleSlidesDeckComponent({
+  prehead,
+  headline,
+  intro,
+  title,
   googleSlideImageUrl,
   googleSlideWidth,
   googleSlideHeight,
-  slidesUrl,
   syncedSlides,
-  title,
+  linkedPresentationHref,
 }: Props) {
   const accessibleTitle = title?.trim() || 'Google Slides slide'
 
-  // On the presentation page each deck is expanded into one tracked block per
-  // slide, so this branch renders a single re-hosted image.
+  // Presentation page: a single expanded, individually tracked slide image.
   if (googleSlideImageUrl) {
     const aspectRatio = googleSlideWidth && googleSlideHeight ? `${googleSlideWidth} / ${googleSlideHeight}` : '16 / 9'
     return (
@@ -41,9 +49,9 @@ export function EntryGoogleSlidesDeckComponent({
     )
   }
 
-  // Inline (module) use: a synced deck renders as a self-contained native
-  // slideshow — images only, so viewers never reach presenter notes or the
-  // Google menu. Only image fields are passed to the client (never slidesUrl).
+  // Inline (module) use: header + a self-contained native slideshow of the
+  // synced images. No Google iframe, so viewers never see the Google Slides
+  // chrome or reach presenter notes.
   const slides: DeckPlayerSlide[] = Array.isArray(syncedSlides)
     ? syncedSlides.flatMap((slide) =>
         slide && typeof slide.imageUrl === 'string'
@@ -51,27 +59,26 @@ export function EntryGoogleSlidesDeckComponent({
           : [],
       )
     : []
-  if (slides.length) {
-    return (
-      <section className="google-slides-deck py-8 md:py-12">
-        <div className="google-slides-deck__inner mx-auto max-w-[1440px] px-4 md:px-6">
-          <GoogleSlidesDeckPlayer slides={slides} title={title} />
-        </div>
-      </section>
-    )
-  }
 
-  // Unsynced fallback: show the live Google embed so the deck is never blank
-  // until the service account is configured and the deck is synced.
-  const urls = slidesUrl ? parseGoogleSlidesUrl(slidesUrl) : null
-  if (!urls) return null
+  const hasHeader = Boolean(prehead?.trim() || headline?.trim() || intro?.trim())
+  if (!hasHeader && !slides.length && !linkedPresentationHref) return null
+
   return (
     <section className="google-slides-deck py-8 md:py-12">
       <div className="google-slides-deck__inner mx-auto max-w-[1440px] px-4 md:px-6">
-        <div className="google-slides-deck__frame" style={{ aspectRatio: '16 / 9' }}>
-          <iframe className="absolute inset-0 h-full w-full border-0" src={urls.embedUrl} title={accessibleTitle} allow="fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
-        </div>
-        <a className="google-slides-deck__fallback mt-3 inline-block font-mono text-xs uppercase tracking-wider underline" href={urls.openUrl} target="_blank" rel="noreferrer">Open presentation ↗</a>
+        {hasHeader && (
+          <div className="google-slides-deck__header mb-8">
+            {prehead?.trim() && <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-red mb-3">{prehead}</p>}
+            {headline?.trim() && <h2 className="font-sans text-3xl md:text-5xl font-[500] leading-[1.1] tracking-tight" style={{ color: 'var(--entry-text)' }}>{headline}</h2>}
+            {intro?.trim() && <p className="mt-5 text-base sm:text-lg md:text-xl font-[300] leading-relaxed whitespace-pre-line" style={{ color: 'var(--entry-muted)' }}>{intro}</p>}
+          </div>
+        )}
+        {slides.length ? <GoogleSlidesDeckPlayer slides={slides} title={title} /> : null}
+        {linkedPresentationHref && (
+          <a className="google-slides-deck__open mt-4 inline-block font-mono text-xs uppercase tracking-wider underline" href={linkedPresentationHref} target="_blank" rel="noreferrer">
+            Open presentation ↗
+          </a>
+        )}
       </div>
     </section>
   )

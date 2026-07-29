@@ -24,8 +24,8 @@ async function deleteImages(slides: SyncedGoogleSlide[] | undefined, remove: typ
 /**
  * Payload `beforeValidate` helper: syncs every `entryGoogleSlidesDeck` block in
  * a layout. Skips blocks whose sharing URL is unchanged (unless the author ticks
- * "force sync"), and — like the Figma sync — preserves the last good slides if a
- * re-sync fails so a transient Google error never wipes a working deck.
+ * "force sync"), and preserves the last good slides if a re-sync fails so a
+ * transient Google error never wipes a working deck.
  */
 export async function syncGoogleSlidesDecks({
   configured = isGoogleSlidesConfigured(),

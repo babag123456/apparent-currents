@@ -5,7 +5,6 @@ import { parseGoogleSlidesUrl, validateGoogleSlidesUrl } from '../../lib/present
 import { isAuthenticated } from '../../lib/security/access.ts'
 import { validatePublicHref } from '../../lib/security/url.ts'
 import { sharedEntryBlocks } from '../../blocks/entries/sharedBlocks.ts'
-import { syncFigmaBlocks } from '../../lib/presentations/figmaBlockSync.ts'
 import { syncGoogleSlidesDecks } from '../../lib/presentations/googleSlidesBlockSync.ts'
 
 type PresentationInput = TypeWithID & {
@@ -33,11 +32,7 @@ const preparePresentation: CollectionBeforeValidateHook<PresentationInput> = asy
     ...(supportingLinks ? { supportingLinks } : {}),
     ...(data.layout ? {
       layout: await syncGoogleSlidesDecks({
-        layout: await syncFigmaBlocks({
-          layout: data.layout,
-          previousLayout: Array.isArray(originalDoc?.layout) ? originalDoc.layout as Array<Record<string, unknown>> : [],
-          token: process.env.FIGMA_ACCESS_TOKEN ?? '',
-        }),
+        layout: data.layout,
         previousLayout: Array.isArray(originalDoc?.layout) ? originalDoc.layout as Array<Record<string, unknown>> : [],
       }),
     } : {}),
