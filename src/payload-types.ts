@@ -510,10 +510,6 @@ export interface Presentation {
    * Editable sharing URL (https://docs.google.com/presentation/d/…). Share the deck with the service-account email so its slides can be synced.
    */
   slidesUrl?: string | null;
-  /**
-   * Tick and save to re-read the deck even if the URL is unchanged (e.g. after adding or reordering slides).
-   */
-  forceSlidesSync?: boolean | null;
   slides?:
     | {
         objectId: string;
@@ -521,7 +517,17 @@ export interface Presentation {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Re-read the deck even if the URL is unchanged (e.g. after adding or reordering slides).
+   */
+  forceSlidesSync?: boolean | null;
+  /**
+   * When the slide list was last synced from Google.
+   */
   slidesSyncedAt?: string | null;
+  /**
+   * Last sync problem, if any (e.g. share the deck with the service-account email, then tick “Force re-sync” and save).
+   */
   slidesSyncError?: string | null;
   embedUrl?: string | null;
   openUrl?: string | null;
@@ -995,7 +1001,6 @@ export interface PresentationsSelect<T extends boolean = true> {
   title?: T;
   clientLabel?: T;
   slidesUrl?: T;
-  forceSlidesSync?: T;
   slides?:
     | T
     | {
@@ -1003,6 +1008,7 @@ export interface PresentationsSelect<T extends boolean = true> {
         title?: T;
         id?: T;
       };
+  forceSlidesSync?: T;
   slidesSyncedAt?: T;
   slidesSyncError?: T;
   embedUrl?: T;

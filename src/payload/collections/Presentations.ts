@@ -117,10 +117,13 @@ export const Presentations: CollectionConfig = {
       admin: { description: 'Editable sharing URL (https://docs.google.com/presentation/d/…). Share the deck with the service-account email so its slides can be synced.' },
     },
     {
-      name: 'forceSlidesSync',
-      type: 'checkbox',
-      label: 'Force re-sync slides on next save',
-      admin: { description: 'Tick and save to re-read the deck even if the URL is unchanged (e.g. after adding or reordering slides).' },
+      name: 'slidesServiceAccount',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/payload/SlidesServiceAccountField#SlidesServiceAccountField',
+        },
+      },
     },
     {
       name: 'slides',
@@ -131,8 +134,14 @@ export const Presentations: CollectionConfig = {
         { name: 'title', type: 'text', required: true },
       ],
     },
-    { name: 'slidesSyncedAt', type: 'date', admin: { readOnly: true, description: 'When the slide list was last synced from Google.' } },
-    { name: 'slidesSyncError', type: 'text', admin: { readOnly: true, description: 'Last sync problem, if any (e.g. share the deck with the service-account email, then tick “Force re-sync” and save).' } },
+    {
+      name: 'forceSlidesSync',
+      type: 'checkbox',
+      label: 'Force re-sync slides on next save',
+      admin: { position: 'sidebar', description: 'Re-read the deck even if the URL is unchanged (e.g. after adding or reordering slides).' },
+    },
+    { name: 'slidesSyncedAt', type: 'date', admin: { position: 'sidebar', readOnly: true, description: 'When the slide list was last synced from Google.' } },
+    { name: 'slidesSyncError', type: 'text', admin: { position: 'sidebar', readOnly: true, description: 'Last sync problem, if any (e.g. share the deck with the service-account email, then tick “Force re-sync” and save).' } },
     { name: 'embedUrl', type: 'text', admin: { hidden: true, readOnly: true } },
     { name: 'openUrl', type: 'text', admin: { hidden: true, readOnly: true } },
     {
