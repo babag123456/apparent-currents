@@ -9,9 +9,10 @@ import { GoogleSlidesEmbedPlayer } from './GoogleSlidesEmbedPlayer'
 
 export function PresentationView({ presentation, shareToken }: { presentation: PublicPresentation; shareToken: string }) {
   const nativeBlocks = presentation.layout as PresentationBlock[]
+  const isDeck = Boolean(presentation.embedUrl)
   return (
     <EntryThemeProvider initialTheme={presentation.theme}>
-    <main className={`presentation-page presentation-page--${presentation.displayMode}`}>
+    <main className={`presentation-page presentation-page--${presentation.displayMode}${isDeck ? ' presentation-page--deck' : ''}`}>
       <PresentationTracker shareToken={shareToken} />
       <header className="presentation-header">
         {presentation.coverImage ? (
