@@ -1,9 +1,11 @@
 import { AwardEntries } from './collections/AwardEntries.ts'
 import { Media } from './collections/Media.ts'
 import { Videos } from './collections/Videos.ts'
+import { Presentations } from './collections/Presentations.ts'
+import { PresentationVisits } from './collections/PresentationVisits.ts'
 import { defaultLexical } from './fields/defaultLexical.ts'
 
-export const awardKitCollections = [AwardEntries, Media, Videos]
+export const awardKitCollections = [AwardEntries, Media, Videos, Presentations, PresentationVisits]
 
 export const awardKitConfigFragment = {
   collections: awardKitCollections,

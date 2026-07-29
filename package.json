@@ -15,9 +15,11 @@
     "lint": "eslint",
     "migrate": "payload migrate --force-accept-warning --config src/payload.config.ts",
     "migrate:create": "payload migrate:create --config src/payload.config.ts",
+    "migrate:verify-blank": "node scripts/verify-blank-migrations.mjs",
     "generate:types": "payload generate:types --config src/payload.config.ts",
     "generate:importmap": "payload generate:importmap --config src/payload.config.ts",
     "security:smoke": "tsx scripts/security-smoke.ts",
+    "presentations:smoke": "node --import tsx scripts/presentations-smoke.ts",
     "seed:verify": "tsx src/scripts/verify-award-assets.ts",
     "seed:import": "tsx src/scripts/import-award-kit.ts",
     "media:migrate:uploadthing": "tsx src/scripts/migrate-media-to-uploadthing.ts"
@@ -48,6 +50,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "pg": "^8.16.3",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5"

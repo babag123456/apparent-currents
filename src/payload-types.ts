@@ -71,6 +71,8 @@ export interface Config {
     'award-entries': AwardEntry;
     media: Media;
     videos: Video;
+    presentations: Presentation;
+    'presentation-visits': PresentationVisit;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +84,8 @@ export interface Config {
     'award-entries': AwardEntriesSelect<false> | AwardEntriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
+    presentations: PresentationsSelect<false> | PresentationsSelect<true>;
+    'presentation-visits': PresentationVisitsSelect<false> | PresentationVisitsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -182,6 +186,7 @@ export interface AwardEntry {
         | EntryButtonBlock
         | EntrySpacerBlock
         | EntryDividerBlock
+        | EntryGoogleSlidesDeckBlock
       )[]
     | null;
   /**
@@ -478,6 +483,137 @@ export interface EntryDividerBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryGoogleSlidesDeckBlock".
+ */
+export interface EntryGoogleSlidesDeckBlock {
+  prehead?: string | null;
+  headline?: string | null;
+  intro?: string | null;
+  title?: string | null;
+  /**
+   * Optional. Links this module to a presentation page; shows an “Open presentation” button and keeps the two connected for reporting.
+   */
+  linkedPresentation?: (number | null) | Presentation;
+  /**
+   * Editable sharing URL (https://docs.google.com/presentation/d/…). Share the deck with the service-account email.
+   */
+  slidesUrl: string;
+  /**
+   * Tick and save to pull the latest slides even if the URL is unchanged.
+   */
+  forceSlidesSync?: boolean | null;
+  syncedSlides?:
+    | {
+        objectId: string;
+        title: string;
+        imageUrl: string;
+        imageKey: string;
+        width: number;
+        height: number;
+        id?: string | null;
+      }[]
+    | null;
+  slidesSyncedAt?: string | null;
+  slidesSyncError?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'entryGoogleSlidesDeck';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presentations".
+ */
+export interface Presentation {
+  id: number;
+  title: string;
+  clientLabel?: string | null;
+  /**
+   * Legacy deck fallback. New presentations can use content blocks below.
+   */
+  slidesUrl?: string | null;
+  embedUrl?: string | null;
+  openUrl?: string | null;
+  /**
+   * Clear and save to invalidate the old private link and generate a new one.
+   */
+  shareToken?: string | null;
+  active?: boolean | null;
+  coverImage?: (number | null) | Media;
+  introduction?: string | null;
+  theme: 'light' | 'dark';
+  displayMode: 'scroll' | 'slideshow';
+  layout?:
+    | (
+        | EntryHeroBlock
+        | EntryCaseStudyBlock
+        | EntryRichTextBlock
+        | EntryMediaBlock
+        | EntryResultsBlock
+        | EntryQuoteBlock
+        | EntryImageGridBlock
+        | EntryVideoBlock
+        | EntryButtonBlock
+        | EntrySpacerBlock
+        | EntryDividerBlock
+        | EntryGoogleSlidesDeckBlock
+      )[]
+    | null;
+  supportingLinks?:
+    | {
+        id: string;
+        label: string;
+        href: string;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presentation-visits".
+ */
+export interface PresentationVisit {
+  id: number;
+  presentation: number | Presentation;
+  anonymousSessionId: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  visitCount: number;
+  activeSeconds: number;
+  deviceCategory: 'desktop' | 'tablet' | 'mobile' | 'unknown';
+  linkClicks?:
+    | {
+        linkId: string;
+        count: number;
+        id?: string | null;
+      }[]
+    | null;
+  blockMetrics?:
+    | {
+        blockId: string;
+        blockType: string;
+        displayMode: 'scroll' | 'slideshow';
+        viewed?: boolean | null;
+        activeSeconds: number;
+        navigationCount: number;
+        id?: string | null;
+      }[]
+    | null;
+  blockJourney?:
+    | {
+        blockId: string;
+        blockType: string;
+        displayMode: 'scroll' | 'slideshow';
+        viewedAt: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -515,6 +651,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'videos';
         value: number | Video;
+      } | null)
+    | ({
+        relationTo: 'presentations';
+        value: number | Presentation;
+      } | null)
+    | ({
+        relationTo: 'presentation-visits';
+        value: number | PresentationVisit;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -607,6 +751,7 @@ export interface AwardEntriesSelect<T extends boolean = true> {
         entryButton?: T | EntryButtonBlockSelect<T>;
         entrySpacer?: T | EntrySpacerBlockSelect<T>;
         entryDivider?: T | EntryDividerBlockSelect<T>;
+        entryGoogleSlidesDeck?: T | EntryGoogleSlidesDeckBlockSelect<T>;
       };
   generateSlug?: T;
   slug?: T;
@@ -779,6 +924,34 @@ export interface EntryDividerBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EntryGoogleSlidesDeckBlock_select".
+ */
+export interface EntryGoogleSlidesDeckBlockSelect<T extends boolean = true> {
+  prehead?: T;
+  headline?: T;
+  intro?: T;
+  title?: T;
+  linkedPresentation?: T;
+  slidesUrl?: T;
+  forceSlidesSync?: T;
+  syncedSlides?:
+    | T
+    | {
+        objectId?: T;
+        title?: T;
+        imageUrl?: T;
+        imageKey?: T;
+        width?: T;
+        height?: T;
+        id?: T;
+      };
+  slidesSyncedAt?: T;
+  slidesSyncError?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
@@ -833,6 +1006,91 @@ export interface VideosSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presentations_select".
+ */
+export interface PresentationsSelect<T extends boolean = true> {
+  title?: T;
+  clientLabel?: T;
+  slidesUrl?: T;
+  embedUrl?: T;
+  openUrl?: T;
+  shareToken?: T;
+  active?: T;
+  coverImage?: T;
+  introduction?: T;
+  theme?: T;
+  displayMode?: T;
+  layout?:
+    | T
+    | {
+        entryHero?: T | EntryHeroBlockSelect<T>;
+        entryCaseStudy?: T | EntryCaseStudyBlockSelect<T>;
+        entryRichText?: T | EntryRichTextBlockSelect<T>;
+        entryMedia?: T | EntryMediaBlockSelect<T>;
+        entryResults?: T | EntryResultsBlockSelect<T>;
+        entryQuote?: T | EntryQuoteBlockSelect<T>;
+        entryImageGrid?: T | EntryImageGridBlockSelect<T>;
+        entryVideo?: T | EntryVideoBlockSelect<T>;
+        entryButton?: T | EntryButtonBlockSelect<T>;
+        entrySpacer?: T | EntrySpacerBlockSelect<T>;
+        entryDivider?: T | EntryDividerBlockSelect<T>;
+        entryGoogleSlidesDeck?: T | EntryGoogleSlidesDeckBlockSelect<T>;
+      };
+  supportingLinks?:
+    | T
+    | {
+        id?: T;
+        label?: T;
+        href?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presentation-visits_select".
+ */
+export interface PresentationVisitsSelect<T extends boolean = true> {
+  presentation?: T;
+  anonymousSessionId?: T;
+  firstSeenAt?: T;
+  lastSeenAt?: T;
+  visitCount?: T;
+  activeSeconds?: T;
+  deviceCategory?: T;
+  linkClicks?:
+    | T
+    | {
+        linkId?: T;
+        count?: T;
+        id?: T;
+      };
+  blockMetrics?:
+    | T
+    | {
+        blockId?: T;
+        blockType?: T;
+        displayMode?: T;
+        viewed?: T;
+        activeSeconds?: T;
+        navigationCount?: T;
+        id?: T;
+      };
+  blockJourney?:
+    | T
+    | {
+        blockId?: T;
+        blockType?: T;
+        displayMode?: T;
+        viewedAt?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

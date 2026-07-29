@@ -1,0 +1,29 @@
+.presentation-analytics { --pa-line: var(--theme-elevation-150); margin-block: 1.5rem; border: 1px solid var(--pa-line); background: var(--theme-elevation-0); }
+.presentation-analytics > header { padding: 1.25rem; border-bottom: 1px solid var(--pa-line); }
+.presentation-analytics > header p { margin: 0 0 .35rem; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--theme-elevation-500); }
+.presentation-analytics > header h3 { margin: 0; font-size: 1.35rem; }
+.presentation-analytics__state { margin: 0; padding: 2rem 1.25rem; }
+.presentation-analytics__state button { min-height: 44px; margin-top: .5rem; padding-inline: 1rem; }
+.presentation-analytics__overview { display: grid; grid-template-columns: repeat(5, minmax(8rem, 1fr)); margin: 0; border-bottom: 1px solid var(--pa-line); }
+.presentation-analytics__overview div { padding: 1rem 1.25rem; border-right: 1px solid var(--pa-line); }
+.presentation-analytics__overview div:last-child { border-right: 0; }
+.presentation-analytics__overview dt { color: var(--theme-elevation-500); font-size: .75rem; }
+.presentation-analytics__overview dd { margin: .45rem 0 0; font-size: clamp(1.3rem, 2vw, 2rem); font-variant-numeric: tabular-nums; }
+.presentation-analytics__table-wrap { overflow-x: auto; }
+.presentation-analytics table { width: 100%; min-width: 720px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.presentation-analytics th, .presentation-analytics td { padding: .85rem 1.25rem; border-bottom: 1px solid var(--pa-line); text-align: left; }
+.presentation-analytics thead th { color: var(--theme-elevation-500); font-size: .72rem; font-weight: 500; }
+.presentation-analytics tbody th span { display: inline-grid; place-items: center; width: 2rem; height: 2rem; margin-right: .65rem; border: 1px solid currentColor; border-radius: 50%; }
+.presentation-analytics tbody th small { font-weight: 400; color: var(--theme-elevation-600); }
+.presentation-analytics__reach { display: grid; grid-template-columns: minmax(5rem, 1fr) 3rem; align-items: center; gap: .6rem; }
+.presentation-analytics__reach::before { content: ''; grid-area: 1 / 1; height: 4px; background: var(--theme-elevation-150); }
+.presentation-analytics__reach i { grid-area: 1 / 1; height: 4px; background: var(--theme-elevation-800); }
+.presentation-analytics__legacy, .presentation-analytics__sessions { padding: 1.25rem; border-top: 1px solid var(--pa-line); }
+.presentation-analytics h4 { margin: 0 0 .75rem; }
+.presentation-analytics__legacy p { color: var(--theme-elevation-500); }
+.presentation-analytics details { border-top: 1px solid var(--pa-line); }
+.presentation-analytics summary { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; }
+.presentation-analytics summary span:last-child { color: var(--theme-elevation-500); font-size: .8rem; }
+.presentation-analytics details > div { padding: .25rem 0 1rem 1.25rem; }
+.presentation-analytics button:focus-visible, .presentation-analytics summary:focus-visible { outline: 3px solid var(--theme-elevation-800); outline-offset: 2px; }
+@media (max-width: 900px) { .presentation-analytics__overview { grid-template-columns: repeat(2, 1fr); } .presentation-analytics__overview div { border-bottom: 1px solid var(--pa-line); } .presentation-analytics summary { align-items: flex-start; flex-direction: column; padding-block: .75rem; } }

@@ -47,6 +47,8 @@ Standalone Next.js + Payload app for the extracted awards slice from this repo. 
    `GOOGLE_ALLOWED_EMAILS` or `GOOGLE_ALLOWED_DOMAIN`.
    If your Google OAuth app requires an explicit callback URL, set
    `GOOGLE_OAUTH_CALLBACK_URL` to `/api/auth/google/callback` on the correct origin.
+   To sync Figma prototype frames into presentation slides, set a server-only
+   `FIGMA_ACCESS_TOKEN` with read access to the relevant Figma files.
 3. `npm install`
 4. `npm run db:start`
 5. Wait for Postgres to become healthy, or watch with `npm run db:logs`
@@ -138,6 +140,47 @@ Recommended deployment checks after each preview or production deploy:
 - Local fonts already live under `public/fonts`.
 - Keep the font filenames unchanged.
 
+## Client Presentations
+
+Payload administrators can publish unbranded, block-based presentations at private, unlisted URLs. Presentations reuse the same content blocks as Award Entries; Google Slides is available as an optional block alongside images, video, rich text, results, quotes, and other native blocks.
+
+Authoring workflow:
+
+1. In Payload, create a Presentation and add content blocks in the desired order.
+2. Choose a light or dark theme and either **Scrolling webpage** or **Full-screen slideshow** mode.
+3. Optionally add a Google Slides block. Set that deck to **Anyone with the link can view**, then paste its sharing or published URL.
+4. Add an optional cover image, introduction, and supporting links, then publish with **Active** enabled.
+5. Use **Open presentation** to verify the private page, then copy its `/present/<token>` URL for the client.
+
+Figma prototype blocks use one pasted prototype URL. On save, the server uses
+`FIGMA_ACCESS_TOKEN` to follow the prototype's linear forward connections, or
+to use top-to-bottom/left-to-right canvas order when the page has no connections, and
+stores the resulting frame sequence. In slideshow mode, those frames become
+native presentation slides, so the site's arrows, keyboard navigation, counter,
+and analytics remain authoritative. Tokens must be configured as local or
+deployment secrets and must never be entered into Payload content.
+
+Create a least-privilege personal access token in Figma, grant it access only to
+the required files, and set it in `.env.local` for local development and in the
+deployment environment for preview/production. Re-save a presentation to refresh
+its frame sequence. If refresh fails, the last successful sequence remains live
+and the admin record stores a safe sync error. The first release supports linear
+flows only; branches and loops must be resolved in Figma before syncing.
+
+The URL token is generated from cryptographically secure random bytes and does not contain the client or project name. Presentation pages are excluded from navigation and search indexing. Clearing the token and saving generates a replacement link; disabling **Active** immediately makes the current link return not found.
+
+Anonymous engagement records page opens, repeat visits from the same browser, approximate active viewing time, coarse device category, supporting-link clicks, block viewing time, and slideshow navigation. It does not store authored block content, presentation URLs, names, emails, raw IP addresses, precise location, or activity inside a Google Slides iframe. Existing Slides-only presentations continue to render as a legacy fallback. Google Slides must remain link-viewable, and this MVP does not provide password protection.
+
+Authenticated Payload administrators can view **Presentation analytics** inside each Presentation. The dashboard shows anonymous viewers, total visits, average active time, completion, the most-viewed slide, per-slide reach/time/drop-off, and expandable anonymous session journeys. In scrolling mode these are content blocks; in slideshow mode each native block is a slide. Google Slides is measured as one iframe block because activity inside Google's iframe is not observable.
+
+Session journeys store only block ID/type, display mode, and a server timestamp. Consecutive duplicate entries collapse and each visit is limited to 500 journey entries. Dashboard results are calculated from visit records and align historical activity by stable block ID plus type; deleted blocks remain labelled as legacy activity rather than being reassigned by position.
+
+Run presentation-specific checks with:
+
+```bash
+npm run presentations:smoke
+```
+
 ## Award Media
 
 - Put recovered binaries under `award-kit/public/award-media` for seed imports and UploadThing migrations.
@@ -178,6 +221,8 @@ npm run db:reset
 ```
 
 `db:reset` removes the Docker volume and wipes the local database completely.
+
+Run `npm run migrate:verify-blank` with local PostgreSQL available to prove the committed migration history can rebuild a fresh disposable database. The script never targets the database named in `DATABASE_URL`; it creates and removes a uniquely named verification database on the same server.
 
 ## Validate The Seed
 

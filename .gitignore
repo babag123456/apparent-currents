@@ -18,6 +18,9 @@
 # coverage
 /coverage
 
+# local git worktrees
+/.worktrees/
+
 # misc
 .DS_Store
 *.pem
@@ -30,6 +33,7 @@ yarn-error.log*
 
 # env
 .env*
+!.env.example
 .env.local
 
 # vercel
