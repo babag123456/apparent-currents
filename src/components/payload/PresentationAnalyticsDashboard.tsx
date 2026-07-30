@@ -88,6 +88,8 @@ export function PresentationAnalyticsDashboard() {
           <div><dt>Completion</dt><dd>{dashboard.overview.completionRate}%</dd></div>
           <div><dt>Most viewed</dt><dd>{dashboard.overview.mostViewedSlide ? `Slide ${dashboard.overview.mostViewedSlide}` : '—'}</dd></div>
         </dl>
+        <details className="presentation-analytics__slides">
+        <summary>Slide-by-slide detail ({dashboard.slides.length} slides)</summary>
         <div className="presentation-analytics__table-wrap"><table>
           <thead><tr><th>Slide / block</th><th>Viewers</th><th>Reached</th><th>Average time</th><th>Drop-off after</th></tr></thead>
           <tbody>{dashboard.slides.map((slide) => <tr key={`${slide.id}:${slide.blockType}`}>
@@ -98,6 +100,7 @@ export function PresentationAnalyticsDashboard() {
             <td>{slide.dropOffCount === null ? '—' : `${slide.dropOffCount} (${slide.dropOffPercent}%)`}</td>
           </tr>)}</tbody>
         </table></div>
+        </details>
         {dashboard.legacyActivity.length ? <div className="presentation-analytics__legacy"><h4>Legacy activity</h4><p>Activity from blocks that are no longer in this presentation.</p><ul>{dashboard.legacyActivity.map((row) => <li key={`${row.blockId}:${row.blockType}`}>{row.blockType}: {row.viewers} viewers, {formatTime(row.activeSeconds)}</li>)}</ul></div> : null}
         <div className="presentation-analytics__sessions"><h4>Anonymous sessions</h4>{dashboard.sessions.map((session) => <details key={`${session.label}:${session.lastSeenAt}`}>
           <summary><span>{session.label}</span><span>{session.lastSeenAt ? new Date(session.lastSeenAt).toLocaleString() : 'Date unavailable'} · {session.deviceCategory} · {formatTime(session.activeSeconds)}</span></summary>
