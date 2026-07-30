@@ -1,6 +1,6 @@
 'use client'
 
-import { useDocumentInfo, useFormFields } from '@payloadcms/ui'
+import { useDocumentInfo } from '@payloadcms/ui'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { summarizePresentationDashboard, type DashboardBlock, type DashboardVisit } from '../../lib/presentations/dashboard'
@@ -11,13 +11,34 @@ type Page = { docs?: DashboardVisit[]; hasNextPage?: boolean }
 const formatTime = (seconds: number) => seconds >= 60 ? `${Math.round(seconds / 60)} min` : `${seconds} sec`
 
 export function PresentationAnalyticsDashboard() {
-  const { id } = useDocumentInfo()
-  const layout = useFormFields<unknown>(([fields]) => fields.layout?.value)
-  const blocks = useMemo<DashboardBlock[]>(() => Array.isArray(layout) ? layout.flatMap((value) => {
-    if (!value || typeof value !== 'object') return []
-    const block = value as { id?: unknown; blockType?: unknown }
-    return typeof block.id === 'string' && typeof block.blockType === 'string' ? [{ id: block.id, blockType: block.blockType }] : []
-  }) : [], [layout])
+  const { id, data } = useDocumentInfo()
+  // Per-slide analytics come from the synced Google Slides deck (blockType
+  // "googleSlide", one row per slide objectId). Fall back to the block layout
+  // for older block-based presentations.
+  const { blocks, slideTitles } = useMemo<{ blocks: DashboardBlock[]; slideTitles: string[] }>(() => {
+    const doc = data as { slides?: unknown; layout?: unknown } | undefined
+    const slides = Array.isArray(doc?.slides) ? doc.slides : []
+    if (slides.length) {
+      const rows: DashboardBlock[] = []
+      const titles: string[] = []
+      for (const value of slides) {
+        if (value && typeof value === 'object' && typeof (value as { objectId?: unknown }).objectId === 'string') {
+          rows.push({ id: (value as { objectId: string }).objectId, blockType: 'googleSlide' })
+          titles.push(typeof (value as { title?: unknown }).title === 'string' ? (value as { title: string }).title : '')
+        }
+      }
+      return { blocks: rows, slideTitles: titles }
+    }
+    const layout = Array.isArray(doc?.layout) ? doc.layout : []
+    return {
+      blocks: layout.flatMap((value) => {
+        if (!value || typeof value !== 'object') return []
+        const block = value as { id?: unknown; blockType?: unknown }
+        return typeof block.id === 'string' && typeof block.blockType === 'string' ? [{ id: block.id, blockType: block.blockType }] : []
+      }),
+      slideTitles: [],
+    }
+  }, [data])
   const [visits, setVisits] = useState<DashboardVisit[]>([])
   const [loading, setLoading] = useState(Boolean(id))
   const [error, setError] = useState(false)
@@ -70,7 +91,7 @@ export function PresentationAnalyticsDashboard() {
         <div className="presentation-analytics__table-wrap"><table>
           <thead><tr><th>Slide / block</th><th>Viewers</th><th>Reached</th><th>Average time</th><th>Drop-off after</th></tr></thead>
           <tbody>{dashboard.slides.map((slide) => <tr key={`${slide.id}:${slide.blockType}`}>
-            <th scope="row"><span>{slide.position}</span><small>{slide.blockType}</small></th>
+            <th scope="row"><span>{slide.position}</span><small>{slideTitles[slide.position - 1] || slide.blockType}</small></th>
             <td>{slide.viewers}</td>
             <td><div className="presentation-analytics__reach"><i style={{ width: `${slide.reachedPercent}%` }} /> <span>{slide.reachedPercent}%</span></div></td>
             <td>{formatTime(slide.averageActiveSeconds)}</td>
