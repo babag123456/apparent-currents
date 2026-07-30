@@ -7,29 +7,30 @@ import { summarizePresentationDashboard, type DashboardBlock, type DashboardVisi
 import './presentationAnalyticsDashboard.css'
 
 type Page = { docs?: DashboardVisit[]; hasNextPage?: boolean }
+type SlideDoc = { objectId?: unknown; title?: unknown }
 
-const formatTime = (seconds: number) => seconds >= 60 ? `${Math.round(seconds / 60)} min` : `${seconds} sec`
+const formatTime = (seconds: unknown) => {
+  const n = Math.max(0, Math.round(Number(seconds) || 0))
+  return n >= 60 ? `${Math.round(n / 60)} min` : `${n} sec`
+}
 
 export function PresentationAnalyticsDashboard() {
   const { id, data } = useDocumentInfo()
+  const [slides, setSlides] = useState<Array<{ objectId: string; title: string }>>([])
+  const [visits, setVisits] = useState<DashboardVisit[]>([])
+  const [loading, setLoading] = useState(Boolean(id))
+  const [error, setError] = useState(false)
+  const [retry, setRetry] = useState(0)
+
   // Per-slide analytics come from the synced Google Slides deck (blockType
-  // "googleSlide", one row per slide objectId). Fall back to the block layout
-  // for older block-based presentations.
+  // "googleSlide", one row per slide objectId). The hidden `slides` array isn't
+  // reliably hydrated into the admin form state, so read it from the API; fall
+  // back to the block layout for older block-based presentations.
   const { blocks, slideTitles } = useMemo<{ blocks: DashboardBlock[]; slideTitles: string[] }>(() => {
-    const doc = data as { slides?: unknown; layout?: unknown } | undefined
-    const slides = Array.isArray(doc?.slides) ? doc.slides : []
     if (slides.length) {
-      const rows: DashboardBlock[] = []
-      const titles: string[] = []
-      for (const value of slides) {
-        if (value && typeof value === 'object' && typeof (value as { objectId?: unknown }).objectId === 'string') {
-          rows.push({ id: (value as { objectId: string }).objectId, blockType: 'googleSlide' })
-          titles.push(typeof (value as { title?: unknown }).title === 'string' ? (value as { title: string }).title : '')
-        }
-      }
-      return { blocks: rows, slideTitles: titles }
+      return { blocks: slides.map((s) => ({ id: s.objectId, blockType: 'googleSlide' })), slideTitles: slides.map((s) => s.title) }
     }
-    const layout = Array.isArray(doc?.layout) ? doc.layout : []
+    const layout = Array.isArray((data as { layout?: unknown } | undefined)?.layout) ? (data as { layout: unknown[] }).layout : []
     return {
       blocks: layout.flatMap((value) => {
         if (!value || typeof value !== 'object') return []
@@ -38,17 +39,23 @@ export function PresentationAnalyticsDashboard() {
       }),
       slideTitles: [],
     }
-  }, [data])
-  const [visits, setVisits] = useState<DashboardVisit[]>([])
-  const [loading, setLoading] = useState(Boolean(id))
-  const [error, setError] = useState(false)
-  const [retry, setRetry] = useState(0)
+  }, [slides, data])
 
   useEffect(() => {
     if (!id) return
     const controller = new AbortController()
     void (async () => {
       try {
+        // Slide list (for per-slide rows + titles).
+        const presResponse = await fetch(`/api/presentations/${id}?depth=0`, { signal: controller.signal })
+        if (presResponse.ok) {
+          const doc = (await presResponse.json()) as { slides?: SlideDoc[] }
+          setSlides(Array.isArray(doc.slides)
+            ? doc.slides.flatMap((s) => typeof s?.objectId === 'string'
+              ? [{ objectId: s.objectId, title: typeof s.title === 'string' ? s.title : '' }] : [])
+            : [])
+        }
+        // Visits (engagement).
         const all: DashboardVisit[] = []
         let page = 1
         let hasNextPage = true
