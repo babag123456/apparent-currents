@@ -26,7 +26,9 @@ export function PresentationAnalyticsDashboard() {
   // "googleSlide", one row per slide objectId). The hidden `slides` array isn't
   // reliably hydrated into the admin form state, so read it from the API; fall
   // back to the block layout for older block-based presentations.
-  const { blocks, slideTitles } = useMemo<{ blocks: DashboardBlock[]; slideTitles: string[] }>(() => {
+  // `blocks` keeps synced slides recognised as current (so their metrics aren't
+  // flagged as "legacy"); per-slide detail itself is no longer rendered.
+  const { blocks } = useMemo<{ blocks: DashboardBlock[]; slideTitles: string[] }>(() => {
     if (slides.length) {
       return { blocks: slides.map((s) => ({ id: s.objectId, blockType: 'googleSlide' })), slideTitles: slides.map((s) => s.title) }
     }
@@ -93,29 +95,11 @@ export function PresentationAnalyticsDashboard() {
           <div><dt>Total visits</dt><dd>{dashboard.overview.totalVisits}</dd></div>
           <div><dt>Total active time</dt><dd>{formatTime(dashboard.overview.totalActiveSeconds)}</dd></div>
           <div><dt>Average active time</dt><dd>{formatTime(dashboard.overview.averageActiveSeconds)}</dd></div>
-          <div><dt>Completion</dt><dd>{dashboard.overview.completionRate}%</dd></div>
-          <div><dt>Most viewed</dt><dd>{dashboard.overview.mostViewedSlide ? `Slide ${dashboard.overview.mostViewedSlide}` : '—'}</dd></div>
         </dl>
-        <details className="presentation-analytics__slides">
-        <summary>Slide-by-slide detail ({dashboard.slides.length} slides)</summary>
-        <div className="presentation-analytics__table-wrap"><table>
-          <thead><tr><th>Slide / block</th><th>Viewers</th><th>Reached</th><th>Total time</th><th>Average time</th><th>Drop-off after</th></tr></thead>
-          <tbody>{dashboard.slides.map((slide) => <tr key={`${slide.id}:${slide.blockType}`}>
-            <th scope="row"><span>{slide.position}</span><small>{slideTitles[slide.position - 1] || slide.blockType}</small></th>
-            <td>{slide.viewers}</td>
-            <td><div className="presentation-analytics__reach"><i style={{ width: `${slide.reachedPercent}%` }} /> <span>{slide.reachedPercent}%</span></div></td>
-            <td>{formatTime(slide.activeSeconds)}</td>
-            <td>{formatTime(slide.averageActiveSeconds)}</td>
-            <td>{slide.dropOffCount === null ? '—' : `${slide.dropOffCount} (${slide.dropOffPercent}%)`}</td>
-          </tr>)}</tbody>
-        </table></div>
-        </details>
-        {dashboard.legacyActivity.length ? <div className="presentation-analytics__legacy"><h4>Legacy activity</h4><p>Activity from blocks that are no longer in this presentation.</p><ul>{dashboard.legacyActivity.map((row) => <li key={`${row.blockId}:${row.blockType}`}>{row.blockType}: {row.viewers} viewers, {formatTime(row.activeSeconds)}</li>)}</ul></div> : null}
+        {dashboard.legacyActivity.length ?<div className="presentation-analytics__legacy"><h4>Legacy activity</h4><p>Activity from blocks that are no longer in this presentation.</p><ul>{dashboard.legacyActivity.map((row) => <li key={`${row.blockId}:${row.blockType}`}>{row.blockType}: {row.viewers} viewers, {formatTime(row.activeSeconds)}</li>)}</ul></div> : null}
         <div className="presentation-analytics__sessions"><h4>Anonymous sessions</h4>{dashboard.sessions.map((session) => <details key={`${session.label}:${session.lastSeenAt}`}>
           <summary><span>{session.label}</span><span>{session.lastSeenAt ? new Date(session.lastSeenAt).toLocaleString() : 'Date unavailable'} · {session.deviceCategory} · {formatTime(session.activeSeconds)}</span></summary>
-          <div><p>{session.visitCount} visits · {session.slidesReached} slides/blocks reached · {session.modes.join(' + ') || 'Mode unavailable'}</p>
-            {session.journey.length ? <ol>{session.journey.map((entry, index) => <li key={`${entry.viewedAt}:${index}`}>Slide {entry.position} · {entry.blockType} · {entry.displayMode}</li>)}</ol> : <p>No ordered journey recorded for this earlier visit.</p>}
-          </div>
+          <div><p>{session.visitCount} {session.visitCount === 1 ? 'visit' : 'visits'} · {formatTime(session.activeSeconds)} active</p></div>
         </details>)}</div>
       </>}
     </section>
