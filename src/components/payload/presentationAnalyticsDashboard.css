@@ -30,3 +30,19 @@
 .presentation-analytics__slides { border-top: 1px solid var(--pa-line); margin-top: .5rem; }
 .presentation-analytics__slides > summary { font-weight: 600; padding-block: .9rem; }
 .presentation-analytics__slides > .presentation-analytics__table-wrap { padding-left: 0; }
+/* Disclosure chevron on collapsible summaries. */
+.presentation-analytics summary { list-style: none; }
+.presentation-analytics summary::-webkit-details-marker { display: none; }
+.presentation-analytics summary::before {
+  content: '';
+  flex: 0 0 auto;
+  width: .5rem;
+  height: .5rem;
+  margin-right: .1rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform .15s ease;
+  opacity: .55;
+}
+.presentation-analytics details[open] > summary::before { transform: rotate(45deg); }

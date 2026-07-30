@@ -114,7 +114,7 @@ export const Presentations: CollectionConfig = {
       type: 'text',
       label: 'Google Slides URL',
       validate: validateGoogleSlidesUrl,
-      admin: { description: 'Editable sharing URL (https://docs.google.com/presentation/d/…). Share the deck with the service-account email so its slides can be synced.' },
+      admin: { description: 'Editable sharing URL (https://docs.google.com/presentation/d/…). Set the deck’s General access to “Anyone with the link → Viewer” so it displays for your audience (the live embed loads in each viewer’s own browser). Also share it with the service-account email below so its slides can sync.' },
     },
     {
       name: 'slidesServiceAccount',
