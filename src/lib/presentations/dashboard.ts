@@ -15,7 +15,7 @@ type SlideRow = DashboardBlock & { position: number; viewers: number; reachedPer
 type SessionRow = { label: string; lastSeenAt: string | null; deviceCategory: string; visitCount: number; activeSeconds: number; modes: string[]; slidesReached: number; journey: Array<{ position: number; blockType: string; displayMode: string; viewedAt: string }> }
 type LegacyRow = { blockId: string; blockType: string; viewers: number; activeSeconds: number; navigationCount: number }
 export type PresentationDashboard = {
-  overview: { viewers: number; totalVisits: number; averageActiveSeconds: number; completionRate: number; mostViewedSlide: number | null }
+  overview: { viewers: number; totalVisits: number; totalActiveSeconds: number; averageActiveSeconds: number; completionRate: number; mostViewedSlide: number | null }
   slides: SlideRow[]
   sessions: SessionRow[]
   legacyActivity: LegacyRow[]
@@ -80,7 +80,7 @@ export function summarizePresentationDashboard(blocks: DashboardBlock[], visits:
   const totalActiveSeconds = visits.reduce((total, visit) => total + safeCount(visit.activeSeconds), 0)
   const mostViewed = slides.reduce<SlideRow | null>((best, slide) => !best || slide.viewers > best.viewers ? slide : best, null)
   return {
-    overview: { viewers, totalVisits: visits.reduce((total, visit) => total + safeCount(visit.visitCount), 0), averageActiveSeconds: viewers ? Math.round(totalActiveSeconds / viewers) : 0,
+    overview: { viewers, totalVisits: visits.reduce((total, visit) => total + safeCount(visit.visitCount), 0), totalActiveSeconds, averageActiveSeconds: viewers ? Math.round(totalActiveSeconds / viewers) : 0,
       completionRate: slides.length ? percent(slides.at(-1)?.viewers ?? 0, viewers) : 0, mostViewedSlide: mostViewed && mostViewed.viewers > 0 ? mostViewed.position : null },
     slides, sessions, legacyActivity: [...legacy.values()],
   }

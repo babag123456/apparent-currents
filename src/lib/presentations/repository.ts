@@ -1,8 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { parseGoogleSlidesUrl, extractGoogleSlidesId } from './googleSlides.ts'
-import { expandGoogleSlideDecks } from './slideExpansion.ts'
+import { parseGoogleSlidesUrl } from './googleSlides.ts'
 import { isValidPresentationShareToken } from './shareToken.ts'
 import { getSafePublicHref } from '../security/url.ts'
 import { classifyDevice, mergeVisitMetrics, type PresentationEvent } from './analytics.ts'
@@ -15,6 +14,7 @@ type PresentationDocument = Record<string, unknown> & {
   layout?: unknown
   openUrl?: string | null
   slidesUrl?: string | null
+  slides?: unknown
   supportingLinks?: unknown
   theme?: unknown
   displayMode?: unknown
@@ -23,16 +23,31 @@ type PresentationDocument = Record<string, unknown> & {
 
 type PublicBlock = { id: string; blockType: string } & Record<string, unknown>
 
+export type PublicSlide = { objectId: string; title: string }
+
 export type PublicPresentation = {
   title: string
   theme: 'light' | 'dark'
   displayMode: 'scroll' | 'slideshow'
   layout: PublicBlock[]
+  slides: PublicSlide[]
   embedUrl?: string
   openUrl?: string
   introduction?: string
   coverImage?: { url: string; alt?: string }
   supportingLinks: Array<{ id: string; label: string; href: string }>
+}
+
+function sanitiseSlides(value: unknown): PublicSlide[] {
+  return Array.isArray(value)
+    ? value.flatMap((entry) => {
+        if (!entry || typeof entry !== 'object') return []
+        const slide = entry as { objectId?: unknown; title?: unknown }
+        return typeof slide.objectId === 'string' && typeof slide.title === 'string'
+          ? [{ objectId: slide.objectId, title: slide.title }]
+          : []
+      })
+    : []
 }
 
 const blockFields: Record<string, string[]> = {
@@ -62,24 +77,6 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
   if (!value || typeof value !== 'object') return null
   const block = value as Record<string, unknown>
   if (typeof block.id !== 'string' || typeof block.blockType !== 'string') return null
-  if (block.blockType === 'entryGoogleSlidesDeck') {
-    if (typeof block.slidesUrl !== 'string' || !extractGoogleSlidesId(block.slidesUrl)) return null
-    const syncedSlides = Array.isArray(block.syncedSlides) ? block.syncedSlides.flatMap((value) => {
-      if (!value || typeof value !== 'object') return []
-      const slide = value as Record<string, unknown>
-      if (typeof slide.objectId !== 'string' || typeof slide.title !== 'string' ||
-        typeof slide.imageUrl !== 'string' || typeof slide.width !== 'number' || typeof slide.height !== 'number') return []
-      return [{ objectId: slide.objectId, title: slide.title, imageUrl: slide.imageUrl, width: slide.width, height: slide.height }]
-    }) : []
-    const title = typeof block.title === 'string' ? block.title.trim() : ''
-    return {
-      id: block.id,
-      blockType: 'entryGoogleSlidesDeck',
-      slidesUrl: block.slidesUrl,
-      ...(title ? { title } : {}),
-      syncedSlides,
-    }
-  }
   const fields = blockFields[block.blockType]
   if (!fields) return null
   return Object.fromEntries([
@@ -88,33 +85,46 @@ function sanitiseBlock(value: unknown): PublicBlock | null {
   ]) as PublicBlock
 }
 
+export type PresentationEmbed = {
+  embedUrl: string
+  slides: PublicSlide[]
+  title: string
+  openHref?: string
+}
+
 /**
- * Resolves a deck block's `linkedPresentation` relationship to a `/present`
- * share link. Presentations aren't publicly readable, so on public content
- * pages the relationship arrives as a bare id and must be resolved with
- * overrideAccess. Returns null when unset, missing, inactive, or invalid.
+ * Resolves a module's `presentation` relationship to everything needed to embed
+ * it inline: the live embed URL, synced slide list, and a `/present` link.
+ * Presentations aren't publicly readable, so on public pages the relationship
+ * arrives as a bare id and must be resolved with overrideAccess. Returns null
+ * when unset, missing, inactive, or not a syncable deck.
  */
-export async function resolveLinkedPresentationHref(value: unknown): Promise<string | null> {
+export async function getPresentationEmbed(value: unknown): Promise<PresentationEmbed | null> {
   if (value == null) return null
-  if (typeof value === 'object') {
-    const token = (value as { shareToken?: unknown }).shareToken
-    if (typeof token === 'string' && isValidPresentationShareToken(token)) return `/present/${token}`
-  }
   const id = typeof value === 'object' ? (value as { id?: unknown }).id : value
   if (typeof id !== 'string' && typeof id !== 'number') return null
 
   const payload = await getPayload({ config: configPromise })
   const doc = (await payload
     .findByID({ collection: 'presentations' as never, id, overrideAccess: true, depth: 0 })
-    .catch(() => null)) as { shareToken?: unknown; active?: unknown } | null
+    .catch(() => null)) as PresentationDocument & { shareToken?: unknown } | null
   if (!doc || doc.active === false) return null
+
+  const canonical = typeof doc.slidesUrl === 'string' ? parseGoogleSlidesUrl(doc.slidesUrl) : null
+  if (!canonical) return null
   const token = doc.shareToken
-  return typeof token === 'string' && isValidPresentationShareToken(token) ? `/present/${token}` : null
+  return {
+    embedUrl: canonical.embedUrl,
+    slides: sanitiseSlides(doc.slides),
+    title: typeof doc.title === 'string' ? doc.title : 'Presentation',
+    ...(typeof token === 'string' && isValidPresentationShareToken(token) ? { openHref: `/present/${token}` } : {}),
+  }
 }
 
 export function toPublicPresentation(doc: PresentationDocument): PublicPresentation | null {
   const canonical = typeof doc.slidesUrl === 'string' ? parseGoogleSlidesUrl(doc.slidesUrl) : null
-  const layout = expandGoogleSlideDecks(Array.isArray(doc.layout) ? doc.layout.flatMap((block) => sanitiseBlock(block) ?? []) : [])
+  const layout = Array.isArray(doc.layout) ? doc.layout.flatMap((block) => sanitiseBlock(block) ?? []) : []
+  const slides = canonical ? sanitiseSlides(doc.slides) : []
   if (!doc.title || (!canonical && layout.length === 0)) return null
 
   const cover = doc.coverImage && typeof doc.coverImage === 'object'
@@ -135,6 +145,7 @@ export function toPublicPresentation(doc: PresentationDocument): PublicPresentat
     theme: doc.theme === 'dark' ? 'dark' : 'light',
     displayMode: doc.displayMode === 'slideshow' ? 'slideshow' : 'scroll',
     layout,
+    slides,
     ...(canonical ? { embedUrl: canonical.embedUrl, openUrl: canonical.openUrl } : {}),
     ...(doc.introduction ? { introduction: doc.introduction } : {}),
     ...(cover && typeof cover.url === 'string'
@@ -220,17 +231,15 @@ export function isValidPresentationBlockTarget(
   return layout.some((value) => {
     if (!value || typeof value !== 'object') return false
     const block = value as Record<string, unknown>
-    if (block.blockType !== blockType || typeof block.id !== 'string') return false
-    if (block.id === blockId) return true
-    if (blockType === 'entryGoogleSlidesDeck' && Array.isArray(block.syncedSlides)) {
-      return block.syncedSlides.some((slideValue) => {
-        if (!slideValue || typeof slideValue !== 'object') return false
-        const objectId = (slideValue as Record<string, unknown>).objectId
-        return typeof objectId === 'string' && `${block.id}--gslide--${encodeURIComponent(objectId)}` === blockId
-      })
-    }
-    return false
+    return block.blockType === blockType && block.id === blockId
   })
+}
+
+// A live-embed slide is tracked by its Google slide objectId (blockType
+// "googleSlide"); validate it against the presentation's synced slide list.
+export function isValidGoogleSlideTarget(slides: unknown, objectId: string): boolean {
+  return Array.isArray(slides) && slides.some((value) =>
+    value && typeof value === 'object' && (value as { objectId?: unknown }).objectId === objectId)
 }
 
 export async function recordPresentationEvent({
@@ -268,8 +277,9 @@ export async function recordPresentationEvent({
     if (!validLink) return 'not-found'
   }
   if (event.type === 'blockHeartbeat' || event.type === 'slideNavigation') {
-    const validBlock = Array.isArray(presentation.layout) &&
-      isValidPresentationBlockTarget(presentation.layout, event.blockId, event.blockType)
+    const validBlock = event.blockType === 'googleSlide'
+      ? isValidGoogleSlideTarget(presentation.slides, event.blockId)
+      : Array.isArray(presentation.layout) && isValidPresentationBlockTarget(presentation.layout, event.blockId, event.blockType)
     if (!validBlock) return 'not-found'
   }
 

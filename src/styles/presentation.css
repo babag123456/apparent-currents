@@ -26,6 +26,18 @@
 .presentation-actions a:hover { background: #202020; color: #f8f4f1; }
 .presentation-actions a:focus-visible { outline: 3px solid #3467eb; outline-offset: 3px; }
 .presentation-blocks { width: min(100%, 1440px); margin-inline: auto; }
+.presentation-deck { width: min(100%, 1440px); margin-inline: auto; }
+
+/* Vertically centre the deck between the header and footer. */
+.presentation-page--deck { display: flex; flex-direction: column; min-height: 100vh; }
+.presentation-page--deck > .presentation-deck,
+.presentation-page--deck > .presentation-stage {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
 .presentation-block { overflow: clip; }
 
 .google-slides-deck__inner {

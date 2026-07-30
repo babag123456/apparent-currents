@@ -12,8 +12,6 @@ import {
   validateGoogleSlidesUrl,
 } from '../src/lib/presentations/googleSlides.ts'
 import { deriveSlideTitle, orderGoogleSlides } from '../src/lib/presentations/googleSlidesSync.ts'
-import { syncGoogleSlidesDecks } from '../src/lib/presentations/googleSlidesBlockSync.ts'
-import { expandGoogleSlideDecks } from '../src/lib/presentations/slideExpansion.ts'
 import {
   createPresentationShareToken,
   isValidPresentationShareToken,
@@ -21,10 +19,16 @@ import {
 import { PresentationVisits } from '../src/payload/collections/PresentationVisits.ts'
 import { Presentations } from '../src/payload/collections/Presentations.ts'
 import { sharedEntryBlocks } from '../src/blocks/entries/sharedBlocks.ts'
-import { isValidPresentationBlockTarget, mergeBlockJourney, mergeBlockMetrics, mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
+import { isValidGoogleSlideTarget, isValidPresentationBlockTarget, mergeBlockJourney, mergeBlockMetrics, mergeLinkClicks, toPublicPresentation } from '../src/lib/presentations/repository.ts'
 import { summarizePresentationVisits } from '../src/lib/presentations/summary.ts'
 import { summarizePresentationDashboard } from '../src/lib/presentations/dashboard.ts'
 import { isInteractiveNavigationTarget, nextSlide, previousSlide } from '../src/lib/presentations/slideshow.ts'
+
+// Run hermetically: with no service-account creds, the presentation hook takes
+// the "not configured" path instead of making a live Slides API call.
+delete process.env.GOOGLE_SLIDES_CLIENT_EMAIL
+delete process.env.GOOGLE_SLIDES_PRIVATE_KEY
+delete process.env.GOOGLE_SLIDES_CREDENTIALS_JSON
 
 const deckId = '1AbCdEfGhIjKlMnOpQrStUvWxYz_123456'
 const publishedId = '2PACX-1vQwertyUiopAsdfGhjkLzxcVbnm123456'
@@ -42,40 +46,30 @@ assert.deepEqual(sharedEntryBlocks.map((block) => block.slug), [
   'entryGoogleSlidesDeck',
 ])
 
-const presentationCssSource = readFileSync(
-  new URL('../src/styles/presentation.css', import.meta.url),
+// The live-embed player uses Google's iframe (so video/GIFs play) with our own
+// nav, and reports the active slide for per-slide analytics.
+const embedPlayerSource = readFileSync(
+  new URL('../src/components/presentations/GoogleSlidesEmbedPlayer.tsx', import.meta.url),
   'utf8',
 )
-assert.match(presentationCssSource, /\.google-slides-deck__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 8rem\)/)
-assert.match(presentationCssSource, /\.presentation-slide \.google-slides-deck__frame\s*\{[\s\S]*?max-height:\s*calc\(100dvh - 5rem\)/)
-
-const deckComponentSource = readFileSync(
-  new URL('../src/blocks/entries/EntryGoogleSlidesDeck/Component.tsx', import.meta.url),
-  'utf8',
-)
-// The module renders the native player, never a Google iframe, so viewers
-// never reach presenter notes or the Google Slides chrome.
-assert.doesNotMatch(deckComponentSource, /<iframe/)
-assert.match(deckComponentSource, /GoogleSlidesDeckPlayer/)
-assert.match(deckComponentSource, /linkedPresentationHref/)
-const deckPlayerSource = readFileSync(
-  new URL('../src/components/presentations/GoogleSlidesDeckPlayer.tsx', import.meta.url),
-  'utf8',
-)
-assert.doesNotMatch(deckPlayerSource, /<iframe/)
-assert.match(deckPlayerSource, /requestFullscreen/)
+assert.match(embedPlayerSource, /<iframe/)
+assert.match(embedPlayerSource, /#slide=id\./)
+assert.match(embedPlayerSource, /rm.*minimal/)
+assert.match(embedPlayerSource, /requestFullscreen/)
+assert.match(embedPlayerSource, /presentation:slide-navigation/)
 for (const className of ['google-slides-player', 'google-slides-player__frame', 'google-slides-player__controls']) {
-  assert.match(deckPlayerSource, new RegExp(className))
+  assert.match(embedPlayerSource, new RegExp(className))
 }
-assert.match(presentationCssSource, /\.presentation-slideshow:fullscreen[\s\S]*?max-height:\s*100dvh/)
 
+// The in-page module picks a presentation (relationship), not a URL.
 const deckBlock = sharedEntryBlocks.find((block) => block.slug === 'entryGoogleSlidesDeck')
 assert.ok(deckBlock)
-const deckFields = deckBlock.fields.filter((field) => 'name' in field) as Array<{ name: string; required?: boolean }>
-assert.equal(deckFields.find((field) => field.name === 'slidesUrl')?.required, true)
-assert.ok(deckFields.some((field) => field.name === 'syncedSlides'))
-// Header + linked-presentation options mirror the other content modules.
-for (const field of ['prehead', 'headline', 'intro', 'linkedPresentation']) {
+const deckFields = deckBlock.fields.filter((field) => 'name' in field) as Array<{ name: string; required?: boolean; type?: string }>
+const deckPresentationField = deckFields.find((field) => field.name === 'presentation')
+assert.equal(deckPresentationField?.type, 'relationship')
+assert.equal(deckPresentationField?.required, true)
+assert.ok(!deckFields.some((f) => f.name === 'slidesUrl'), 'module should no longer take a URL')
+for (const field of ['prehead', 'headline', 'intro']) {
   assert.ok(deckFields.some((f) => f.name === field), `deck should expose ${field}`)
 }
 
@@ -228,6 +222,7 @@ assert.deepEqual(toPublicPresentation({
   theme: 'light',
   displayMode: 'scroll',
   layout: [],
+  slides: [],
   embedUrl: `https://docs.google.com/presentation/d/${deckId}/embed`,
   openUrl: `https://docs.google.com/presentation/d/${deckId}/present`,
   introduction: 'A short introduction.',
@@ -257,6 +252,7 @@ assert.deepEqual(toPublicPresentation({
   layout: [
     { id: 'hero-1', blockType: 'entryHero', headline: 'Hello', prehead: 'Welcome' },
   ],
+  slides: [],
   supportingLinks: [],
 })
 assert.equal(toPublicPresentation({ title: 'Empty', layout: [] }), null)
@@ -274,63 +270,28 @@ assert.deepEqual(orderGoogleSlides({ slides: [{ objectId: 'p1', pageElements: [{
 ])
 assert.throws(() => orderGoogleSlides({ slides: [] }), /no slides/)
 
-// Expansion turns a synced deck into one tracked block per slide, dropping the
-// editable deck URL and the server-only UploadThing key.
-const expandedDeck = expandGoogleSlideDecks([
-  { id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, syncedSlides: [
-    { objectId: 'p1', title: 'Intro', imageUrl: 'https://utfs.io/f/p1.png', imageKey: 'p1key', width: 1600, height: 900 },
-    { objectId: 'p2', title: 'Details', imageUrl: 'https://utfs.io/f/p2.png', imageKey: 'p2key', width: 1600, height: 900 },
-  ] },
-])
-assert.deepEqual(expandedDeck, [
-  { id: 'deck-1--gslide--p1', sourceBlockId: 'deck-1', blockType: 'entryGoogleSlidesDeck', title: 'Intro', googleSlideObjectId: 'p1', googleSlideImageUrl: 'https://utfs.io/f/p1.png', googleSlideWidth: 1600, googleSlideHeight: 900 },
-  { id: 'deck-1--gslide--p2', sourceBlockId: 'deck-1', blockType: 'entryGoogleSlidesDeck', title: 'Details', googleSlideObjectId: 'p2', googleSlideImageUrl: 'https://utfs.io/f/p2.png', googleSlideWidth: 1600, googleSlideHeight: 900 },
-])
-// An unsynced deck passes through untouched (no slides to expand yet).
-assert.deepEqual(expandGoogleSlideDecks([{ id: 'deck-2', blockType: 'entryGoogleSlidesDeck', slidesUrl: 'x', syncedSlides: [] }]), [
-  { id: 'deck-2', blockType: 'entryGoogleSlidesDeck', slidesUrl: 'x', syncedSlides: [] },
-])
-
-// A synced deck expands through the public sanitiser (imageKey + slidesUrl are stripped).
+// A deck presentation exposes its synced slide list to the public view.
 const publicDeck = toPublicPresentation({
   title: 'Deck presentation', theme: 'light', displayMode: 'slideshow',
-  layout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`, syncedSlides: [
-    { objectId: 'p1', title: 'Intro', imageUrl: 'https://utfs.io/f/p1.png', imageKey: 'secret-key', width: 1600, height: 900 },
-  ] }],
+  slidesUrl: `https://docs.google.com/presentation/d/${deckId}/edit`,
+  slides: [{ objectId: 'p1', title: 'Intro' }, { objectId: 'p2', title: 'Details' }],
 })
-assert.deepEqual(publicDeck?.layout, [
-  { id: 'deck-1--gslide--p1', sourceBlockId: 'deck-1', blockType: 'entryGoogleSlidesDeck', title: 'Intro', googleSlideObjectId: 'p1', googleSlideImageUrl: 'https://utfs.io/f/p1.png', googleSlideWidth: 1600, googleSlideHeight: 900 },
-])
+assert.deepEqual(publicDeck?.slides, [{ objectId: 'p1', title: 'Intro' }, { objectId: 'p2', title: 'Details' }])
+assert.equal(publicDeck?.embedUrl, `https://docs.google.com/presentation/d/${deckId}/embed`)
+// Slides are ignored without a valid deck URL.
+assert.deepEqual(
+  toPublicPresentation({ title: 'No url', layout: [{ id: 'h', blockType: 'entryHero' }], slides: [{ objectId: 'p1', title: 'Intro' }] })?.slides,
+  [],
+)
 
-const deckAnalyticsLayout = [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', syncedSlides: [{ objectId: 'p1' }, { objectId: 'p2' }] }]
-assert.equal(isValidPresentationBlockTarget(deckAnalyticsLayout, 'deck-1--gslide--p1', 'entryGoogleSlidesDeck'), true)
-assert.equal(isValidPresentationBlockTarget(deckAnalyticsLayout, 'deck-1--gslide--p9', 'entryGoogleSlidesDeck'), false)
-assert.equal(isValidPresentationBlockTarget(deckAnalyticsLayout, 'forged--gslide--p1', 'entryGoogleSlidesDeck'), false)
-
-// Block sync: unchanged URL is skipped; forced re-sync pulls fresh slides.
-const fakeDeck = async () => [{ objectId: 'p1', title: 'Intro', imageUrl: 'https://utfs.io/f/p1.png', imageKey: 'k1', width: 1600, height: 900 }]
-const deckUrl = `https://docs.google.com/presentation/d/${deckId}/edit`
-const skipped = await syncGoogleSlidesDecks({
-  configured: true, fetchDeck: fakeDeck as never, removeImage: async () => undefined,
-  layout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: deckUrl, syncedSlides: [{ objectId: 'old', title: 'Old', imageUrl: 'u', imageKey: 'k', width: 1, height: 1 }] }],
-  previousLayout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: deckUrl, syncedSlides: [{ objectId: 'old', title: 'Old', imageUrl: 'u', imageKey: 'k', width: 1, height: 1 }] }],
-})
-assert.equal((skipped[0].syncedSlides as unknown[]).length, 1)
-assert.equal((skipped[0].syncedSlides as Array<{ objectId: string }>)[0].objectId, 'old')
-
-const resynced = await syncGoogleSlidesDecks({
-  configured: true, fetchDeck: fakeDeck as never, now: new Date('2026-07-18T00:00:00.000Z'), removeImage: async () => undefined,
-  layout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: deckUrl, forceSlidesSync: true, syncedSlides: [] }],
-})
-assert.equal((resynced[0].syncedSlides as Array<{ objectId: string }>)[0].objectId, 'p1')
-assert.equal(resynced[0].slidesSyncError, undefined)
-
-// Unconfigured: authors can still save; the deck degrades to the live embed.
-const unconfigured = await syncGoogleSlidesDecks({
-  configured: false, fetchDeck: fakeDeck as never, removeImage: async () => undefined,
-  layout: [{ id: 'deck-1', blockType: 'entryGoogleSlidesDeck', slidesUrl: deckUrl, syncedSlides: [] }],
-})
-assert.match(String(unconfigured[0].slidesSyncError), /not configured/)
+// Per-slide analytics target validates a slide objectId against the deck's list.
+const analyticsSlides = [{ objectId: 'p1' }, { objectId: 'p2' }]
+assert.equal(isValidGoogleSlideTarget(analyticsSlides, 'p1'), true)
+assert.equal(isValidGoogleSlideTarget(analyticsSlides, 'p9'), false)
+assert.equal(isValidGoogleSlideTarget(undefined, 'p1'), false)
+// Layout block targets still validate by id + type.
+assert.equal(isValidPresentationBlockTarget([{ id: 'hero-1', blockType: 'entryHero' }], 'hero-1', 'entryHero'), true)
+assert.equal(isValidPresentationBlockTarget([{ id: 'hero-1', blockType: 'entryHero' }], 'hero-1', 'entryQuote'), false)
 
 assert.deepEqual(mergeLinkClicks([], 'prototype'), [{ linkId: 'prototype', count: 1 }])
 assert.deepEqual(mergeLinkClicks([{ linkId: 'prototype', count: 2 }], 'prototype'), [{ linkId: 'prototype', count: 3 }])
@@ -402,7 +363,7 @@ const dashboard = summarizePresentationDashboard([
   { anonymousSessionId: 'session-c', visitCount: 1, activeSeconds: 0, lastSeenAt: 'invalid', deviceCategory: 'unknown', blockMetrics: [] },
 ])
 assert.deepEqual(dashboard.overview, {
-  viewers: 3, totalVisits: 4, averageActiveSeconds: 30, completionRate: 33, mostViewedSlide: 1,
+  viewers: 3, totalVisits: 4, totalActiveSeconds: 90, averageActiveSeconds: 30, completionRate: 33, mostViewedSlide: 1,
 })
 assert.deepEqual(dashboard.slides.map((slide) => ({ viewers: slide.viewers, reachedPercent: slide.reachedPercent, averageActiveSeconds: slide.averageActiveSeconds, dropOffCount: slide.dropOffCount })), [
   { viewers: 2, reachedPercent: 67, averageActiveSeconds: 20, dropOffCount: 0 },
@@ -413,5 +374,5 @@ assert.equal(dashboard.sessions[0].label, 'Anonymous viewer 1')
 assert.deepEqual(dashboard.sessions[0].journey.map((entry) => entry.position), [1, 2, 3])
 assert.equal(dashboard.legacyActivity[0].blockId, 'deleted-1')
 assert.deepEqual(summarizePresentationDashboard([{ id: 'hero-1', blockType: 'entryHero' }], []).overview, {
-  viewers: 0, totalVisits: 0, averageActiveSeconds: 0, completionRate: 0, mostViewedSlide: null,
+  viewers: 0, totalVisits: 0, totalActiveSeconds: 0, averageActiveSeconds: 0, completionRate: 0, mostViewedSlide: null,
 })

@@ -5,12 +5,14 @@ import { PresentationTracker } from './PresentationTracker'
 import { EntryThemeProvider } from '../entry-theme/EntryThemeProvider'
 import { PresentationBlocks, type PresentationBlock } from './PresentationBlocks'
 import { PresentationSlideshow } from './PresentationSlideshow'
+import { GoogleSlidesEmbedPlayer } from './GoogleSlidesEmbedPlayer'
 
 export function PresentationView({ presentation, shareToken }: { presentation: PublicPresentation; shareToken: string }) {
   const nativeBlocks = presentation.layout as PresentationBlock[]
+  const isDeck = Boolean(presentation.embedUrl)
   return (
     <EntryThemeProvider initialTheme={presentation.theme}>
-    <main className={`presentation-page presentation-page--${presentation.displayMode}`}>
+    <main className={`presentation-page presentation-page--${presentation.displayMode}${isDeck ? ' presentation-page--deck' : ''}`}>
       <PresentationTracker shareToken={shareToken} />
       <header className="presentation-header">
         {presentation.coverImage ? (
@@ -25,21 +27,29 @@ export function PresentationView({ presentation, shareToken }: { presentation: P
         </div>
       </header>
 
-      {nativeBlocks.length ? presentation.displayMode === 'slideshow' ? (
+      {presentation.embedUrl && presentation.slides.length ? (
+        <section className="presentation-deck" aria-label={`${presentation.title} slides`}>
+          <GoogleSlidesEmbedPlayer embedUrl={presentation.embedUrl} slides={presentation.slides} title={presentation.title} trackAnalytics />
+        </section>
+      ) : nativeBlocks.length ? presentation.displayMode === 'slideshow' ? (
         <PresentationSlideshow blocks={nativeBlocks} title={presentation.title} />
       ) : (
         <div className="presentation-blocks"><PresentationBlocks blocks={nativeBlocks} /></div>
-      ) : presentation.embedUrl ? <section className="presentation-stage" aria-label={`${presentation.title} slides`}>
-        <iframe
-          allow="fullscreen"
-          allowFullScreen
-          className="presentation-frame"
-          loading="eager"
-          referrerPolicy="strict-origin-when-cross-origin"
-          src={presentation.embedUrl}
-          title={presentation.title}
-        />
-      </section> : null}
+      ) : presentation.embedUrl ? (
+        // Deck not yet synced (e.g. service account not configured): fall back to
+        // Google's own player so motion still plays, without per-slide analytics.
+        <section className="presentation-stage" aria-label={`${presentation.title} slides`}>
+          <iframe
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            className="presentation-frame"
+            loading="eager"
+            referrerPolicy="strict-origin-when-cross-origin"
+            src={presentation.embedUrl}
+            title={presentation.title}
+          />
+        </section>
+      ) : null}
 
       <footer className="presentation-actions">
         {presentation.openUrl ? <a href={presentation.openUrl} target="_blank" rel="noreferrer">Open presentation ↗</a> : null}

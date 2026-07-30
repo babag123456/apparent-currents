@@ -491,30 +491,9 @@ export interface EntryGoogleSlidesDeckBlock {
   intro?: string | null;
   title?: string | null;
   /**
-   * Optional. Links this module to a presentation page; shows an “Open presentation” button and keeps the two connected for reporting.
+   * Pick an existing presentation. Its Google Slides deck is embedded here — no separate URL needed.
    */
-  linkedPresentation?: (number | null) | Presentation;
-  /**
-   * Editable sharing URL (https://docs.google.com/presentation/d/…). Share the deck with the service-account email.
-   */
-  slidesUrl: string;
-  /**
-   * Tick and save to pull the latest slides even if the URL is unchanged.
-   */
-  forceSlidesSync?: boolean | null;
-  syncedSlides?:
-    | {
-        objectId: string;
-        title: string;
-        imageUrl: string;
-        imageKey: string;
-        width: number;
-        height: number;
-        id?: string | null;
-      }[]
-    | null;
-  slidesSyncedAt?: string | null;
-  slidesSyncError?: string | null;
+  presentation: number | Presentation;
   id?: string | null;
   blockName?: string | null;
   blockType: 'entryGoogleSlidesDeck';
@@ -528,9 +507,28 @@ export interface Presentation {
   title: string;
   clientLabel?: string | null;
   /**
-   * Legacy deck fallback. New presentations can use content blocks below.
+   * Editable sharing URL (https://docs.google.com/presentation/d/…). Share the deck with the service-account email so its slides can be synced.
    */
   slidesUrl?: string | null;
+  slides?:
+    | {
+        objectId: string;
+        title: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Re-read the deck even if the URL is unchanged (e.g. after adding or reordering slides).
+   */
+  forceSlidesSync?: boolean | null;
+  /**
+   * When the slide list was last synced from Google.
+   */
+  slidesSyncedAt?: string | null;
+  /**
+   * Last sync problem, if any (e.g. share the deck with the service-account email, then tick “Force re-sync” and save).
+   */
+  slidesSyncError?: string | null;
   embedUrl?: string | null;
   openUrl?: string | null;
   /**
@@ -541,6 +539,9 @@ export interface Presentation {
   coverImage?: (number | null) | Media;
   introduction?: string | null;
   theme: 'light' | 'dark';
+  /**
+   * Applies to block-based presentations. Google Slides decks always show as the slideshow player.
+   */
   displayMode: 'scroll' | 'slideshow';
   layout?:
     | (
@@ -931,22 +932,7 @@ export interface EntryGoogleSlidesDeckBlockSelect<T extends boolean = true> {
   headline?: T;
   intro?: T;
   title?: T;
-  linkedPresentation?: T;
-  slidesUrl?: T;
-  forceSlidesSync?: T;
-  syncedSlides?:
-    | T
-    | {
-        objectId?: T;
-        title?: T;
-        imageUrl?: T;
-        imageKey?: T;
-        width?: T;
-        height?: T;
-        id?: T;
-      };
-  slidesSyncedAt?: T;
-  slidesSyncError?: T;
+  presentation?: T;
   id?: T;
   blockName?: T;
 }
@@ -1015,6 +1001,16 @@ export interface PresentationsSelect<T extends boolean = true> {
   title?: T;
   clientLabel?: T;
   slidesUrl?: T;
+  slides?:
+    | T
+    | {
+        objectId?: T;
+        title?: T;
+        id?: T;
+      };
+  forceSlidesSync?: T;
+  slidesSyncedAt?: T;
+  slidesSyncError?: T;
   embedUrl?: T;
   openUrl?: T;
   shareToken?: T;
