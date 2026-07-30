@@ -4,7 +4,7 @@
 .presentation-analytics > header h3 { margin: 0; font-size: 1.35rem; }
 .presentation-analytics__state { margin: 0; padding: 2rem 1.25rem; }
 .presentation-analytics__state button { min-height: 44px; margin-top: .5rem; padding-inline: 1rem; }
-.presentation-analytics__overview { display: grid; grid-template-columns: repeat(5, minmax(8rem, 1fr)); margin: 0; border-bottom: 1px solid var(--pa-line); }
+.presentation-analytics__overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); margin: 0; border-bottom: 1px solid var(--pa-line); }
 .presentation-analytics__overview div { padding: 1rem 1.25rem; border-right: 1px solid var(--pa-line); }
 .presentation-analytics__overview div:last-child { border-right: 0; }
 .presentation-analytics__overview dt { color: var(--theme-elevation-500); font-size: .75rem; }

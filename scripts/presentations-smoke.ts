@@ -363,7 +363,7 @@ const dashboard = summarizePresentationDashboard([
   { anonymousSessionId: 'session-c', visitCount: 1, activeSeconds: 0, lastSeenAt: 'invalid', deviceCategory: 'unknown', blockMetrics: [] },
 ])
 assert.deepEqual(dashboard.overview, {
-  viewers: 3, totalVisits: 4, averageActiveSeconds: 30, completionRate: 33, mostViewedSlide: 1,
+  viewers: 3, totalVisits: 4, totalActiveSeconds: 90, averageActiveSeconds: 30, completionRate: 33, mostViewedSlide: 1,
 })
 assert.deepEqual(dashboard.slides.map((slide) => ({ viewers: slide.viewers, reachedPercent: slide.reachedPercent, averageActiveSeconds: slide.averageActiveSeconds, dropOffCount: slide.dropOffCount })), [
   { viewers: 2, reachedPercent: 67, averageActiveSeconds: 20, dropOffCount: 0 },
@@ -374,5 +374,5 @@ assert.equal(dashboard.sessions[0].label, 'Anonymous viewer 1')
 assert.deepEqual(dashboard.sessions[0].journey.map((entry) => entry.position), [1, 2, 3])
 assert.equal(dashboard.legacyActivity[0].blockId, 'deleted-1')
 assert.deepEqual(summarizePresentationDashboard([{ id: 'hero-1', blockType: 'entryHero' }], []).overview, {
-  viewers: 0, totalVisits: 0, averageActiveSeconds: 0, completionRate: 0, mostViewedSlide: null,
+  viewers: 0, totalVisits: 0, totalActiveSeconds: 0, averageActiveSeconds: 0, completionRate: 0, mostViewedSlide: null,
 })

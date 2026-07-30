@@ -84,6 +84,7 @@ export function PresentationAnalyticsDashboard() {
         <dl className="presentation-analytics__overview">
           <div><dt>Anonymous viewers</dt><dd>{dashboard.overview.viewers}</dd></div>
           <div><dt>Total visits</dt><dd>{dashboard.overview.totalVisits}</dd></div>
+          <div><dt>Total active time</dt><dd>{formatTime(dashboard.overview.totalActiveSeconds)}</dd></div>
           <div><dt>Average active time</dt><dd>{formatTime(dashboard.overview.averageActiveSeconds)}</dd></div>
           <div><dt>Completion</dt><dd>{dashboard.overview.completionRate}%</dd></div>
           <div><dt>Most viewed</dt><dd>{dashboard.overview.mostViewedSlide ? `Slide ${dashboard.overview.mostViewedSlide}` : '—'}</dd></div>
@@ -91,11 +92,12 @@ export function PresentationAnalyticsDashboard() {
         <details className="presentation-analytics__slides">
         <summary>Slide-by-slide detail ({dashboard.slides.length} slides)</summary>
         <div className="presentation-analytics__table-wrap"><table>
-          <thead><tr><th>Slide / block</th><th>Viewers</th><th>Reached</th><th>Average time</th><th>Drop-off after</th></tr></thead>
+          <thead><tr><th>Slide / block</th><th>Viewers</th><th>Reached</th><th>Total time</th><th>Average time</th><th>Drop-off after</th></tr></thead>
           <tbody>{dashboard.slides.map((slide) => <tr key={`${slide.id}:${slide.blockType}`}>
             <th scope="row"><span>{slide.position}</span><small>{slideTitles[slide.position - 1] || slide.blockType}</small></th>
             <td>{slide.viewers}</td>
             <td><div className="presentation-analytics__reach"><i style={{ width: `${slide.reachedPercent}%` }} /> <span>{slide.reachedPercent}%</span></div></td>
+            <td>{formatTime(slide.activeSeconds)}</td>
             <td>{formatTime(slide.averageActiveSeconds)}</td>
             <td>{slide.dropOffCount === null ? '—' : `${slide.dropOffCount} (${slide.dropOffPercent}%)`}</td>
           </tr>)}</tbody>
