@@ -1,0 +1,21 @@
+name: Proper PR
+on:
+  pull_request:
+    types: [opened, ready_for_review, edited, synchronize, reopened]
+
+concurrency:
+  group: proper-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Validate description
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: aprnt/aprnt-proper-pr@v1
+        with:
+          github-token: ${{ github.token }}
