@@ -46,3 +46,6 @@
   opacity: .55;
 }
 .presentation-analytics details[open] > summary::before { transform: rotate(45deg); }
+/* Keep the chevron beside its label; push only the trailing meta to the right. */
+.presentation-analytics summary { justify-content: flex-start; gap: .5rem; }
+.presentation-analytics summary span:last-child { margin-left: auto; text-align: right; }
