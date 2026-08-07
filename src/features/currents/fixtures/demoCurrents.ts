@@ -15,9 +15,14 @@ export type CurrentDirection = 'rising' | 'steady' | 'easing'
 export interface FixtureMarker {
   statement: string
   metric: string
-  source: 'semrush'
+  source: 'semrush' | 'brandwatch' | 'ga4' | 'gwi'
+  /** False when the source has no live connection (fixture-only lenses). */
+  sourceConnected?: boolean
   sourceReport: string
   confidence: MarkerConfidence
+  /** Per-marker honesty label when it differs from the bulletin's own
+   * (e.g. synthetic corroboration attached to a live demand current). */
+  provenanceLabel?: string
 }
 
 export interface FixtureCurrent {

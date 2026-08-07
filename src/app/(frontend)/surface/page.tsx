@@ -112,6 +112,13 @@ export default async function SurfacePage() {
               threshold — see Deep Dive
             </span>
           ) : null}
+          {bulletin.provenance && bulletin.provenance.corroboratingCount > 0 ? (
+            <span>
+              · {bulletin.provenance.corroboratingCount} corroborating marker
+              {bulletin.provenance.corroboratingCount === 1 ? '' : 's'} from{' '}
+              {bulletin.provenance.corroboratingLenses.join(' + ')} in the annexes
+            </span>
+          ) : null}
         </p>
       </section>
 
@@ -171,6 +178,9 @@ export default async function SurfacePage() {
             : mode === 'derived-synthetic'
               ? `currents machine-derived from ${bulletin.provenance?.markerCount ?? 0} markers over authored synthetic evidence — no live data was fetched`
               : `currents machine-derived from ${bulletin.provenance?.markerCount ?? 0} markers over ${bulletin.provenance?.evidenceCount ?? 0} live evidence records · ${bulletin.provenance?.estimatedUnits ?? 0} api units`}
+          {bulletin.provenance && bulletin.provenance.corroboratingCount > 0
+            ? ` · ${bulletin.provenance.corroboratingCount} corroborating fixture markers from ${bulletin.provenance.corroboratingLenses.join(' + ')} — corroboration never alters momentum, status or confidence`
+            : ''}
         </p>
       </footer>
     </div>

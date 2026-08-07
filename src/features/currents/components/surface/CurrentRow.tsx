@@ -106,10 +106,10 @@ export function CurrentRow({
                     {marker.metric}
                   </p>
                   <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-charcoal/70">
-                    <SourceChip source={marker.source} connected />
+                    <SourceChip source={marker.source} connected={marker.sourceConnected ?? true} />
                     <span>{marker.sourceReport}</span>
                     <span>· {marker.confidence} confidence</span>
-                    <span className="text-red-text">· {provenanceLabel}</span>
+                    <span className="text-red-text">· {marker.provenanceLabel ?? provenanceLabel}</span>
                   </p>
                 </li>
               ))}
