@@ -18,7 +18,9 @@
     "migrate:verify-blank": "node --env-file-if-exists=.env scripts/verify-blank-migrations.mjs",
     "generate:types": "payload generate:types --config src/payload.config.ts",
     "generate:importmap": "payload generate:importmap --config src/payload.config.ts",
-    "security:smoke": "tsx scripts/security-smoke.ts"
+    "security:smoke": "tsx scripts/security-smoke.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@next/env": "^16.2.4",
@@ -43,6 +45,7 @@
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

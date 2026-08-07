@@ -44,6 +44,9 @@ one fresh baseline migration in `src/migrations` (see
   collection change. `generate:importmap` after admin component changes.
 - `npm run migrate:verify-blank` — prove migrations rebuild a blank DB.
 - `npm run security:smoke` — security regression assertions.
+- `npm test` — vitest (domain transformations, normalisers, client errors).
+- `npx tsx scripts/semrush-probe.ts "<phrase>" [db]` — one narrow live
+  Semrush request to validate key + normalizer assumptions (spends units).
 - First admin on a fresh DB: configure Google OAuth, or locally
   `npx tsx scripts/bootstrap-admin.ts <email> '<password>'`.
 
