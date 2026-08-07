@@ -7,6 +7,7 @@ import { MiniTrend, TrendAlt } from '../../../../features/currents/components/de
 import { Notice } from '../../../../features/currents/components/deep-dive/Notice.tsx'
 import { SectionHead } from '../../../../features/currents/components/deep-dive/SectionHead.tsx'
 import { SourceChip } from '../../../../features/currents/components/SourceChip.tsx'
+import { COMPETITOR_TRAFFIC_FIXTURE } from '../../../../features/currents/fixtures/competitorTraffic.ts'
 import { getLensFixture } from '../../../../features/currents/queries/getLensFixture.ts'
 
 export const metadata: Metadata = { title: 'Behaviour · Deep Dive · CURRENTS' }
@@ -17,6 +18,11 @@ export const dynamic = 'force-dynamic'
  * connected and no adapter exists yet; everything shown here is authored
  * synthetic fixture data, stamped as such at every level.
  */
+function durationLabel(seconds: number): string {
+  const minutes = Math.floor(seconds / 60)
+  return `${minutes}:${String(seconds % 60).padStart(2, '0')}`
+}
+
 export default async function BehaviourPage() {
   const data = await getLensFixture('behaviour')
 
@@ -129,6 +135,91 @@ export default async function BehaviourPage() {
           </section>
         </>
       )}
+
+      {/* Competitor site stack-up: authored fixture module, independent of
+          the seeded sync. Live path = Semrush Traffic Analytics (separately
+          licensed; verify endpoints/units against current docs before
+          wiring). Modelled cross-site estimates beside measured own-site
+          sessions — different instruments, never blended. */}
+      {data && COMPETITOR_TRAFFIC_FIXTURE.brand === data.context.brand ? (
+        <section aria-labelledby="behaviour-sites" className="mt-12 pb-4">
+          <SectionHead
+            id="behaviour-sites"
+            title="Competitor site stack-up"
+            note={`${COMPETITOR_TRAFFIC_FIXTURE.rows.length} domains · synthetic fixture`}
+          />
+          <p className="mt-3 max-w-[68ch] text-[14px] leading-relaxed text-charcoal/70">
+            How each site in the competitive set performs once the audience
+            arrives. The own-site figures above are measured sessions; these are
+            modelled cross-site estimates — different instruments, shown side by
+            side and never blended.
+          </p>
+          <div
+            className="overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-labelledby="behaviour-sites"
+          >
+            <table className="mt-4 w-full min-w-[720px] border-collapse text-left">
+              <thead>
+                <tr className="border-b border-charcoal/10 font-mono text-[10px] uppercase tracking-[0.16em] text-red-text">
+                  <th scope="col" className="py-2.5 pr-4 font-medium">Domain</th>
+                  <th scope="col" className="py-2.5 pr-4 font-medium">Est. visits/mo</th>
+                  <th scope="col" className="py-2.5 pr-4 font-medium">12-mo trend</th>
+                  <th scope="col" className="py-2.5 pr-4 font-medium">Pages/visit</th>
+                  <th scope="col" className="py-2.5 pr-4 font-medium">Avg visit</th>
+                  <th scope="col" className="py-2.5 pr-4 font-medium">Bounce</th>
+                  <th scope="col" className="py-2.5 font-medium">Reading</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPETITOR_TRAFFIC_FIXTURE.rows.map((row) => (
+                  <tr key={row.domain} className="border-b border-charcoal/10 align-top">
+                    <td className="py-3 pr-4">
+                      <span className="flex items-baseline gap-2">
+                        <span className="text-[14px] font-medium text-charcoal">{row.name}</span>
+                        {row.isBrand ? (
+                          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-red-text">
+                            you
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="font-mono text-[11px] text-charcoal/70">{row.domain}</span>
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-[12px] text-charcoal/80">
+                      ~{row.visits.toLocaleString('en-AU')}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <MiniTrend trend={row.trend} />
+                      <TrendAlt trend={row.trend} />
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-[12px] text-charcoal/80">
+                      {row.pagesPerVisit.toFixed(1)}
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-[12px] text-charcoal/80">
+                      {durationLabel(row.avgVisitSeconds)}
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-[12px] text-charcoal/80">
+                      {Math.round(row.bounceRate * 100)}%
+                    </td>
+                    <td className="py-3 max-w-[30ch] text-[13px] leading-relaxed text-charcoal/75">
+                      {row.note}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 max-w-[80ch] font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-charcoal/70">
+            Visits are modelled estimates of total site traffic, marked ~ ·{' '}
+            <span className="text-red-text">
+              authored synthetic fixture — cross-site traffic is semrush traffic
+              analytics territory, which is not connected; no live traffic data was
+              fetched
+            </span>
+          </p>
+        </section>
+      ) : null}
     </div>
   )
 }
