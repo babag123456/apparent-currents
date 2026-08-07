@@ -36,12 +36,12 @@ too hard to be weather). The Apparent site system carries the product: cream
 ground, red as the working colour (DM Mono uppercase labels, hairline red
 rules, pill chips/controls, red circular action buttons), Inter Tight only
 (400 copy / 500 sentence-case headlines; Swiss Posters retired). Data lives
-in rounded charcoal terminal panels with red numerics — the site's LED
+in rounded stone terminal panels with red numerics — the site's LED
 market-board register (dashboard density referenced from the user's two
-dashboard images, but never blue-SaaS). Cream + charcoal panels confirmed
+dashboard images, but never blue-SaaS). Cream + stone panels confirmed (stone swapped for charcoal 2026-08-07: black felt too full-on)
 over a dark surface.
 
-Memorable moment: the charcoal momentum panel — five currents as red bar
+Memorable moment: the stone momentum panel — five currents as red bar
 series with large red momentum figures, rising once on load.
 
 ## Constraints

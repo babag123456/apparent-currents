@@ -99,7 +99,7 @@ Do not use the phrase “read the water”.
 - Visual world (pinned 2026-08-07): the Apparent site system — cream
   ground, red as the working colour (mono uppercase labels, hairline red
   rules, pill chips/controls, red circular action buttons); data in rounded
-  charcoal terminal panels with red numerics. Not blue-SaaS.
+  stone terminal panels with red numerics. Not blue-SaaS.
 - Brand assets live at:
   `/Users/hamish.stewart/Documents/Work/02_Internal_Agency/01_Agency_Marketing_&_Brand/04_Brand_Assets/Apparent-Brand-Assets/`
   - `logo/SYMBOL/`, `logo/WORDMARK/`, `logo/LOCKUP/` — each in SVG + PNG,

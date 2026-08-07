@@ -116,7 +116,7 @@ components:
 Currents wears Apparent's own site system as a working instrument: a cream
 editorial page where red is the working colour — hairline rules, pill chips
 and controls, mono uppercase annotations — and where data lives inside
-rounded charcoal terminal panels with red numerics, echoing the LED
+rounded stone terminal panels with red numerics, a softened take on the LED
 market-board photography of the Apparent site. The feel is a hybrid of
 strategy presentation, intelligence terminal and editorial publication.
 Insight always leads: the first thing on any surface is a finding stated in
@@ -140,13 +140,13 @@ work.
 - Two voices: Inter Tight for insight, DM Mono uppercase for evidence and
   provenance
 - Hairline red rules and pill geometry structure the page; no shadows
-- Data visualisation confined to charcoal terminal panels with red marks
+- Data visualisation confined to stone terminal panels with red marks
 - Honesty furniture everywhere: fixture stamps, "not connected" chips,
   confidence labels
 
 ## Colors
 
-A three-material palette — cream paper, charcoal terminal, working red —
+A three-material palette — cream paper, stone terminal, working red —
 with stone as the touch tint and plum reserved for decline.
 
 ### Primary
@@ -217,7 +217,7 @@ in type: Inter Tight says what it means; DM Mono shows the working.
 - **Data** (DM Mono 400, 11px, normal case): magnitudes, metrics, IDs,
   timestamps.
 - **Numeral** (DM Mono 500, 24px, line-height 1): the momentum figures in
-  red on the charcoal panel — the only large mono setting.
+  red on the stone panel — the only large mono setting.
 
 ### Named Rules
 **The Two Weights Rule.** Inter Tight at 400 for copy and 500 for
@@ -234,7 +234,7 @@ A single centred column: max-width 80rem (max-w-7xl), gutters 20px mobile /
 analysis beside the momentum panel, current table, opportunities,
 methodology foot.
 
-- **Lead grid:** 7fr / 5fr at lg (statement left, charcoal panel right),
+- **Lead grid:** 7fr / 5fr at lg (statement left, stone panel right),
   stacking on smaller screens; column gap 40–56px.
 - **The ledger:** the current table is a CSS grid with fixed metadata
   columns — `9rem` status, fluid title, `10.5rem` magnitude, `9.5rem`
@@ -256,13 +256,13 @@ methodology foot.
 ## Elevation & Depth
 
 Completely flat: no box-shadows anywhere in the system. Depth is conveyed
-by material change — the charcoal terminal panel sitting on the cream page
+by material change — the stone terminal panel sitting on the cream page
 is the strongest plane shift — plus hairline borders and the stone tint for
 touched or expanded states (hover stone/30, expanded tray stone/25).
 
 ### Named Rules
 **The No-Shadow Rule.** Surfaces never cast shadows. If a region must read
-as a different plane, change its material (charcoal panel, stone tint) or
+as a different plane, change its material (stone panel, stone tint) or
 draw a hairline around it.
 
 ## Shapes
@@ -270,7 +270,7 @@ draw a hairline around it.
 Two geometries: the pill and the soft slab. Interactive chips, status
 marks, nav controls and stamps are fully rounded pills (9999px), mostly
 hairline-outlined, filled only when loudest. Panels and cards are 16px
-rounded slabs (the charcoal momentum panel, the opportunity card with its
+rounded slabs (the stone momentum panel, the opportunity card with its
 red/30 hairline). Source chips alone use a tight 4px radius — a squarer,
 machine-stamped mark. The one pictorial affordance is the 24px red circle
 carrying a stroked plus, rotating 45° to an × when its row is open; all
@@ -328,7 +328,7 @@ no decorative illustration.
   fixture flag.
 
 ### The Momentum Panel (signature)
-The rounded charcoal terminal carrying each current's 12-week demand index
+The rounded stone terminal carrying each current's 12-week demand index
 as red SVG bars (7px wide, 4px gap, 34px tall, opacity ramping 0.55→1.0
 toward the present) beside its momentum figure in 24px red mono. Its bars
 rising once on load (0.9s, cubic-bezier(0.22, 1, 0.36, 1), 30ms stagger
@@ -354,7 +354,7 @@ part of the design, not debug output.
   hex values in components.
 - **Do** lead every surface with an insight in Inter Tight before any
   chart or navigation chrome; keep evidence one step behind in DM Mono.
-- **Do** put data visualisation inside a rounded charcoal panel with red
+- **Do** put data visualisation inside a rounded stone panel with red
   marks and cream small text, and provide a text alternative alongside.
 - **Do** structure sections with red hairline baseline rules and
   right-aligned mono annotations; use charcoal/10 hairlines inside

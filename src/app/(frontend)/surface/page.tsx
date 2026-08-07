@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: 'Surface · CURRENTS' }
 
 /**
  * Surface — “What matters now.”
- * Lead analysis beside the charcoal momentum panel, the current table
+ * Lead analysis beside the stone momentum panel, the current table
  * (What’s moving), and the interpretation (So what). Fixture-led in this
  * phase; the validity stamp declares it.
  */

@@ -3,11 +3,11 @@ import React from 'react'
 import type { FixtureCurrent } from '../../fixtures/demoCurrents.ts'
 
 /**
- * The momentum panel: a rounded charcoal terminal carrying each current's
+ * The momentum panel: a rounded stone terminal carrying each current's
  * 12-week demand index as red bars with its momentum figure in red
- * numerics — the LED market-board register of the Apparent site, rebuilt
- * as a working instrument. Small text stays cream for contrast; red is
- * reserved for the large figures and the bars. The currents table below
+ * numerics — the red-data register of the Apparent site, softened onto
+ * stone (charcoal read as too heavy). Red is reserved for the bars and
+ * the large figures; small text stays charcoal. The currents table below
  * is the accessible evidence alternative.
  */
 
@@ -48,25 +48,25 @@ function TrendBars({ trend, currentId }: { trend: number[]; currentId: string })
 
 export function MomentumPanel({ currents }: { currents: FixtureCurrent[] }) {
   return (
-    <div className="rounded-2xl bg-charcoal px-5 py-5 sm:px-6">
+    <div className="rounded-2xl bg-stone px-5 py-5 sm:px-6">
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-cream/60">
+        <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-charcoal/70">
           Momentum · demand index
         </h2>
-        <span className="rounded-full border border-red/70 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-cream/75">
+        <span className="rounded-full border border-red/70 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-red-text">
           Fixture
         </span>
       </div>
 
-      <ul className="mt-4 divide-y divide-cream/10">
+      <ul className="mt-4 divide-y divide-charcoal/10">
         {currents.map((current) => (
           <li
             key={current.id}
             className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-x-4 py-3"
           >
-            <span className="font-mono text-[11px] text-cream/65">{current.id}</span>
+            <span className="font-mono text-[11px] text-charcoal/70">{current.id}</span>
             <span className="min-w-0">
-              <span className="block text-[13px] font-medium leading-tight text-cream">
+              <span className="block text-[13px] font-medium leading-tight text-charcoal">
                 {current.title}
               </span>
               <span className="mt-1 block">
@@ -74,10 +74,10 @@ export function MomentumPanel({ currents }: { currents: FixtureCurrent[] }) {
               </span>
             </span>
             <span className="text-right">
-              <span className="block font-mono text-[24px] font-medium leading-none text-red">
+              <span className="block font-mono text-[24px] font-medium leading-none text-red-text">
                 {current.momentumFigure}
               </span>
-              <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.14em] text-cream/65">
+              <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.14em] text-charcoal/70">
                 {current.direction}
               </span>
             </span>
@@ -85,7 +85,7 @@ export function MomentumPanel({ currents }: { currents: FixtureCurrent[] }) {
         ))}
       </ul>
 
-      <p className="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-cream/60">
+      <p className="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-charcoal/70">
         Relative search-demand index per current · 12 weeks · authored fixture, not
         live evidence
       </p>

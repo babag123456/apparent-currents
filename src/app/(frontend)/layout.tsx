@@ -37,14 +37,14 @@ intelligence product - insight leads, evidence one step behind; refuses the
 blue-SaaS dashboard and the decorative-metaphor chart.
 OWN-WORLD: Cream ground with red as the working colour: DM Mono uppercase
 labels, hairline red rules, pill chips and controls, Inter Tight voice
-(Swiss Posters retired); data lives in rounded charcoal terminal panels
-with red numerics, echoing the LED market-board photography of the
-Apparent site.
+(Swiss Posters retired); data lives in rounded stone terminal panels
+with red numerics, a softened take on the LED market-board photography
+of the Apparent site.
 STORY: A strategist reads the lead analysis, scans momentum on the panel,
 expands a current to its markers, and can say the finding aloud in a
 client meeting.
 FIRST VIEWPORT: Red mono validity strip, lockup + Currents header, lead
-statement in Inter Tight beside the charcoal momentum panel; the current
+statement in Inter Tight beside the stone momentum panel; the current
 table begins in view.
 FORM: Apparent red terminal (user-pinned, third steer); seed 07e29135.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the

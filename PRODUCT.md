@@ -76,7 +76,7 @@ cross-source identity.
 - Visual world (user-pinned 2026-08-07): the Apparent site system — cream
   ground with red as the working colour (mono uppercase labels, hairline red
   rules, pill chips and controls, red circular action buttons); data lives
-  in rounded charcoal terminal panels with red numerics (the site's LED
+  in rounded stone terminal panels with red numerics (the site's LED
   market-board register). Not blue-SaaS; insight still leads.
 - Tokens in `src/styles/brand.css`: red #fa0500, red-text #d90400 (AA ramp
   of brand red for small type — 4.9:1 on cream where #fa0500 is 3.8:1),
