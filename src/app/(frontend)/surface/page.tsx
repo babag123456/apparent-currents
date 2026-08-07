@@ -55,7 +55,7 @@ export default async function SurfacePage() {
             <span>{leadLabel}</span>
             <span>· drawn from {bulletin.lead.basedOn.join(' + ')}</span>
             <span>· {bulletin.lead.confidence} confidence</span>
-            <SourceChip source="semrush" connected />
+            <SourceChip source="semrush" connected linked />
             <span>· {provenanceLabel}</span>
           </p>
         </div>
@@ -101,10 +101,10 @@ export default async function SurfacePage() {
 
         <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal/70">
           <span>Select a current to open its markers · evidence:</span>
-          <SourceChip source="semrush" connected />
-          <SourceChip source="brandwatch" connected={false} />
-          <SourceChip source="ga4" connected={false} />
-          <SourceChip source="gwi" connected={false} />
+          <SourceChip source="semrush" connected linked />
+          <SourceChip source="brandwatch" connected={false} linked />
+          <SourceChip source="ga4" connected={false} linked />
+          <SourceChip source="gwi" connected={false} linked />
           {bulletin.provenance && bulletin.provenance.unclusteredCount > 0 ? (
             <span>
               · {bulletin.provenance.unclusteredCount} thin signal
