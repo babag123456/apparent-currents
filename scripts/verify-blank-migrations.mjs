@@ -11,23 +11,21 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const payloadBin = path.join(projectRoot, 'node_modules', 'payload', 'bin.js')
 const requiredTables = [
   'users',
-  'media',
-  'videos',
-  'awards',
-  'award_entries',
+  'users_sessions',
+  'payload_migrations',
+  'payload_locked_documents',
   'payload_locked_documents_rels',
-  'presentations',
-  'presentation_visits',
-  'presentation_visits_block_metrics',
-  'presentation_visits_block_journey',
+  'payload_preferences',
+  'payload_preferences_rels',
+  'payload_kv',
 ]
 
 const source = process.env.DATABASE_URL
 if (!source) throw new Error('DATABASE_URL is required.')
 
 const sourceUrl = new URL(source)
-const databaseName = `award_kit_migration_verify_${Date.now()}`
-if (!/^award_kit_migration_verify_\d+$/.test(databaseName)) {
+const databaseName = `apparent_currents_migration_verify_${Date.now()}`
+if (!/^apparent_currents_migration_verify_\d+$/.test(databaseName)) {
   throw new Error('Refusing to manage an unsafe verification database name.')
 }
 
@@ -71,7 +69,7 @@ try {
 
     const migrations = await verification.query('SELECT name FROM payload_migrations ORDER BY id')
     const names = migrations.rows.map((row) => row.name)
-    if (names[0] !== '20260430_162543_add_user_google_fields' || names.length !== 4) {
+    if (names[0] !== '20260807_085222_initial_baseline' || names.length !== 1) {
       throw new Error(`Unexpected migration history: ${names.join(', ')}`)
     }
   } finally {
