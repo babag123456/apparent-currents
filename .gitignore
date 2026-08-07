@@ -21,6 +21,9 @@
 # local git worktrees
 /.worktrees/
 
+# machine-local claude config
+.claude/settings.local.json
+
 # misc
 .DS_Store
 *.pem
