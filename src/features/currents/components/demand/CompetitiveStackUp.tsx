@@ -147,7 +147,14 @@ export function CompetitiveStackUp({
           .join(' · ')}{' '}
         for positions 1–3, down to {pct(CTR_BEYOND_TEN)} past position 10) — estimates, not
         measured clicks · share of market is not shown: it needs external sales or
-        registration data, which is not connected
+        registration data, which is not connected — the{' '}
+        <a
+          href="/deep-dive/open-data"
+          className="normal-case tracking-normal text-red-text underline decoration-red/40 underline-offset-2 hover:decoration-red-text"
+        >
+          market context
+        </a>{' '}
+        references name the sources
       </p>
     </div>
   )

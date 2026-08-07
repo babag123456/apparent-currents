@@ -7,6 +7,7 @@ import { MiniTrend, TrendAlt } from '../../../../features/currents/components/de
 import { Notice } from '../../../../features/currents/components/deep-dive/Notice.tsx'
 import { SectionHead } from '../../../../features/currents/components/deep-dive/SectionHead.tsx'
 import { SourceChip } from '../../../../features/currents/components/SourceChip.tsx'
+import { PR_PUBLICATIONS_FIXTURE } from '../../../../features/currents/fixtures/prPublications.ts'
 import { getLensFixture } from '../../../../features/currents/queries/getLensFixture.ts'
 
 export const metadata: Metadata = { title: 'Conversation · Deep Dive · CURRENTS' }
@@ -133,6 +134,85 @@ export default async function ConversationPage() {
           </section>
         </>
       )}
+
+      {/* PR & publications: authored fixture module, independent of the
+          seeded sync. Live path = Brandwatch media monitoring → evidence
+          records; this module retires when that adapter exists. */}
+      {data && PR_PUBLICATIONS_FIXTURE.brand === data.context.brand ? (
+        <section aria-labelledby="conversation-pr" className="mt-12 pb-4">
+          <SectionHead
+            id="conversation-pr"
+            title="PR & publications"
+            note={`${PR_PUBLICATIONS_FIXTURE.publications.length} publications · synthetic fixture`}
+          />
+          <p className="mt-3 max-w-[68ch] text-[14px] leading-relaxed text-charcoal/70">
+            Which publications this audience reads, how much of the category
+            conversation each carries, and where the brand and its competitors
+            actually appear in it.
+          </p>
+          <div
+            className="overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-labelledby="conversation-pr"
+          >
+            <table className="mt-4 w-full min-w-[680px] border-collapse text-left">
+              <thead>
+                <tr className="border-b border-charcoal/10 font-mono text-[10px] uppercase tracking-[0.16em] text-red-text">
+                  <th scope="col" className="py-2.5 pr-4 font-medium">Publication</th>
+                  <th scope="col" className="py-2.5 pr-4 font-medium">Category items/mo</th>
+                  <th scope="col" className="py-2.5 pr-4 font-medium">Where brands appear</th>
+                  <th scope="col" className="py-2.5 font-medium">Reading</th>
+                </tr>
+              </thead>
+              <tbody>
+                {PR_PUBLICATIONS_FIXTURE.publications.map((publication) => (
+                  <tr key={publication.name} className="border-b border-charcoal/10 align-top">
+                    <td className="py-3 pr-4">
+                      <span className="block text-[14px] font-medium text-charcoal">
+                        {publication.name}
+                      </span>
+                      <span className="mt-0.5 block max-w-[26ch] text-[12px] leading-snug text-charcoal/70">
+                        {publication.readFor}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-[12px] text-charcoal/80">
+                      {publication.categoryItems}
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-[11px] leading-relaxed text-charcoal/80">
+                      {publication.brandItems.map((entry, index) => (
+                        <span key={entry.brand} className="whitespace-nowrap">
+                          {index > 0 ? ' · ' : ''}
+                          <span
+                            className={
+                              entry.brand === PR_PUBLICATIONS_FIXTURE.brand
+                                ? 'text-red-text'
+                                : undefined
+                            }
+                          >
+                            {entry.brand} {entry.items}
+                          </span>
+                        </span>
+                      ))}
+                    </td>
+                    <td className="py-3 max-w-[34ch] text-[13px] leading-relaxed text-charcoal/75">
+                      {publication.note}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 max-w-[80ch] font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-charcoal/70">
+            Items = pieces mentioning the premium-EV category · brand counts are items
+            naming each brand ·{' '}
+            <span className="text-red-text">
+              authored synthetic fixture — publication monitoring arrives with the
+              brandwatch connector; no live media data was fetched
+            </span>
+          </p>
+        </section>
+      ) : null}
     </div>
   )
 }

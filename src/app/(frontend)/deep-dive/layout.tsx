@@ -39,6 +39,13 @@ const LENSES: Lens[] = [
     source: 'GWI',
     connected: false,
   },
+  {
+    slug: 'open-data',
+    label: 'Market context',
+    question: 'Open data aligned to the industry',
+    source: 'Open data',
+    connected: false,
+  },
 ]
 
 export default function DeepDiveLayout({ children }: { children: React.ReactNode }) {
