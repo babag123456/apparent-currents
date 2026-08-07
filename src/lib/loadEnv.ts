@@ -30,7 +30,7 @@ function resolveLoadEnvConfig(): LoadEnvConfigFn | undefined {
   }
 }
 
-export function loadAwardKitEnv() {
+export function loadAppEnv() {
   if (envLoaded) return
   envLoaded = true
 

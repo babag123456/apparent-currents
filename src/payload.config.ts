@@ -3,31 +3,26 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
-import sharp from 'sharp'
 
 import { Users } from './collections/Users.ts'
-import { loadAwardKitEnv } from './lib/loadEnv.ts'
-import { awardKitCollections } from './payload/award-kit.config-fragment.ts'
+import { loadAppEnv } from './lib/loadEnv.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-loadAwardKitEnv()
-
-const MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+loadAppEnv()
 
 export default buildConfig({
   admin: {
     user: Users.slug,
     components: {
-      afterNavLinks: ['@/components/payload/UploadThingUploadHandlers#UploadThingUploadHandlers'],
       beforeLogin: ['@/components/payload/GoogleLoginButton#GoogleLoginButton'],
     },
     importMap: {
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, ...awardKitCollections],
+  collections: [Users],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -39,15 +34,5 @@ export default buildConfig({
     },
     blocksAsJSON: true,
   }),
-  sharp,
-  upload: {
-    abortOnLimit: true,
-    limits: {
-      fileSize: MAX_UPLOAD_BYTES,
-    },
-    responseOnLimit: 'Uploads must be 100MB or smaller. Please choose a smaller file and try again.',
-    uploadTimeout: 0,
-    useTempFiles: true,
-  },
   plugins: [],
 })
