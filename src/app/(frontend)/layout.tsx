@@ -31,10 +31,31 @@ export const metadata: Metadata = {
   },
 }
 
+const DIRECTION_CONTRACT = `<!--
+THESIS: Apparent's own red editorial-terminal system carrying an
+intelligence product - insight leads, evidence one step behind; refuses the
+blue-SaaS dashboard and the decorative-metaphor chart.
+OWN-WORLD: Cream ground with red as the working colour: DM Mono uppercase
+labels, hairline red rules, pill chips and controls, Inter Tight voice
+(Swiss Posters retired); data lives in rounded charcoal terminal panels
+with red numerics, echoing the LED market-board photography of the
+Apparent site.
+STORY: A strategist reads the lead analysis, scans momentum on the panel,
+expands a current to its markers, and can say the finding aloud in a
+client meeting.
+FIRST VIEWPORT: Red mono validity strip, lockup + Currents header, lead
+statement in Inter Tight beside the charcoal momentum panel; the current
+table begins in view.
+FORM: Apparent red terminal (user-pinned, third steer); seed 07e29135.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the
+finish review, the verdict, and DESIGN.md
+-->`
+
 export default function FrontendLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased app-body" suppressHydrationWarning>
+        <span hidden aria-hidden="true" dangerouslySetInnerHTML={{ __html: DIRECTION_CONTRACT }} />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-charcoal focus:px-3 focus:py-2 focus:text-cream"

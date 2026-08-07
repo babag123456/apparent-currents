@@ -4,28 +4,29 @@ import React from 'react'
 import { NavTabs } from './NavTabs.tsx'
 
 /**
- * Product header: [Apparent logo] CURRENTS + primary navigation.
- * Brand rule: Apparent appears only as the supplied logo asset; the product
- * title is typeset as CURRENTS — never as an “Apparent Currents” wordmark.
+ * Product header in the Apparent site grammar: the supplied lockup asset
+ * (logomark + wordmark, red on cream) with the product name Currents
+ * typeset in Inter Tight beside it. Brand rule: Apparent appears only as
+ * supplied logo assets — never retypeset, never combined into a new logo.
  */
 export function AppHeader() {
   return (
-    <header className="border-b border-charcoal/12 bg-cream">
-      <div className="mx-auto flex w-full max-w-7xl items-stretch justify-between gap-6 px-5 sm:px-8">
+    <header className="border-b border-red/25 bg-cream">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:gap-6 sm:px-8">
         <Link
           href="/surface"
-          className="flex items-center gap-3 py-3"
+          className="flex shrink-0 items-center gap-2.5 sm:gap-4"
           aria-label="Currents home"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/brand/apparent-symbol-charcoal.svg"
+            src="/brand/apparent-lockup-red.svg"
             alt="Apparent"
-            width={26}
-            height={26}
-            className="h-[26px] w-[26px]"
+            width={122}
+            height={27}
+            className="h-[22px] w-auto sm:h-[27px]"
           />
-          <span className="font-display text-[15px] font-semibold uppercase tracking-[0.16em] text-charcoal sm:text-[17px] sm:tracking-[0.22em]">
+          <span className="text-[16px] font-medium tracking-[-0.01em] text-charcoal sm:text-[19px]">
             Currents
           </span>
         </Link>

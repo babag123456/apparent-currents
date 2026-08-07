@@ -65,14 +65,22 @@ cross-source identity.
 
 ## Brand Commitments
 
-- Product title is **CURRENTS**, typeset. Apparent appears only as the
-  supplied logo asset — never typeset "Apparent Currents" as a wordmark, and
-  never create a combined logo. Header pattern: [Apparent logo] CURRENTS.
-- Supplied assets: logo (SYMBOL / WORDMARK / LOCKUP in Charcoal, Cream,
-  Stone, Red, Plum), fonts (Swiss Posters 600/700 — trial licence, needs
-  production licence before launch; Inter Tight; DM Mono), tokens in
-  `src/styles/brand.css`: red #fa0500, plum #780000, cream #f7f4f2,
-  charcoal #242322, stone #e2dfd8.
+- Header pattern (user-pinned 2026-08-07): the supplied **LOCKUP** asset
+  (logomark + wordmark, red) followed by the product name **Currents**
+  typeset in Inter Tight Medium, sentence case, ~16px gap, no divider —
+  matching the "Platform Playbook" internal-tool pattern. Apparent appears
+  only as supplied logo assets — never retypeset, never a combined logo.
+- Typography (user-pinned 2026-08-07): **Inter Tight only** — 400 for copy,
+  500 for headlines; headlines are sentence case. DM Mono for labels, data
+  and stamps. **Swiss Posters is retired** (trial-licence concern moot).
+- Visual world (user-pinned 2026-08-07): the Apparent site system — cream
+  ground with red as the working colour (mono uppercase labels, hairline red
+  rules, pill chips and controls, red circular action buttons); data lives
+  in rounded charcoal terminal panels with red numerics (the site's LED
+  market-board register). Not blue-SaaS; insight still leads.
+- Tokens in `src/styles/brand.css`: red #fa0500, red-text #d90400 (AA ramp
+  of brand red for small type — 4.9:1 on cream where #fa0500 is 3.8:1),
+  plum #780000, cream #f7f4f2, charcoal #242322, stone #e2dfd8.
 - Asset library:
   `/Users/hamish.stewart/Documents/Work/02_Internal_Agency/01_Agency_Marketing_&_Brand/04_Brand_Assets/Apparent-Brand-Assets/`
 

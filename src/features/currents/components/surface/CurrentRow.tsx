@@ -1,0 +1,115 @@
+'use client'
+
+import React, { useId, useState } from 'react'
+
+import type { FixtureCurrent } from '../../fixtures/demoCurrents.ts'
+import { SourceChip } from '../SourceChip.tsx'
+import { StatusMark } from './StatusMark.tsx'
+
+/**
+ * One current in the table: status pill · finding · magnitude · momentum ·
+ * confidence, expanding into its markers (the evidence trail). The whole
+ * header row is the disclosure control; the red circle is the site's
+ * action affordance.
+ */
+
+function DirectionArrow({ direction }: { direction: FixtureCurrent['direction'] }) {
+  const d =
+    direction === 'rising' ? 'M2 12 L12 2 M6 2 L12 2 L12 8' :
+    direction === 'easing' ? 'M2 2 L12 12 M12 6 L12 12 L6 12' :
+    'M2 7 L12 7 M8 3 L12 7 L8 11'
+  return (
+    <svg viewBox="0 0 14 14" width={12} height={12} aria-hidden="true" className="shrink-0">
+      <path d={d} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function CurrentRow({ current }: { current: FixtureCurrent }) {
+  const [open, setOpen] = useState(false)
+  const panelId = useId()
+
+  return (
+    <li className="border-b border-charcoal/10">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((v) => !v)}
+        className="group grid w-full grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-2 px-3 py-5 text-left transition-colors hover:bg-stone/30 sm:grid-cols-[9rem_minmax(0,1fr)_10.5rem_9.5rem_6.5rem_2.25rem] sm:items-start sm:px-4"
+      >
+        <span className="flex items-baseline gap-3 sm:flex-col sm:items-start sm:gap-2">
+          <span className="font-mono text-[11px] tracking-[0.08em] text-charcoal/70">
+            {current.id}
+          </span>
+          <StatusMark status={current.status} />
+        </span>
+
+        <span className="col-span-2 min-w-0 sm:col-span-1">
+          <span className="block text-[16px] font-medium leading-snug text-charcoal">
+            {current.title}
+          </span>
+          <span className="mt-1 block max-w-[58ch] text-[13.5px] leading-relaxed text-charcoal/70">
+            {current.summary}
+          </span>
+        </span>
+
+        <span className="min-w-0 font-mono text-[11px] leading-relaxed text-charcoal/75">
+          <span className="sr-only">Magnitude: </span>
+          {current.magnitude}
+        </span>
+
+        <span className="flex items-center gap-1.5 font-mono text-[11px] text-red-text">
+          <span className="sr-only">Momentum: </span>
+          <DirectionArrow direction={current.direction} />
+          {current.momentum}
+        </span>
+
+        <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-charcoal/75">
+          <span className="sr-only">Confidence: </span>
+          {current.confidence}
+        </span>
+
+        <span
+          aria-hidden="true"
+          className={`flex h-6 w-6 items-center justify-center place-self-start justify-self-end rounded-full bg-red text-cream transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-45' : ''}`}
+        >
+          <svg viewBox="0 0 12 12" width={10} height={10}>
+            <path d="M6 1.5 V10.5 M1.5 6 H10.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </span>
+      </button>
+
+      <div
+        id={panelId}
+        className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-charcoal/10 bg-stone/25 px-3 py-5 sm:px-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-red-text">
+              Markers — the evidence behind {current.id}
+            </p>
+            <ul className="mt-4 space-y-4 sm:ml-[9rem]">
+              {current.markers.map((marker) => (
+                <li key={marker.metric} className="max-w-[72ch]">
+                  <p className="text-[14px] font-medium leading-snug text-charcoal">
+                    {marker.statement}
+                  </p>
+                  <p className="mt-1 font-mono text-[11px] leading-relaxed text-charcoal/75">
+                    {marker.metric}
+                  </p>
+                  <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-charcoal/70">
+                    <SourceChip source={marker.source} connected />
+                    <span>{marker.sourceReport}</span>
+                    <span>· {marker.confidence} confidence</span>
+                    <span className="text-red-text">· fixture</span>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </li>
+  )
+}

@@ -5,42 +5,12 @@
    (logo SVGs in Apparent-Brand-Assets). Do not hard-code hex values in
    components — use the tokens. */
 
-@font-face {
-  font-family: 'Swiss Posters';
-  src: url('/fonts/Swiss-Posters/SwisspoTrial-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Swiss Posters';
-  src: url('/fonts/Swiss-Posters/SwisspoTrial-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
+/* Supplied variable font, deliberately clamped to the two working weights:
+   400 (copy) and 500 (headlines). Do not introduce other weights. */
 @font-face {
   font-family: 'Inter Tight';
-  src: url('/fonts/Inter_Tight/inter-tight-latin-ext-300-normal.woff2') format('woff2');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter Tight';
-  src: url('/fonts/Inter_Tight/inter-tight-500-normal.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter Tight';
-  src: url('/fonts/Inter_Tight/inter-tight-latin-ext-600-normal.woff2') format('woff2');
-  font-weight: 600;
+  src: url('/fonts/Inter_Tight/InterTight-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 400 500;
   font-style: normal;
   font-display: swap;
 }
@@ -64,8 +34,12 @@
 @theme {
   --font-sans: 'Inter Tight', sans-serif;
   --font-mono: 'DM Mono', monospace;
-  --font-display: 'Swiss Posters', 'Inter Tight', sans-serif;
+  --font-display: 'Inter Tight', sans-serif;
   --color-red: #fa0500;
+  /* AA-compliant small-text rendition of brand red: 4.9:1 on cream where
+     #fa0500 reaches only 3.8:1. Use for small type and text-carrying fills;
+     keep --color-red for rules, bars, graphics and large numerals. */
+  --color-red-text: #d90400;
   --color-plum: #780000;
   --color-cream: #f7f4f2;
   --color-charcoal: #242322;
@@ -85,7 +59,7 @@
 
   body.app-body {
     font-family: var(--font-sans);
-    font-weight: 300;
+    font-weight: 400;
     background: var(--theme-bg, var(--color-cream));
     color: var(--theme-text, var(--color-charcoal));
   }
@@ -140,4 +114,21 @@
   --theme-bg: #f7f4f2;
   --theme-text: #242322;
   --theme-text-muted: #6b6762;
+}
+
+/* Momentum panel bars rise once on load: the page's one authored motion
+   moment. Guarded so reduced-motion renders the panel settled. */
+@media (prefers-reduced-motion: no-preference) {
+  .momentum-bar {
+    transform: scaleY(0);
+    transform-origin: bottom;
+    animation: momentum-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(0.15s + var(--bar-index, 0) * 0.03s);
+  }
+}
+
+@keyframes momentum-rise {
+  to {
+    transform: scaleY(1);
+  }
 }

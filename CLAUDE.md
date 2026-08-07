@@ -87,23 +87,33 @@ Do not use the phrase “read the water”.
 
 ## Brand
 
-- Product title = **CURRENTS**.
-- Apparent appears as the supplied logo asset only. **Never typeset
+- Product name = **Currents** (sentence case in UI).
+- Apparent appears as supplied logo assets only. **Never typeset
   “Apparent Currents” as a UI wordmark** unless explicitly asked. Header
-  pattern: `[APPARENT LOGO] CURRENTS`. Do not create a combined logo.
+  pattern (pinned 2026-08-07): `[APPARENT LOCKUP, red] Currents` — the
+  lockup asset, then the product name in Inter Tight Medium, ~16px gap, no
+  divider. Do not create a combined logo.
+- Typography (pinned 2026-08-07): **Inter Tight only** — weight 400 for
+  copy, 500 for headlines; headlines sentence case. DM Mono for labels,
+  data, stamps. **Swiss Posters is retired — do not use it.**
+- Visual world (pinned 2026-08-07): the Apparent site system — cream
+  ground, red as the working colour (mono uppercase labels, hairline red
+  rules, pill chips/controls, red circular action buttons); data in rounded
+  charcoal terminal panels with red numerics. Not blue-SaaS.
 - Brand assets live at:
   `/Users/hamish.stewart/Documents/Work/02_Internal_Agency/01_Agency_Marketing_&_Brand/04_Brand_Assets/Apparent-Brand-Assets/`
   - `logo/SYMBOL/`, `logo/WORDMARK/`, `logo/LOCKUP/` — each in SVG + PNG,
-    five colourways.
-  - `fonts/` — Swisspo / Swiss Posters (SemiBold, Bold), Inter Tight
-    (variable + statics), DM Mono Medium.
+    five colourways (lockup red + charcoal copied to `public/brand/`).
+  - `fonts/` — Inter Tight (variable + statics), DM Mono Medium (Swiss
+    Posters files remain in the library but are unused).
   - `shapes/`, `icons/`, `ui/` — supporting brand elements.
 - Palette (extracted from supplied logo SVGs — verify against any formal
   spec before finalising tokens):
   - Charcoal `#242322` (default logo colour)
   - Cream `#F7F4F2`
   - Stone `#E2DFD8`
-  - Red `#FA0500`
+  - Red `#FA0500` (plus `--color-red-text` `#D90400`, the AA-contrast ramp
+    for small type on cream)
   - Plum `#780000`
 - Encode brand values as design tokens; do not hard-code hex values in
   components. Do not invent brand styles beyond the supplied assets.

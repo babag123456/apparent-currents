@@ -26,7 +26,7 @@ export function SourceChip({
       className={`inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] ${
         connected
           ? 'bg-charcoal text-cream'
-          : 'bg-transparent text-charcoal/40 outline outline-1 outline-charcoal/20'
+          : 'bg-transparent text-charcoal/70 outline outline-1 outline-charcoal/30'
       }`}
     >
       {SOURCE_LABELS[source]}
