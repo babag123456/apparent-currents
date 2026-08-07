@@ -85,5 +85,14 @@ export const DataSyncs: CollectionConfig = {
       type: 'text',
       admin: { description: 'Sanitised failure detail — never contains credentials.' },
     },
+    {
+      name: 'isFixture',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description:
+          'True when this run was seeded with authored fixture evidence rather than live API data. The UI labels everything from a fixture sync as synthetic.',
+      },
+    },
   ],
 }

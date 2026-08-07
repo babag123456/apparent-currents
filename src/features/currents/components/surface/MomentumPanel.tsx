@@ -46,7 +46,16 @@ function TrendBars({ trend, currentId }: { trend: number[]; currentId: string })
   )
 }
 
-export function MomentumPanel({ currents }: { currents: FixtureCurrent[] }) {
+export function MomentumPanel({
+  currents,
+  dataLabel,
+  footnote,
+}: {
+  currents: FixtureCurrent[]
+  /** Honest data badge: e.g. 'Fixture', 'Synthetic', 'Live'. */
+  dataLabel: string
+  footnote: string
+}) {
   return (
     <div className="rounded-2xl bg-stone px-5 py-5 sm:px-6">
       <div className="flex items-baseline justify-between gap-4">
@@ -54,7 +63,7 @@ export function MomentumPanel({ currents }: { currents: FixtureCurrent[] }) {
           Momentum · demand index
         </h2>
         <span className="rounded-full border border-red/70 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-red-text">
-          Fixture
+          {dataLabel}
         </span>
       </div>
 
@@ -86,8 +95,7 @@ export function MomentumPanel({ currents }: { currents: FixtureCurrent[] }) {
       </ul>
 
       <p className="mt-3 font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-charcoal/70">
-        Relative search-demand index per current · 12 weeks · authored fixture, not
-        live evidence
+        {footnote}
       </p>
     </div>
   )

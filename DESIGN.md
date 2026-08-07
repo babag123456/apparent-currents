@@ -51,6 +51,28 @@ typography:
     fontWeight: 500
     lineHeight: 1
     letterSpacing: "0"
+  scale:
+    micro: "9px"
+    label: "10px"
+    data: "11px"
+    data-lg: "12px"
+    nav-sm: "12.5px"
+    body-sm: "13px"
+    body-control: "13.5px"
+    body: "14px"
+    body-card: "14.5px"
+    body-lead: "15px"
+    title: "16px"
+    title-notice: "17px"
+    header-name: "18px"
+    title-card: "19px"
+    header-name-lg: "19px"
+    headline-sub: "20px"
+    headline: "22px"
+    numeral: "24px"
+    display-page: "30px"
+    display-sm: "2.35rem"
+    display: "3.1rem"
 rounded:
   chip: "4px"
   panel: "16px"
@@ -131,9 +153,8 @@ carries its provenance (source chip, report, confidence, fixture status) in
 compact mono metadata.
 
 Adoption status: the Surface route is the canonical expression of this
-system. Deep Dive routes still wear an earlier, quieter chrome; they are
-pending adoption of this system — do not copy their current look for new
-work.
+system; Deep Dive adopted it in Phase 5 (lens rail, section heads, sync
+stamp, evidence table). All frontend routes now share one grammar.
 
 **Key Characteristics:**
 - Cream ground, red as the working colour, charcoal as the data material
@@ -381,5 +402,5 @@ part of the design, not debug output.
   confidence are always worded.
 - **Don't** present fixture or unavailable data as live; the honesty
   stamps and "not connected" chips are mandatory.
-- **Don't** copy the current Deep Dive chrome for new surfaces; it
-  predates this system and is pending adoption.
+- **Don't** introduce a second grammar for new surfaces; Surface and Deep
+  Dive share this system and new routes inherit it.

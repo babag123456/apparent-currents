@@ -84,9 +84,14 @@ export async function runDemandSync(options: RunDemandSyncOptions): Promise<Dema
     const overview = await fetchKeywordOverview(client, {
       phrases: topics,
       database,
-      topic: topics[0],
     })
     reports.push(overview.report)
+    // Each seed phrase anchors its own topic cluster for current
+    // derivation; related keywords below attach to the primary seed.
+    const overviewEvidence = overview.evidence.map((item) => ({
+      ...item,
+      topic: item.phrase,
+    }))
 
     const related = await fetchRelatedKeywords(client, {
       phrase: topics[0],
@@ -97,7 +102,7 @@ export async function runDemandSync(options: RunDemandSyncOptions): Promise<Dema
     reports.push(related.report)
 
     const evidence: DemandEvidence[] = dedupeByPhrase([
-      ...overview.evidence,
+      ...overviewEvidence,
       ...related.evidence,
     ])
 

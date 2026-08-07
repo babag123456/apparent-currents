@@ -309,6 +309,10 @@ export interface DataSync {
    * Sanitised failure detail — never contains credentials.
    */
   errorMessage?: string | null;
+  /**
+   * True when this run was seeded with authored fixture evidence rather than live API data. The UI labels everything from a fixture sync as synthetic.
+   */
+  isFixture?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -664,6 +668,7 @@ export interface DataSyncsSelect<T extends boolean = true> {
   markerCount?: T;
   reports?: T;
   errorMessage?: T;
+  isFixture?: T;
   updatedAt?: T;
   createdAt?: T;
 }

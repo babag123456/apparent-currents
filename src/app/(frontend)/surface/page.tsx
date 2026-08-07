@@ -5,22 +5,42 @@ import { CurrentRow } from '../../../features/currents/components/surface/Curren
 import { MomentumPanel } from '../../../features/currents/components/surface/MomentumPanel.tsx'
 import { ValidityStamp } from '../../../features/currents/components/surface/ValidityStamp.tsx'
 import { SourceChip } from '../../../features/currents/components/SourceChip.tsx'
-import { DEMO_BULLETIN } from '../../../features/currents/fixtures/demoCurrents.ts'
+import { getSurfaceBulletin } from '../../../features/currents/queries/getSurfaceBulletin.ts'
 
 export const metadata: Metadata = { title: 'Surface · CURRENTS' }
+export const dynamic = 'force-dynamic'
 
 /**
  * Surface — “What matters now.”
  * Lead analysis beside the stone momentum panel, the current table
- * (What’s moving), and the interpretation (So what). Fixture-led in this
- * phase; the validity stamp declares it.
+ * (What’s moving), and the interpretation (So what). Renders derived
+ * currents from stored markers when an import exists, otherwise the
+ * authored fixture bulletin — the validity stamp always says which.
  */
-export default function SurfacePage() {
-  const bulletin = DEMO_BULLETIN
+export default async function SurfacePage() {
+  const bulletin = await getSurfaceBulletin()
+  const { mode } = bulletin
+
+  const provenanceLabel =
+    mode === 'authored-fixture' ? 'fixture' : mode === 'derived-synthetic' ? 'synthetic fixture' : 'live'
+  const dataLabel =
+    mode === 'authored-fixture' ? 'Fixture' : mode === 'derived-synthetic' ? 'Synthetic' : 'Live'
+  const panelFootnote =
+    mode === 'authored-fixture'
+      ? 'Relative search-demand index per current · 12 weeks · authored fixture, not live evidence'
+      : mode === 'derived-synthetic'
+        ? 'Volume-weighted demand index per derived current · synthetic fixture evidence, no live data'
+        : 'Volume-weighted demand index per derived current · live imported evidence'
+  const leadLabel = mode === 'authored-fixture' ? 'Lead analysis' : 'Derived lead'
 
   return (
     <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
-      <ValidityStamp issued={bulletin.issued} period={bulletin.period} />
+      <ValidityStamp
+        issued={bulletin.issued}
+        period={bulletin.period}
+        mode={mode}
+        freshness={bulletin.provenance?.freshness}
+      />
 
       {/* Lead analysis + momentum panel */}
       <section className="grid gap-10 py-10 sm:py-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
@@ -32,16 +52,20 @@ export default function SurfacePage() {
             {bulletin.lead.dek}
           </p>
           <p className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-red-text">
-            <span>Lead analysis</span>
+            <span>{leadLabel}</span>
             <span>· drawn from {bulletin.lead.basedOn.join(' + ')}</span>
             <span>· {bulletin.lead.confidence} confidence</span>
             <SourceChip source="semrush" connected />
-            <span>· fixture</span>
+            <span>· {provenanceLabel}</span>
           </p>
         </div>
 
         <div className="min-w-0">
-          <MomentumPanel currents={bulletin.currents} />
+          <MomentumPanel
+            currents={bulletin.currents}
+            dataLabel={dataLabel}
+            footnote={panelFootnote}
+          />
         </div>
       </section>
 
@@ -53,6 +77,7 @@ export default function SurfacePage() {
           </h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-red-text">
             {bulletin.currents.length} currents · this period
+            {mode === 'authored-fixture' ? '' : ' · machine-derived'}
           </span>
         </div>
 
@@ -70,7 +95,7 @@ export default function SurfacePage() {
 
         <ul>
           {bulletin.currents.map((current) => (
-            <CurrentRow key={current.id} current={current} />
+            <CurrentRow key={current.id} current={current} provenanceLabel={provenanceLabel} />
           ))}
         </ul>
 
@@ -80,6 +105,13 @@ export default function SurfacePage() {
           <SourceChip source="brandwatch" connected={false} />
           <SourceChip source="ga4" connected={false} />
           <SourceChip source="gwi" connected={false} />
+          {bulletin.provenance && bulletin.provenance.unclusteredCount > 0 ? (
+            <span>
+              · {bulletin.provenance.unclusteredCount} thin signal
+              {bulletin.provenance.unclusteredCount === 1 ? '' : 's'} below the pattern
+              threshold — see Deep Dive
+            </span>
+          ) : null}
         </p>
       </section>
 
@@ -93,25 +125,39 @@ export default function SurfacePage() {
             Opportunities · where currents converge
           </span>
         </div>
-        <div className="grid gap-6 pt-8 md:grid-cols-2">
-          {bulletin.opportunities.map((opportunity) => (
-            <article
-              key={opportunity.id}
-              className="rounded-2xl border border-red/30 p-6 sm:p-7"
-            >
-              <h3 className="text-[19px] font-medium leading-snug tracking-[-0.01em] text-charcoal">
-                {opportunity.title}
-              </h3>
-              <p className="mt-3 max-w-[58ch] text-[14.5px] leading-relaxed text-charcoal/80">
-                {opportunity.narrative}
-              </p>
-              <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal/70">
-                Opportunity · convergence of {opportunity.convergesFrom.join(' + ')} ·{' '}
-                <span className="text-red-text">fixture</span>
-              </p>
-            </article>
-          ))}
-        </div>
+        {bulletin.opportunities.length > 0 ? (
+          <div className="grid gap-6 pt-8 md:grid-cols-2">
+            {bulletin.opportunities.map((opportunity) => (
+              <article
+                key={opportunity.id}
+                className="rounded-2xl border border-red/30 p-6 sm:p-7"
+              >
+                <h3 className="text-[19px] font-medium leading-snug tracking-[-0.01em] text-charcoal">
+                  {opportunity.title}
+                </h3>
+                <p className="mt-3 max-w-[58ch] text-[14.5px] leading-relaxed text-charcoal/80">
+                  {opportunity.narrative}
+                </p>
+                <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal/70">
+                  Opportunity · convergence of {opportunity.convergesFrom.join(' + ')} ·{' '}
+                  <span className="text-red-text">fixture</span>
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 rounded-2xl border border-charcoal/20 p-6 sm:p-7">
+            <h3 className="text-[17px] font-medium text-charcoal">
+              No opportunities authored for this import yet
+            </h3>
+            <p className="mt-2 max-w-[66ch] text-[14px] leading-relaxed text-charcoal/75">
+              Opportunities are strategic interpretation — where currents converge into
+              something worth acting on. They are authored by strategists, never
+              generated automatically, so a fresh import starts with the currents above
+              and an empty page here.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Methodology foot */}
@@ -119,8 +165,12 @@ export default function SurfacePage() {
         <p className="max-w-[80ch] font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-charcoal/70">
           Prepared by Currents · findings trace finding → markers → evidence → source ·
           demand evidence via Semrush Analytics v3 · conversation, behaviour and people
-          sources not connected · this bulletin is an authored fixture demonstration —
-          no live evidence was used
+          sources not connected ·{' '}
+          {mode === 'authored-fixture'
+            ? 'this bulletin is an authored fixture demonstration — no live evidence was used'
+            : mode === 'derived-synthetic'
+              ? `currents machine-derived from ${bulletin.provenance?.markerCount ?? 0} markers over authored synthetic evidence — no live data was fetched`
+              : `currents machine-derived from ${bulletin.provenance?.markerCount ?? 0} markers over ${bulletin.provenance?.evidenceCount ?? 0} live evidence records · ${bulletin.provenance?.estimatedUnits ?? 0} api units`}
         </p>
       </footer>
     </div>

@@ -1,24 +1,47 @@
 import React from 'react'
 
+import type { BulletinMode } from '../../queries/getSurfaceBulletin.ts'
+
 /**
- * The bulletin's validity stamp — operational-chart provenance furniture:
- * when this analysis was issued, the period it covers, what evidence it
- * stands on, and its fixture status. Modelled on the stamp block of a
- * surface analysis chart; becomes live provenance when real data lands.
+ * The bulletin's validity stamp — operational provenance furniture: when
+ * this analysis was issued, the period it covers, what evidence it stands
+ * on, and exactly what kind of data it is. The badge never softens:
+ * authored fixture, synthetic fixture, or live evidence with freshness.
  */
+
+const ANALYST_LINE: Record<BulletinMode, string> = {
+  'authored-fixture': 'Currents (authored demonstration)',
+  'derived-synthetic': 'Derived — currents v0 over demand markers',
+  'derived-live': 'Derived — currents v0 over demand markers',
+}
+
 export function ValidityStamp({
   issued,
   period,
+  mode,
+  freshness,
 }: {
   issued: string
   period: string
+  mode: BulletinMode
+  freshness?: 'fresh' | 'stale'
 }) {
   const entries: Array<[string, string]> = [
     ['Issued', issued],
     ['Period', period],
     ['Basis', 'Demand · Semrush Analytics v3'],
-    ['Analyst', 'Currents (authored demonstration)'],
+    ['Analyst', ANALYST_LINE[mode]],
   ]
+
+  const badge =
+    mode === 'authored-fixture'
+      ? { label: 'Fixture data', className: 'bg-red-text text-cream' }
+      : mode === 'derived-synthetic'
+        ? { label: 'Synthetic fixture', className: 'bg-red-text text-cream' }
+        : {
+            label: `Live evidence${freshness ? ` · ${freshness}` : ''}`,
+            className: 'bg-charcoal text-cream',
+          }
 
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 border-b border-red/25 py-3">
@@ -32,8 +55,10 @@ export function ValidityStamp({
           </div>
         ))}
       </dl>
-      <span className="ml-auto shrink-0 rounded-full bg-red-text px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-cream">
-        Fixture data
+      <span
+        className={`ml-auto shrink-0 rounded-full px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] ${badge.className}`}
+      >
+        {badge.label}
       </span>
     </div>
   )

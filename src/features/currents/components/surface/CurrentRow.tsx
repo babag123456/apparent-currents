@@ -25,7 +25,14 @@ function DirectionArrow({ direction }: { direction: FixtureCurrent['direction'] 
   )
 }
 
-export function CurrentRow({ current }: { current: FixtureCurrent }) {
+export function CurrentRow({
+  current,
+  provenanceLabel,
+}: {
+  current: FixtureCurrent
+  /** Honest data label on every marker line: 'fixture', 'synthetic fixture', 'live'. */
+  provenanceLabel: string
+}) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
 
@@ -102,7 +109,7 @@ export function CurrentRow({ current }: { current: FixtureCurrent }) {
                     <SourceChip source={marker.source} connected />
                     <span>{marker.sourceReport}</span>
                     <span>· {marker.confidence} confidence</span>
-                    <span className="text-red-text">· fixture</span>
+                    <span className="text-red-text">· {provenanceLabel}</span>
                   </p>
                 </li>
               ))}

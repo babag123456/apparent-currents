@@ -285,7 +285,7 @@ export default async function DemandPage() {
                 <SectionHead
                   id="demand-markers"
                   title="Markers"
-                  note={`${markers.totalDocs} derived · this import`}
+                  note={`${markers.totalDocs} derived · this import${latestSuccess.isFixture ? ' · synthetic fixture' : ''}`}
                 />
                 {markers.docs.length === 0 ? (
                   <p className="mt-4 max-w-[62ch] text-[14px] leading-relaxed text-charcoal/70">
@@ -320,7 +320,7 @@ export default async function DemandPage() {
                 <SectionHead
                   id="demand-evidence"
                   title="Evidence"
-                  note={`${evidence.totalDocs} records · ${latestSuccess.reports ? (latestSuccess.reports as string[]).join(' + ') : 'semrush'}`}
+                  note={`${evidence.totalDocs} records · ${latestSuccess.reports ? (latestSuccess.reports as string[]).join(' + ') : 'semrush'}${latestSuccess.isFixture ? ' · synthetic fixture' : ''}`}
                 />
                 <div className="overflow-x-auto">
                   <table className="mt-1 w-full min-w-[640px] border-collapse text-left">
@@ -368,7 +368,14 @@ export default async function DemandPage() {
                     ? new Date(latestSuccess.finishedAt).toLocaleString('en-AU')
                     : '—'}{' '}
                   · market {context.semrushDatabase} · {latestSuccess.estimatedUnits ?? 0} API
-                  units · live evidence, machine-written and never hand-edited
+                  units ·{' '}
+                  {latestSuccess.isFixture ? (
+                    <span className="text-red-text">
+                      authored synthetic fixture — no live evidence was fetched
+                    </span>
+                  ) : (
+                    'live evidence, machine-written and never hand-edited'
+                  )}
                 </p>
               </section>
             </>
