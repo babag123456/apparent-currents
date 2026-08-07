@@ -1,7 +1,3 @@
-## Jira Ticket/s
-
-<link or n/a>
-
 ## Summary
 
 -
