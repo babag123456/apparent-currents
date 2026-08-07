@@ -13,37 +13,44 @@ lie — with every conclusion traceable to evidence.
 
 ## Repository
 
-Cloned from the existing Apparent site codebase
-(`aprnt/thisisouragency`, remote kept as `source-site`; this clone has no
-`origin` yet — a new GitHub repo for Currents is pending). The inherited
-app is “Award Kit”: award-entry pages and a presentations feature. Currents
-is being built alongside; whether the awards/presentations features are
-eventually pruned is an open decision — do not remove them without asking.
+Seeded from the Apparent site codebase (`aprnt/thisisouragency`, remote kept
+as `source-site` — never modify or merge from it) and stripped back to a
+minimal clean foundation in August 2026: the previous product's awards and
+presentations features, media stack (UploadThing/Mux) and migrations were
+removed. Their patterns remain in git history. `origin` is
+`babag123456/apparent-currents`.
 
 **Stack:** Next.js 16 (App Router) · React 19 · Payload CMS 3.8x ·
 `@payloadcms/db-postgres` · Tailwind CSS 4 · TypeScript (strict) ·
-Lexical rich text · UploadThing media · Google OAuth admin login ·
-Vercel deployment (`vercel-build` runs Payload migrations).
+Google OAuth admin login (the only user-provisioning path) ·
+Vercel deployment (`vercel-build` runs Payload migrations — any non-Vercel
+deploy needs an equivalent migrate step).
 
 **Layout:** `src/app/(frontend)` and `src/app/(payload)` route groups;
-collections in `src/collections` + `src/payload/award-kit.config-fragment.ts`;
-shared code in `src/lib`; styles in `src/styles` (`award-theme.css` carries
-the brand fonts/tokens); migrations in `src/migrations`.
+`src/collections/Users.ts` (collections inlined in `src/payload.config.ts`);
+auth + security helpers in `src/lib` (`google-auth.ts`, `security/`);
+brand foundation in `src/styles/brand.css` (Tailwind entry + fonts +
+`@theme` tokens — the palette matches the supplied brand assets);
+one fresh baseline migration in `src/migrations` (see
+`docs/payload-migration-baseline.md`).
 
 **Commands:**
 - `npm run db:start` / `db:stop` / `db:logs` / `db:reset` — local Postgres
-  via Docker (port **5434**, db `apparent_currents` — deliberately separate
-  from the original site's 5433/award_kit).
-- `npm run dev` — Next dev server.
-- `npm run build` — production build.
+  via Docker (port **5434**, db `apparent_currents`).
+- `npm run dev` — Next dev server. `npm run build` — production build.
 - `npm run lint` — ESLint. Typecheck with `npx tsc --noEmit`.
 - `npm run migrate` / `migrate:create` — Payload migrations.
 - `npm run generate:types` — regenerate `src/payload-types.ts` after any
   collection change. `generate:importmap` after admin component changes.
+- `npm run migrate:verify-blank` — prove migrations rebuild a blank DB.
+- `npm run security:smoke` — security regression assertions.
+- First admin on a fresh DB: configure Google OAuth, or locally
+  `npx tsx scripts/bootstrap-admin.ts <email> '<password>'`.
 
-**Env:** `.env` (gitignored) from `.env.example`. Key vars: `DATABASE_URL`,
-`PAYLOAD_SECRET`, `SEMRUSH_API_KEY`, plus optional UploadThing / Google
-OAuth / Figma / Google Slides credentials inherited from the site.
+**Env:** `.env` (gitignored) from `.env.example`: `DATABASE_URL`,
+`PAYLOAD_SECRET`, `SEMRUSH_API_KEY`, `GOOGLE_CLIENT_ID`,
+`GOOGLE_CLIENT_SECRET`, `GOOGLE_OAUTH_CALLBACK_URL`,
+`GOOGLE_ALLOWED_EMAILS` or `GOOGLE_ALLOWED_DOMAIN`.
 
 ## Product principles
 
