@@ -5,7 +5,6 @@ import '../../styles/brand.css'
 
 import { AppHeader } from '../../features/currents/components/AppHeader.tsx'
 import { ContextBar } from '../../features/currents/components/ContextBar.tsx'
-import { DEMO_CONTEXT } from '../../features/currents/fixtures/demoContext.ts'
 
 export const metadata: Metadata = {
   title: 'CURRENTS',
@@ -63,7 +62,7 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
           Skip to content
         </a>
         <AppHeader />
-        <ContextBar context={DEMO_CONTEXT} />
+        <ContextBar />
         <main id="main">{children}</main>
       </body>
     </html>
