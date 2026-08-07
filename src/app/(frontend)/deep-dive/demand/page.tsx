@@ -7,8 +7,12 @@ import config from '@payload-config'
 import { MiniTrend, TrendAlt } from '../../../../features/currents/components/deep-dive/MiniTrend.tsx'
 import { Notice } from '../../../../features/currents/components/deep-dive/Notice.tsx'
 import { SectionHead } from '../../../../features/currents/components/deep-dive/SectionHead.tsx'
+import { CompetitiveStackUp } from '../../../../features/currents/components/demand/CompetitiveStackUp.tsx'
 import { ImportControls } from '../../../../features/currents/components/demand/ImportControls.tsx'
+import { SearchMix } from '../../../../features/currents/components/demand/SearchMix.tsx'
 import { SourceChip } from '../../../../features/currents/components/SourceChip.tsx'
+import { COMPETITOR_VISIBILITY_FIXTURE } from '../../../../features/currents/fixtures/competitorVisibility.ts'
+import { classifyPhrase, splitByClass } from '../../../../intelligence/classification/classifyPhrase.ts'
 import { RELATED_KEYWORDS_LIMIT } from '../../../../intelligence/sync/runDemandSync.ts'
 import { COOLDOWN_MINUTES, canStartSync, syncFreshness } from '../../../../intelligence/sync/status.ts'
 import { importDemandEvidence } from './actions.ts'
@@ -77,6 +81,15 @@ export default async function DemandPage() {
 
   const topicCount = context?.topics?.length ?? 0
   const estimatedUnits = topicCount * 10 + RELATED_KEYWORDS_LIMIT * 40
+
+  // Read-time classification frame: the split re-evaluates whenever the
+  // context's brand or competitor set changes — evidence is never rewritten.
+  const classifierContext = context
+    ? {
+        brand: context.brand,
+        competitors: (context.competitors ?? []).map((competitor) => competitor.name),
+      }
+    : null
 
   const startDecision = canStartSync(
     latestSync
@@ -272,10 +285,11 @@ export default async function DemandPage() {
                   role="region"
                   aria-labelledby="demand-evidence"
                 >
-                  <table className="mt-1 w-full min-w-[640px] border-collapse text-left">
+                  <table className="mt-1 w-full min-w-[700px] border-collapse text-left">
                     <thead>
                       <tr className="border-b border-charcoal/10 font-mono text-[10px] uppercase tracking-[0.16em] text-red-text">
                         <th scope="col" className="py-2.5 pr-4 font-medium">Phrase</th>
+                        <th scope="col" className="py-2.5 pr-4 font-medium">Class</th>
                         <th scope="col" className="py-2.5 pr-4 font-medium">Volume/mo</th>
                         <th scope="col" className="py-2.5 pr-4 font-medium">12-mo trend</th>
                         <th scope="col" className="py-2.5 pr-4 font-medium">Intents</th>
@@ -287,6 +301,24 @@ export default async function DemandPage() {
                         <tr key={record.id} className="border-b border-charcoal/10">
                           <td className="py-2.5 pr-4 text-[14px] font-medium text-charcoal">
                             {record.phrase}
+                          </td>
+                          <td className="py-2.5 pr-4 font-mono text-[10px] uppercase tracking-[0.1em]">
+                            {classifierContext ? (
+                              (() => {
+                                const phraseClass = classifyPhrase(record.phrase, classifierContext)
+                                return (
+                                  <span
+                                    className={
+                                      phraseClass === 'branded' ? 'text-red-text' : 'text-charcoal/70'
+                                    }
+                                  >
+                                    {phraseClass === 'generic' ? 'non-branded' : phraseClass}
+                                  </span>
+                                )
+                              })()
+                            ) : (
+                              <span className="text-charcoal/70">—</span>
+                            )}
                           </td>
                           <td className="py-2.5 pr-4 font-mono text-[12px] text-charcoal/80">
                             {record.metrics?.searchVolume?.toLocaleString('en-AU') ?? '—'}
@@ -332,6 +364,32 @@ export default async function DemandPage() {
                   )}
                 </p>
               </section>
+
+              {classifierContext ? (
+                <section aria-labelledby="demand-mix" className="mt-12">
+                  <SectionHead
+                    id="demand-mix"
+                    title="Search mix"
+                    note={`branded v non-branded · ${evidence.docs.length} phrases classified${latestSuccess.isFixture ? ' · synthetic fixture' : ''}`}
+                  />
+                  <SearchMix
+                    brand={context.brand}
+                    split={splitByClass(
+                      evidence.docs.map((record) => ({
+                        phrase: record.phrase,
+                        searchVolume: record.metrics?.searchVolume,
+                      })),
+                      classifierContext,
+                    )}
+                  />
+                  <p className="mt-3 max-w-[80ch] font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-charcoal/70">
+                    Classified at read time by word-boundary name matching against the
+                    context’s brand + {classifierContext.competitors.length} competitors —
+                    rules documented in the classifier · shares are volume fractions of
+                    this import’s phrase set
+                  </p>
+                </section>
+              ) : null}
             </>
           ) : semrushConfigured && context && !latestSync ? (
             <Notice tone="info" title="No demand evidence imported yet">
@@ -344,6 +402,41 @@ export default async function DemandPage() {
               </p>
             </Notice>
           ) : null}
+
+          {/* Competitive stack-up: fixture-first. Live path = domain_organic
+              imports through the existing adapter once domains are stored on
+              the context — same computation, same table. */}
+          <section aria-labelledby="demand-stackup" className="mt-12 pb-4">
+            <SectionHead
+              id="demand-stackup"
+              title="Competitive stack-up"
+              note={
+                COMPETITOR_VISIBILITY_FIXTURE.brand === context.brand
+                  ? `share of search · ${COMPETITOR_VISIBILITY_FIXTURE.domains.length} domains · synthetic fixture`
+                  : 'share of search · no data'
+              }
+            />
+            {COMPETITOR_VISIBILITY_FIXTURE.brand === context.brand ? (
+              <>
+                <CompetitiveStackUp
+                  fixture={COMPETITOR_VISIBILITY_FIXTURE}
+                  labelledBy="demand-stackup"
+                />
+                <p className="mt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-red-text">
+                  Authored synthetic fixture — positions and volumes are authored, no live
+                  domain evidence was fetched
+                </p>
+              </>
+            ) : (
+              <Notice tone="info" title="No competitor visibility data for this context">
+                <p>
+                  The stack-up compares organic visibility across the context’s brand and
+                  competitor domains via Semrush domain reports. Domain imports aren’t
+                  wired up yet — the authored fixture only covers the demo context.
+                </p>
+              </Notice>
+            )}
+          </section>
         </>
       )}
     </div>
