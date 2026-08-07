@@ -1,0 +1,138 @@
+@import 'tailwindcss';
+
+/* Apparent brand foundation: fonts, colour tokens, base reset.
+   Colour values match the supplied Apparent brand assets
+   (logo SVGs in Apparent-Brand-Assets). Do not hard-code hex values in
+   components — use the tokens. */
+
+@font-face {
+  font-family: 'Swiss Posters';
+  src: url('/fonts/Swiss-Posters/SwisspoTrial-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Swiss Posters';
+  src: url('/fonts/Swiss-Posters/SwisspoTrial-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  src: url('/fonts/Inter_Tight/inter-tight-latin-ext-300-normal.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  src: url('/fonts/Inter_Tight/inter-tight-500-normal.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  src: url('/fonts/Inter_Tight/inter-tight-latin-ext-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Mono';
+  src: url('/fonts/DM_Mono/DMMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Mono';
+  src: url('/fonts/DM_Mono/DMMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Inter Tight', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --font-display: 'Swiss Posters', 'Inter Tight', sans-serif;
+  --color-red: #fa0500;
+  --color-plum: #780000;
+  --color-cream: #f7f4f2;
+  --color-charcoal: #242322;
+  --color-stone: #e2dfd8;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+  }
+
+  body.app-body {
+    font-family: var(--font-sans);
+    font-weight: 300;
+    background: var(--theme-bg, var(--color-cream));
+    color: var(--theme-text, var(--color-charcoal));
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  p,
+  blockquote,
+  figure {
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer utilities {
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 400;
+    line-height: 1rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-charcoal);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+  }
+}
+
+:root {
+  --theme-bg: #f7f4f2;
+  --theme-text: #242322;
+  --theme-text-muted: #6b6762;
+}

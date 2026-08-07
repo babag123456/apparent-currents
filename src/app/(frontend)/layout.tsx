@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import React from 'react'
 
-import '../../styles/award-theme.css'
+import '../../styles/brand.css'
 
 export const metadata: Metadata = {
   title: 'CURRENTS',

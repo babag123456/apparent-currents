@@ -64,6 +64,14 @@ for `/admin`.
 Because native user creation is disabled (see below), **Google OAuth must be
 configured before the first admin user can exist** on a fresh database.
 
+For local development before OAuth is configured, a one-off fallback exists:
+
+```bash
+npx tsx scripts/bootstrap-admin.ts you@example.com 'a-strong-password'
+```
+
+It refuses to run if any user already exists.
+
 ## Security Model
 
 - Native `users` collection create, update, delete, and unlock operations are
