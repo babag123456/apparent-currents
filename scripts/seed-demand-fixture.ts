@@ -31,7 +31,11 @@ if (!context) {
 
 const priorFixture = await payload.find({
   collection: 'data-syncs',
-  where: { context: { equals: context.id }, isFixture: { equals: true } },
+  where: {
+    context: { equals: context.id },
+    lens: { equals: 'demand' },
+    isFixture: { equals: true },
+  },
   limit: 10,
 })
 if (priorFixture.totalDocs > 0) {

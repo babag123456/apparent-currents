@@ -6,8 +6,9 @@ import React from 'react'
 
 /**
  * Deep Dive lens navigation in the red terminal grammar: evidence lenses
- * by audience question, the active lens marked in red, unavailable
- * sources honestly labelled — never faked.
+ * by audience question, the active lens marked in red. Every lens is
+ * navigable — pages without a live source explain themselves — but
+ * unconnected sources stay labelled "not connected" here, never faked.
  */
 
 export interface Lens {
@@ -15,7 +16,7 @@ export interface Lens {
   label: string
   question: string
   source: string
-  available: boolean
+  connected: boolean
 }
 
 export function LensRail({ lenses }: { lenses: Lens[] }) {
@@ -32,43 +33,31 @@ export function LensRail({ lenses }: { lenses: Lens[] }) {
           const active = pathname === href || pathname.startsWith(`${href}/`)
           return (
             <li key={lens.slug} className="shrink-0 lg:border-b lg:border-charcoal/10">
-              {lens.available ? (
-                <Link
-                  href={href}
-                  aria-current={active ? 'page' : undefined}
-                  className="group block py-3"
-                >
-                  <span className="flex items-center gap-2">
-                    <span
-                      aria-hidden="true"
-                      className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-red' : 'bg-charcoal/25 group-hover:bg-charcoal/50'}`}
-                    />
-                    <span
-                      className={`text-[15px] font-medium ${active ? 'text-red-text' : 'text-charcoal group-hover:text-red-text'}`}
-                    >
-                      {lens.label}
-                    </span>
+              <Link
+                href={href}
+                aria-current={active ? 'page' : undefined}
+                className="group block py-3"
+              >
+                <span className="flex items-center gap-2">
+                  <span
+                    aria-hidden="true"
+                    className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-red' : 'bg-charcoal/25 group-hover:bg-charcoal/50'}`}
+                  />
+                  <span
+                    className={`text-[15px] font-medium ${active ? 'text-red-text' : 'text-charcoal group-hover:text-red-text'}`}
+                  >
+                    {lens.label}
                   </span>
-                  <span className="mt-0.5 block pl-3.5 text-[11px] leading-snug text-charcoal/70">
-                    {lens.question}
-                  </span>
-                </Link>
-              ) : (
-                <div className="py-3">
-                  {/* Muted but AA-readable (charcoal/70 = 5.6:1): unavailability is
-                      carried by the words and the hollow dot, not a grey ramp. */}
-                  <span className="flex items-center gap-2">
-                    <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-charcoal/15" />
-                    <span className="text-[15px] font-medium text-charcoal/70">{lens.label}</span>
-                  </span>
-                  <span className="mt-0.5 block pl-3.5 text-[11px] leading-snug text-charcoal/70">
-                    {lens.question}
-                  </span>
+                </span>
+                <span className="mt-0.5 block pl-3.5 text-[11px] leading-snug text-charcoal/70">
+                  {lens.question}
+                </span>
+                {!lens.connected ? (
                   <span className="mt-1 block pl-3.5 font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal/70">
                     {lens.source} · not connected
                   </span>
-                </div>
-              )}
+                ) : null}
+              </Link>
             </li>
           )
         })}

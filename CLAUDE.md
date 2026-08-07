@@ -53,6 +53,9 @@ migrations in `src/migrations` (baseline + domain collections; see
   Semrush request to validate key + normalizer assumptions (spends units).
 - `npx tsx scripts/seed-demo-context.ts` — create the Audi demo analysis
   context (refuses if any context exists).
+- `npx tsx scripts/seed-lens-fixtures.ts [--replace]` — authored synthetic
+  fixture evidence + markers for the Conversation/Behaviour/People lenses
+  (sources stay "not connected"; everything is stamped synthetic).
 - `npx tsx scripts/run-demand-sync.ts [contextId]` — CLI demand import
   (spends units when the account has balance); the product path is the
   admin-gated import control on `/deep-dive/demand`.

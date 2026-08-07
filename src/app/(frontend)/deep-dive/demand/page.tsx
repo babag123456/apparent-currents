@@ -4,6 +4,9 @@ import { getPayload } from 'payload'
 import React from 'react'
 
 import config from '@payload-config'
+import { MiniTrend, TrendAlt } from '../../../../features/currents/components/deep-dive/MiniTrend.tsx'
+import { Notice } from '../../../../features/currents/components/deep-dive/Notice.tsx'
+import { SectionHead } from '../../../../features/currents/components/deep-dive/SectionHead.tsx'
 import { ImportControls } from '../../../../features/currents/components/demand/ImportControls.tsx'
 import { SourceChip } from '../../../../features/currents/components/SourceChip.tsx'
 import { RELATED_KEYWORDS_LIMIT } from '../../../../intelligence/sync/runDemandSync.ts'
@@ -19,66 +22,6 @@ export const dynamic = 'force-dynamic'
  * imported, running, quota exhausted, failed, and fresh/stale evidence
  * with full provenance. Imports are explicit, metered and admin-gated.
  */
-
-function SectionHead({ id, title, note }: { id: string; title: string; note: string }) {
-  return (
-    <div className="flex flex-col gap-1 border-b border-red pb-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-      <h2 id={id} className="text-[20px] font-medium tracking-[-0.01em] text-charcoal">
-        {title}
-      </h2>
-      <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-red-text">
-        {note}
-      </span>
-    </div>
-  )
-}
-
-function MiniTrend({ trend }: { trend: number[] }) {
-  const max = Math.max(...trend, 0.0001)
-  const barWidth = 4
-  const gap = 2
-  const height = 18
-  const width = trend.length * (barWidth + gap) - gap
-  return (
-    <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} aria-hidden="true">
-      {trend.map((value, index) => {
-        const barHeight = Math.max(1.5, (value / max) * height)
-        return (
-          <rect
-            key={index}
-            x={index * (barWidth + gap)}
-            y={height - barHeight}
-            width={barWidth}
-            height={barHeight}
-            fill="var(--color-red)"
-            opacity={0.5 + 0.5 * (index / (trend.length - 1))}
-          />
-        )
-      })}
-    </svg>
-  )
-}
-
-function Notice({
-  tone,
-  title,
-  children,
-}: {
-  tone: 'error' | 'info'
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <div
-      className={`mt-8 rounded-2xl border p-6 ${tone === 'error' ? 'border-red/50' : 'border-charcoal/20'}`}
-    >
-      <h2 className="text-[17px] font-medium text-charcoal">{title}</h2>
-      <div className="mt-2 max-w-[66ch] space-y-2 text-[14px] leading-relaxed text-charcoal/75">
-        {children}
-      </div>
-    </div>
-  )
-}
 
 export default async function DemandPage() {
   const semrushConfigured = Boolean(process.env.SEMRUSH_API_KEY)
@@ -352,9 +295,7 @@ export default async function DemandPage() {
                             {Array.isArray(record.trend) && record.trend.length > 1 ? (
                               <>
                                 <MiniTrend trend={record.trend as number[]} />
-                                <span className="sr-only">
-                                  {`from ${(record.trend as number[])[0].toLocaleString('en-AU')} to ${(record.trend as number[])[(record.trend as number[]).length - 1].toLocaleString('en-AU')} over 12 months`}
-                                </span>
+                                <TrendAlt trend={record.trend as number[]} />
                               </>
                             ) : (
                               <span className="font-mono text-[11px] text-charcoal/70">

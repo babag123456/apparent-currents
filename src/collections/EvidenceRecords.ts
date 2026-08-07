@@ -42,6 +42,9 @@ export const EvidenceRecords: CollectionConfig = {
       options: [
         { label: 'Keyword', value: 'keyword' },
         { label: 'Domain keyword', value: 'domain-keyword' },
+        { label: 'Mention volume', value: 'mention-volume' },
+        { label: 'Page engagement', value: 'page-engagement' },
+        { label: 'Audience attribute', value: 'audience-attribute' },
       ],
     },
     { name: 'phrase', type: 'text', required: true, index: true },
@@ -65,6 +68,28 @@ export const EvidenceRecords: CollectionConfig = {
         { name: 'resultsCount', type: 'number' },
         { name: 'position', type: 'number' },
         { name: 'previousPosition', type: 'number' },
+        { name: 'mentions', type: 'number' },
+        {
+          name: 'netSentiment',
+          type: 'number',
+          admin: { description: '−1..1: share positive minus share negative.' },
+        },
+        { name: 'sessions', type: 'number' },
+        {
+          name: 'engagementRate',
+          type: 'number',
+          admin: { description: 'Engaged-session share, 0..1.' },
+        },
+        {
+          name: 'audienceIndex',
+          type: 'number',
+          admin: { description: 'Over/under-index vs the national average (1.0 = average).' },
+        },
+        {
+          name: 'audiencePct',
+          type: 'number',
+          admin: { description: 'Share of the audience holding the attribute, 0..1.' },
+        },
       ],
     },
     {

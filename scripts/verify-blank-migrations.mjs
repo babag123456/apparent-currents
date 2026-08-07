@@ -33,6 +33,7 @@ const expectedMigrations = [
   '20260807_085222_initial_baseline',
   '20260807_110910_domain_collections',
   '20260807_112753_fixture_sync_flag',
+  '20260807_121359_lens_fixture_model',
 ]
 
 const source = process.env.DATABASE_URL

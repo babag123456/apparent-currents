@@ -73,6 +73,7 @@ export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
       collection: 'data-syncs',
       where: {
         context: { equals: context.id },
+        lens: { equals: 'demand' },
         source: { equals: 'semrush' },
         status: { equals: 'succeeded' },
       },
@@ -96,9 +97,18 @@ export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
   ])
   if (markerDocs.docs.length === 0) return authoredFallback
 
-  const storedMarkers: StoredMarker[] = markerDocs.docs.map((doc) => ({
+  // Currents derivation is demand-only for now: keep other lens marker
+  // kinds out even if a sync ever mixes them.
+  const DEMAND_KINDS = ['demand-rising', 'demand-declining', 'high-demand'] as const
+  type DemandKind = (typeof DEMAND_KINDS)[number]
+  const isDemandKind = (kind: string): kind is DemandKind =>
+    (DEMAND_KINDS as readonly string[]).includes(kind)
+
+  const storedMarkers: StoredMarker[] = markerDocs.docs
+    .filter((doc) => isDemandKind(doc.kind))
+    .map((doc) => ({
     id: doc.id,
-    kind: doc.kind,
+    kind: doc.kind as DemandKind,
     direction: doc.direction,
     confidence: doc.confidence,
     statement: doc.statement,

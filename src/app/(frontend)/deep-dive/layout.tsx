@@ -5,8 +5,9 @@ import { LensRail, type Lens } from '../../../features/currents/components/LensR
 /**
  * Deep Dive — “Explore what’s driving it.”
  * Evidence is organised by behavioural lens first, source second. Only
- * Demand (Semrush) is implemented; the other lenses are shown honestly as
- * not connected rather than faked.
+ * Demand (Semrush) has a live adapter; the other lenses stay labelled
+ * "not connected" and show only authored synthetic fixture data
+ * (seed-lens-fixtures.ts), stamped as such — never faked as live.
  */
 
 const LENSES: Lens[] = [
@@ -15,28 +16,28 @@ const LENSES: Lens[] = [
     label: 'Demand',
     question: 'What people are actively looking for',
     source: 'Semrush',
-    available: true,
+    connected: true,
   },
   {
     slug: 'conversation',
     label: 'Conversation',
     question: 'What people are talking about',
     source: 'Brandwatch',
-    available: false,
+    connected: false,
   },
   {
     slug: 'behaviour',
     label: 'Behaviour',
     question: 'What people do on owned properties',
     source: 'GA4',
-    available: false,
+    connected: false,
   },
   {
     slug: 'people',
     label: 'People',
     question: 'Who the audience is and what they care about',
     source: 'GWI',
-    available: false,
+    connected: false,
   },
 ]
 

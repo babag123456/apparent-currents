@@ -44,3 +44,33 @@ export interface DemandMarker {
   /** The evidence records this marker was derived from. */
   evidence: DemandEvidence[]
 }
+
+/** Marker kinds for the lenses without live adapters (fixture-authored). */
+export type LensMarkerKind =
+  | 'conversation-rising'
+  | 'conversation-declining'
+  | 'sentiment-shifting'
+  | 'behaviour-rising'
+  | 'behaviour-declining'
+  | 'high-engagement'
+  | 'audience-over-index'
+  | 'audience-barrier'
+
+/**
+ * The structural shape the storage mapping needs from any marker —
+ * demand markers (machine-derived) and fixture-authored lens markers both
+ * satisfy it.
+ */
+export interface MarkerRecordInput {
+  kind: DemandMarkerKind | LensMarkerKind
+  phrase: string
+  topic?: string
+  market: string
+  direction: MarkerDirection
+  magnitude: number
+  confidence: MarkerConfidence
+  statement: string
+  sources: EvidenceSource[]
+  derivedAt: string
+  evidence: Array<{ phrase: string }>
+}

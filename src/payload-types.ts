@@ -215,7 +215,7 @@ export interface EvidenceRecord {
   id: number;
   lens: 'demand' | 'conversation' | 'behaviour' | 'people';
   source: 'semrush' | 'brandwatch' | 'ga4' | 'gwi';
-  kind: 'keyword' | 'domain-keyword';
+  kind: 'keyword' | 'domain-keyword' | 'mention-volume' | 'page-engagement' | 'audience-attribute';
   phrase: string;
   /**
    * Topic / keyword-set the phrase was queried under.
@@ -232,6 +232,24 @@ export interface EvidenceRecord {
     resultsCount?: number | null;
     position?: number | null;
     previousPosition?: number | null;
+    mentions?: number | null;
+    /**
+     * −1..1: share positive minus share negative.
+     */
+    netSentiment?: number | null;
+    sessions?: number | null;
+    /**
+     * Engaged-session share, 0..1.
+     */
+    engagementRate?: number | null;
+    /**
+     * Over/under-index vs the national average (1.0 = average).
+     */
+    audienceIndex?: number | null;
+    /**
+     * Share of the audience holding the attribute, 0..1.
+     */
+    audiencePct?: number | null;
   };
   /**
    * Normalised 12-month trend series (array of numbers), if valid.
@@ -324,7 +342,18 @@ export interface DataSync {
  */
 export interface Marker {
   id: number;
-  kind: 'demand-rising' | 'demand-declining' | 'high-demand';
+  kind:
+    | 'demand-rising'
+    | 'demand-declining'
+    | 'high-demand'
+    | 'conversation-rising'
+    | 'conversation-declining'
+    | 'sentiment-shifting'
+    | 'behaviour-rising'
+    | 'behaviour-declining'
+    | 'high-engagement'
+    | 'audience-over-index'
+    | 'audience-barrier';
   direction: 'up' | 'down' | 'flat';
   confidence: 'weak' | 'moderate' | 'strong';
   statement: string;
@@ -613,6 +642,12 @@ export interface EvidenceRecordsSelect<T extends boolean = true> {
         resultsCount?: T;
         position?: T;
         previousPosition?: T;
+        mentions?: T;
+        netSentiment?: T;
+        sessions?: T;
+        engagementRate?: T;
+        audienceIndex?: T;
+        audiencePct?: T;
       };
   trend?: T;
   intents?: T;

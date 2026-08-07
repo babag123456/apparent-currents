@@ -1,5 +1,5 @@
-import type { DemandEvidence } from '../evidence/types.ts'
-import type { DemandMarker } from '../markers/types.ts'
+import type { DemandEvidence, Evidence } from '../evidence/types.ts'
+import type { MarkerRecordInput } from '../markers/types.ts'
 import { SemrushApiError } from '../../integrations/semrush/client.ts'
 
 /**
@@ -27,27 +27,15 @@ export function sanitizedErrorMessage(error: unknown): string {
 }
 
 export function evidenceToRecordData(
-  evidence: DemandEvidence,
+  evidence: Evidence,
   contextId: number,
   syncId: number,
 ): Record<string, unknown> {
-  return {
+  const base = {
     lens: evidence.lens,
     source: evidence.provenance.source,
-    kind: evidence.domain ? 'domain-keyword' : 'keyword',
     phrase: evidence.phrase,
     topic: evidence.topic ?? null,
-    domain: evidence.domain ?? null,
-    metrics: {
-      searchVolume: evidence.metrics.searchVolume ?? null,
-      cpc: evidence.metrics.cpc ?? null,
-      competition: evidence.metrics.competition ?? null,
-      resultsCount: evidence.metrics.resultsCount ?? null,
-      position: evidence.metrics.position ?? null,
-      previousPosition: evidence.metrics.previousPosition ?? null,
-    },
-    trend: evidence.metrics.trend ?? null,
-    intents: evidence.intents ?? null,
     provenance: {
       sourceReport: evidence.provenance.sourceReport,
       retrievedAt: evidence.provenance.retrievedAt,
@@ -57,10 +45,59 @@ export function evidenceToRecordData(
     context: contextId,
     sync: syncId,
   }
+
+  switch (evidence.lens) {
+    case 'demand':
+      return {
+        ...base,
+        kind: evidence.domain ? 'domain-keyword' : 'keyword',
+        domain: evidence.domain ?? null,
+        metrics: {
+          searchVolume: evidence.metrics.searchVolume ?? null,
+          cpc: evidence.metrics.cpc ?? null,
+          competition: evidence.metrics.competition ?? null,
+          resultsCount: evidence.metrics.resultsCount ?? null,
+          position: evidence.metrics.position ?? null,
+          previousPosition: evidence.metrics.previousPosition ?? null,
+        },
+        trend: evidence.metrics.trend ?? null,
+        intents: evidence.intents ?? null,
+      }
+    case 'conversation':
+      return {
+        ...base,
+        kind: 'mention-volume',
+        metrics: {
+          mentions: evidence.metrics.mentions ?? null,
+          netSentiment: evidence.metrics.netSentiment ?? null,
+        },
+        trend: evidence.metrics.trend ?? null,
+      }
+    case 'behaviour':
+      return {
+        ...base,
+        kind: 'page-engagement',
+        metrics: {
+          sessions: evidence.metrics.sessions ?? null,
+          engagementRate: evidence.metrics.engagementRate ?? null,
+        },
+        trend: evidence.metrics.trend ?? null,
+      }
+    case 'people':
+      return {
+        ...base,
+        kind: 'audience-attribute',
+        metrics: {
+          audienceIndex: evidence.metrics.audienceIndex ?? null,
+          audiencePct: evidence.metrics.audiencePct ?? null,
+        },
+        trend: null,
+      }
+  }
 }
 
 export function markerToRecordData(
-  marker: DemandMarker,
+  marker: MarkerRecordInput,
   contextId: number,
   syncId: number,
   evidenceIdsByPhrase: Map<string, number>,
