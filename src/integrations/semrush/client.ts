@@ -93,9 +93,20 @@ export class SemrushClient {
     const body = await response.text()
 
     if (!response.ok) {
-      throw new SemrushApiError(`Semrush responded with HTTP ${response.status}.`, {
-        httpStatus: response.status,
-      })
+      // Semrush also delivers "ERROR <code> :: <message>" bodies over non-200
+      // statuses (e.g. HTTP 403 + ERROR 132 when the unit balance is zero).
+      const httpErrorBody = parseErrorBody(body)
+      if (httpErrorBody) {
+        throw new SemrushApiError(
+          `Semrush error ${httpErrorBody.code}: ${httpErrorBody.message}`,
+          { code: httpErrorBody.code, httpStatus: response.status },
+        )
+      }
+      const snippet = body.slice(0, 200).replace(/\s+/g, ' ').trim()
+      throw new SemrushApiError(
+        `Semrush responded with HTTP ${response.status}${snippet ? `: ${snippet}` : '.'}`,
+        { httpStatus: response.status },
+      )
     }
 
     const errorBody = parseErrorBody(body)

@@ -62,6 +62,19 @@ describe('SemrushClient.fetchReport', () => {
     expect((error as Error).message).not.toContain(KEY)
   })
 
+  it('extracts the error code when an ERROR body arrives over HTTP 403 (e.g. zero unit balance)', async () => {
+    const client = new SemrushClient({
+      apiKey: KEY,
+      fetchImpl: mockFetch('ERROR 132 :: API UNITS BALANCE IS ZERO', 403),
+    })
+
+    await expect(client.fetchReport('phrase_these', { phrase: 'x' }, 'au')).rejects.toMatchObject({
+      name: 'SemrushApiError',
+      code: 132,
+      httpStatus: 403,
+    })
+  })
+
   it('throws on non-2xx HTTP responses', async () => {
     const client = new SemrushClient({ apiKey: KEY, fetchImpl: mockFetch('oops', 500) })
 

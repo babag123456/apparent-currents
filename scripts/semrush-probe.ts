@@ -7,7 +7,7 @@
  * Usage:
  *   npx tsx scripts/semrush-probe.ts "<seed phrase>" [database=au]
  */
-import { SemrushClient } from '../src/integrations/semrush/client.ts'
+import { SemrushApiError, SemrushClient } from '../src/integrations/semrush/client.ts'
 import { fetchKeywordOverview } from '../src/integrations/semrush/queries/index.ts'
 import { deriveDemandMarkers } from '../src/intelligence/markers/deriveDemandMarkers.ts'
 import { loadAppEnv } from '../src/lib/loadEnv.ts'
@@ -26,10 +26,22 @@ if (!process.env.SEMRUSH_API_KEY) {
 }
 
 const client = new SemrushClient()
-const { evidence, report } = await fetchKeywordOverview(client, {
-  phrases: [phrase],
-  database,
-})
+
+let outcome
+try {
+  outcome = await fetchKeywordOverview(client, { phrases: [phrase], database })
+} catch (error) {
+  if (error instanceof SemrushApiError && error.code === 132) {
+    console.error(
+      'Semrush key is valid, but the account has no API units (ERROR 132).\n' +
+        'API units are purchased separately from the Semrush subscription:\n' +
+        'Semrush → Subscription info → API units. Re-run this probe once topped up.',
+    )
+    process.exit(1)
+  }
+  throw error
+}
+const { evidence, report } = outcome
 
 console.log(`Report: ${report.reportType} (${report.database})`)
 console.log(`Rows: ${report.rows.length} · estimated units spent: ${report.estimatedUnits}`)

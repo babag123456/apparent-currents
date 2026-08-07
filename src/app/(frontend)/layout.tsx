@@ -3,6 +3,10 @@ import React from 'react'
 
 import '../../styles/brand.css'
 
+import { AppHeader } from '../../features/currents/components/AppHeader.tsx'
+import { ContextBar } from '../../features/currents/components/ContextBar.tsx'
+import { DEMO_CONTEXT } from '../../features/currents/fixtures/demoContext.ts'
+
 export const metadata: Metadata = {
   title: 'CURRENTS',
   description: 'Audience-intent intelligence by Apparent.',
@@ -31,7 +35,15 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased app-body" suppressHydrationWarning>
-        {children}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-charcoal focus:px-3 focus:py-2 focus:text-cream"
+        >
+          Skip to content
+        </a>
+        <AppHeader />
+        <ContextBar context={DEMO_CONTEXT} />
+        <main id="main">{children}</main>
       </body>
     </html>
   )
