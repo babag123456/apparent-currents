@@ -62,7 +62,8 @@ export function MomentumPanel({
         <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-charcoal/70">
           Momentum · demand index
         </h2>
-        <span className="rounded-full border border-red/70 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-red-text">
+        {/* Filled, not outlined: red-text type on stone is 3.98:1 — below AA. */}
+        <span className="rounded-full bg-red-text px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-cream">
           {dataLabel}
         </span>
       </div>

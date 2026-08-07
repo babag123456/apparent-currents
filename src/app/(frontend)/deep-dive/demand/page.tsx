@@ -322,7 +322,13 @@ export default async function DemandPage() {
                   title="Evidence"
                   note={`${evidence.totalDocs} records · ${latestSuccess.reports ? (latestSuccess.reports as string[]).join(' + ') : 'semrush'}${latestSuccess.isFixture ? ' · synthetic fixture' : ''}`}
                 />
-                <div className="overflow-x-auto">
+                {/* Focusable region so keyboard users can scroll the wide table. */}
+                <div
+                  className="overflow-x-auto"
+                  tabIndex={0}
+                  role="region"
+                  aria-labelledby="demand-evidence"
+                >
                   <table className="mt-1 w-full min-w-[640px] border-collapse text-left">
                     <thead>
                       <tr className="border-b border-charcoal/10 font-mono text-[10px] uppercase tracking-[0.16em] text-red-text">
@@ -344,9 +350,16 @@ export default async function DemandPage() {
                           </td>
                           <td className="py-2.5 pr-4">
                             {Array.isArray(record.trend) && record.trend.length > 1 ? (
-                              <MiniTrend trend={record.trend as number[]} />
+                              <>
+                                <MiniTrend trend={record.trend as number[]} />
+                                <span className="sr-only">
+                                  {`from ${(record.trend as number[])[0].toLocaleString('en-AU')} to ${(record.trend as number[])[(record.trend as number[]).length - 1].toLocaleString('en-AU')} over 12 months`}
+                                </span>
+                              </>
                             ) : (
-                              <span className="font-mono text-[11px] text-charcoal/50">—</span>
+                              <span className="font-mono text-[11px] text-charcoal/70">
+                                —<span className="sr-only"> no trend data</span>
+                              </span>
                             )}
                           </td>
                           <td className="py-2.5 pr-4 font-mono text-[11px] uppercase tracking-[0.06em] text-charcoal/70">

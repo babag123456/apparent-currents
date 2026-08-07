@@ -9,7 +9,7 @@
    400 (copy) and 500 (headlines). Do not introduce other weights. */
 @font-face {
   font-family: 'Inter Tight';
-  src: url('/fonts/Inter_Tight/InterTight-VariableFont_wght.ttf') format('truetype-variations');
+  src: url('/fonts/Inter_Tight/InterTight-VariableFont_wght.woff2') format('woff2-variations');
   font-weight: 400 500;
   font-style: normal;
   font-display: swap;

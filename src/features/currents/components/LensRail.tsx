@@ -49,20 +49,22 @@ export function LensRail({ lenses }: { lenses: Lens[] }) {
                       {lens.label}
                     </span>
                   </span>
-                  <span className="mt-0.5 block pl-3.5 text-[11px] leading-snug text-charcoal/60">
+                  <span className="mt-0.5 block pl-3.5 text-[11px] leading-snug text-charcoal/70">
                     {lens.question}
                   </span>
                 </Link>
               ) : (
                 <div className="py-3">
+                  {/* Muted but AA-readable (charcoal/70 = 5.6:1): unavailability is
+                      carried by the words and the hollow dot, not a grey ramp. */}
                   <span className="flex items-center gap-2">
                     <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-charcoal/15" />
-                    <span className="text-[15px] font-medium text-charcoal/40">{lens.label}</span>
+                    <span className="text-[15px] font-medium text-charcoal/70">{lens.label}</span>
                   </span>
-                  <span className="mt-0.5 block pl-3.5 text-[11px] leading-snug text-charcoal/40">
+                  <span className="mt-0.5 block pl-3.5 text-[11px] leading-snug text-charcoal/70">
                     {lens.question}
                   </span>
-                  <span className="mt-1 block pl-3.5 font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal/45">
+                  <span className="mt-1 block pl-3.5 font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal/70">
                     {lens.source} · not connected
                   </span>
                 </div>
