@@ -23,6 +23,10 @@ export interface FixtureMarker {
   /** Per-marker honesty label when it differs from the bulletin's own
    * (e.g. synthetic corroboration attached to a live demand current). */
   provenanceLabel?: string
+  /** For cross-lens markers: whether this signal agrees with the current's
+   * direction, cuts against it, or is directionless context. Worded in the
+   * UI — never folded into a score. */
+  alignment?: 'corroborates' | 'cuts against' | 'context'
 }
 
 export interface FixtureCurrent {

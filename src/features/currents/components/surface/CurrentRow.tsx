@@ -25,6 +25,31 @@ function DirectionArrow({ direction }: { direction: FixtureCurrent['direction'] 
   )
 }
 
+/**
+ * Mechanical cross-lens tally: counts of corroborating / cutting-against /
+ * context markers among the annex's cross-lens evidence. Worded counts
+ * only — alignment is never folded into a score or a confidence change.
+ */
+function AlignmentSummary({ markers }: { markers: FixtureCurrent['markers'] }) {
+  const aligned = markers.filter((marker) => marker.alignment)
+  if (aligned.length === 0) return null
+  const counts = {
+    corroborates: aligned.filter((m) => m.alignment === 'corroborates').length,
+    cutsAgainst: aligned.filter((m) => m.alignment === 'cuts against').length,
+    context: aligned.filter((m) => m.alignment === 'context').length,
+  }
+  const parts = [
+    counts.corroborates > 0 ? `${counts.corroborates} corroborate the direction` : null,
+    counts.cutsAgainst > 0 ? `${counts.cutsAgainst} cut against it` : null,
+    counts.context > 0 ? `${counts.context} add context` : null,
+  ].filter(Boolean)
+  return (
+    <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal/70">
+      Cross-lens alignment: {parts.join(' · ')}
+    </p>
+  )
+}
+
 export function CurrentRow({
   current,
   provenanceLabel,
@@ -96,6 +121,7 @@ export function CurrentRow({
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-red-text">
               Markers — the evidence behind {current.id}
             </p>
+            <AlignmentSummary markers={current.markers} />
             <ul className="mt-4 space-y-4 sm:ml-[9rem]">
               {current.markers.map((marker) => (
                 <li key={marker.metric} className="max-w-[72ch]">
@@ -109,6 +135,11 @@ export function CurrentRow({
                     <SourceChip source={marker.source} connected={marker.sourceConnected ?? true} />
                     <span>{marker.sourceReport}</span>
                     <span>· {marker.confidence} confidence</span>
+                    {marker.alignment ? (
+                      <span className={marker.alignment === 'cuts against' ? 'text-plum' : undefined}>
+                        · {marker.alignment}
+                      </span>
+                    ) : null}
                     <span className="text-red-text">· {marker.provenanceLabel ?? provenanceLabel}</span>
                   </p>
                 </li>

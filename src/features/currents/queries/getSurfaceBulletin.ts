@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { deriveCurrents } from '../../../intelligence/currents/deriveCurrents.ts'
 import type { StoredMarker } from '../../../intelligence/currents/types.ts'
 import { syncFreshness } from '../../../intelligence/sync/status.ts'
+import { AUTHORED_OPPORTUNITIES } from '../fixtures/authoredOpportunities.ts'
 import {
   DEMO_BULLETIN,
   type FixtureBulletin,
@@ -81,7 +82,20 @@ function corroborationMetric(kind: string, phrase: string, magnitude: number): s
 
 interface CorroboratingMarker {
   lens: CorroboratingLens
+  /** Stored marker direction, compared against the current's direction at
+   * attach time to word the alignment. */
+  direction: 'up' | 'down' | 'flat'
   view: FixtureMarker
+}
+
+/** Word the agreement between a cross-lens marker and its current. */
+function alignmentFor(
+  markerDirection: 'up' | 'down' | 'flat',
+  currentDirection: 'rising' | 'steady' | 'easing',
+): NonNullable<FixtureMarker['alignment']> {
+  if (markerDirection === 'flat' || currentDirection === 'steady') return 'context'
+  const currentAsMarker = currentDirection === 'rising' ? 'up' : 'down'
+  return markerDirection === currentAsMarker ? 'corroborates' : 'cuts against'
 }
 
 /**
@@ -131,7 +145,7 @@ async function loadCorroboration(
           provenanceLabel,
         }
         const list = byTopic.get(doc.topic) ?? []
-        list.push({ lens, view })
+        list.push({ lens, direction: doc.direction, view })
         byTopic.set(doc.topic, list)
       }
     }),
@@ -261,7 +275,12 @@ export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
     const lensesHere = [...new Set(corroborating.map((entry) => entry.lens))]
     corroboratingCount += corroborating.length
     for (const lens of lensesHere) corroboratingLenses.add(lens)
-    markers.push(...corroborating.map((entry) => entry.view))
+    markers.push(
+      ...corroborating.map((entry) => ({
+        ...entry.view,
+        alignment: alignmentFor(entry.direction, current.direction),
+      })),
+    )
 
     const corroborationNote = lensesHere.length
       ? ` Corroborated by ${lensesHere.join(' + ')} markers on the same topic.`
@@ -283,6 +302,22 @@ export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
       markers,
     }
   })
+
+  // Authored opportunities resolve their topic-convergence claims against
+  // the currents that actually derived; one renders only when every topic
+  // it converges from produced a current. Interpretation stays authored —
+  // nothing here is generated from the data.
+  const currentIdByTopic = new Map(currents.map((current) => [current.topic, current.id]))
+  const opportunities = AUTHORED_OPPORTUNITIES.filter((opportunity) =>
+    opportunity.convergesFromTopics.every((topic) => currentIdByTopic.has(topic)),
+  ).map((opportunity) => ({
+    id: opportunity.slug,
+    title: opportunity.title,
+    narrative: opportunity.narrative,
+    convergesFrom: opportunity.convergesFromTopics.map(
+      (topic) => currentIdByTopic.get(topic) as string,
+    ),
+  }))
 
   const lead = currents[0]
   const isFixture = Boolean(sync.isFixture)
@@ -306,7 +341,7 @@ export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
       confidence: lead.confidence,
     },
     currents: viewCurrents,
-    opportunities: [],
+    opportunities,
     provenance: {
       retrievedAt: sync.finishedAt,
       market: context.semrushDatabase,

@@ -147,7 +147,13 @@ export default async function SurfacePage() {
                 </p>
                 <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal/70">
                   Opportunity · convergence of {opportunity.convergesFrom.join(' + ')} ·{' '}
-                  <span className="text-red-text">fixture</span>
+                  <span className="text-red-text">
+                    {mode === 'authored-fixture'
+                      ? 'fixture'
+                      : mode === 'derived-synthetic'
+                        ? 'authored interpretation · synthetic fixture'
+                        : 'authored interpretation'}
+                  </span>
                 </p>
               </article>
             ))}
