@@ -27,11 +27,15 @@ Vercel deployment (`vercel-build` runs Payload migrations — any non-Vercel
 deploy needs an equivalent migrate step).
 
 **Layout:** `src/app/(frontend)` and `src/app/(payload)` route groups;
-`src/collections/Users.ts` (collections inlined in `src/payload.config.ts`);
+`src/collections/` (Users + domain: Contexts, EvidenceRecords, Markers,
+DataSyncs — the last three are machine-written, human-read-only);
+`src/integrations/semrush/` (adapter) → `src/intelligence/` (evidence
+model, marker derivation, `sync/` runner + freshness/cooldown policy,
+registered as the `demand-sync` Payload job task);
 auth + security helpers in `src/lib` (`google-auth.ts`, `security/`);
 brand foundation in `src/styles/brand.css` (Tailwind entry + fonts +
 `@theme` tokens — the palette matches the supplied brand assets);
-one fresh baseline migration in `src/migrations` (see
+migrations in `src/migrations` (baseline + domain collections; see
 `docs/payload-migration-baseline.md`).
 
 **Commands:**
@@ -47,6 +51,11 @@ one fresh baseline migration in `src/migrations` (see
 - `npm test` — vitest (domain transformations, normalisers, client errors).
 - `npx tsx scripts/semrush-probe.ts "<phrase>" [db]` — one narrow live
   Semrush request to validate key + normalizer assumptions (spends units).
+- `npx tsx scripts/seed-demo-context.ts` — create the Audi demo analysis
+  context (refuses if any context exists).
+- `npx tsx scripts/run-demand-sync.ts [contextId]` — CLI demand import
+  (spends units when the account has balance); the product path is the
+  admin-gated import control on `/deep-dive/demand`.
 - First admin on a fresh DB: configure Google OAuth, or locally
   `npx tsx scripts/bootstrap-admin.ts <email> '<password>'`.
 

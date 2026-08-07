@@ -12,12 +12,26 @@ const payloadBin = path.join(projectRoot, 'node_modules', 'payload', 'bin.js')
 const requiredTables = [
   'users',
   'users_sessions',
+  'contexts',
+  'contexts_competitors',
+  'contexts_topics',
+  'evidence_records',
+  'markers',
+  'markers_rels',
+  'data_syncs',
+  'payload_jobs',
+  'payload_jobs_log',
   'payload_migrations',
   'payload_locked_documents',
   'payload_locked_documents_rels',
   'payload_preferences',
   'payload_preferences_rels',
   'payload_kv',
+]
+
+const expectedMigrations = [
+  '20260807_085222_initial_baseline',
+  '20260807_110910_domain_collections',
 ]
 
 const source = process.env.DATABASE_URL
@@ -69,7 +83,7 @@ try {
 
     const migrations = await verification.query('SELECT name FROM payload_migrations ORDER BY id')
     const names = migrations.rows.map((row) => row.name)
-    if (names[0] !== '20260807_085222_initial_baseline' || names.length !== 1) {
+    if (JSON.stringify(names) !== JSON.stringify(expectedMigrations)) {
       throw new Error(`Unexpected migration history: ${names.join(', ')}`)
     }
   } finally {

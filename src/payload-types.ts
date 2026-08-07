@@ -68,7 +68,12 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    contexts: Context;
+    'evidence-records': EvidenceRecord;
+    markers: Marker;
+    'data-syncs': DataSync;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -76,7 +81,12 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    contexts: ContextsSelect<false> | ContextsSelect<true>;
+    'evidence-records': EvidenceRecordsSelect<false> | EvidenceRecordsSelect<true>;
+    markers: MarkersSelect<false> | MarkersSelect<true>;
+    'data-syncs': DataSyncsSelect<false> | DataSyncsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -93,7 +103,13 @@ export interface Config {
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      'demand-sync': TaskDemandSync;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -144,6 +160,207 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contexts".
+ */
+export interface Context {
+  id: number;
+  /**
+   * Display name, e.g. “Audi · EV Intenders · AU”.
+   */
+  name: string;
+  brand: string;
+  category?: string | null;
+  /**
+   * Human label, e.g. “Australia”.
+   */
+  market: string;
+  /**
+   * Semrush regional database code for this market (e.g. au, us, uk).
+   */
+  semrushDatabase: string;
+  audience?: string | null;
+  /**
+   * Display label for the analysis period.
+   */
+  period?: string | null;
+  competitors?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Seed phrases for demand fetches. Each import spends API units per phrase — keep this tight (max 10).
+   */
+  topics?:
+    | {
+        phrase: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Label this context as a demo context in the UI.
+   */
+  isDemo?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Machine-written by imports. Read-only: evidence is never hand-edited.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "evidence-records".
+ */
+export interface EvidenceRecord {
+  id: number;
+  lens: 'demand' | 'conversation' | 'behaviour' | 'people';
+  source: 'semrush' | 'brandwatch' | 'ga4' | 'gwi';
+  kind: 'keyword' | 'domain-keyword';
+  phrase: string;
+  /**
+   * Topic / keyword-set the phrase was queried under.
+   */
+  topic?: string | null;
+  /**
+   * Ranking domain, for domain-keyword evidence.
+   */
+  domain?: string | null;
+  metrics?: {
+    searchVolume?: number | null;
+    cpc?: number | null;
+    competition?: number | null;
+    resultsCount?: number | null;
+    position?: number | null;
+    previousPosition?: number | null;
+  };
+  /**
+   * Normalised 12-month trend series (array of numbers), if valid.
+   */
+  trend?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Search intents (array of strings).
+   */
+  intents?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  provenance: {
+    sourceReport: string;
+    retrievedAt: string;
+    /**
+     * Vendor database / market code the data was fetched for.
+     */
+    market: string;
+    period?: string | null;
+  };
+  context: number | Context;
+  sync: number | DataSync;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Machine-written import log. Read-only.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "data-syncs".
+ */
+export interface DataSync {
+  id: number;
+  context: number | Context;
+  lens: 'demand' | 'conversation' | 'behaviour' | 'people';
+  source: 'semrush' | 'brandwatch' | 'ga4' | 'gwi';
+  status: 'running' | 'succeeded' | 'failed' | 'quota-exceeded';
+  trigger: 'manual';
+  startedAt: string;
+  finishedAt?: string | null;
+  requestCount?: number | null;
+  /**
+   * Estimated Semrush API units spent by this run.
+   */
+  estimatedUnits?: number | null;
+  evidenceCount?: number | null;
+  markerCount?: number | null;
+  /**
+   * Report types fetched by this run (array of strings).
+   */
+  reports?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Sanitised failure detail — never contains credentials.
+   */
+  errorMessage?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Machine-derived from evidence. Read-only: markers are never hand-edited.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "markers".
+ */
+export interface Marker {
+  id: number;
+  kind: 'demand-rising' | 'demand-declining' | 'high-demand';
+  direction: 'up' | 'down' | 'flat';
+  confidence: 'weak' | 'moderate' | 'strong';
+  statement: string;
+  phrase: string;
+  /**
+   * Topic / keyword-set inherited from the evidence.
+   */
+  topic?: string | null;
+  /**
+   * Vendor database / market code the signal applies to.
+   */
+  market: string;
+  /**
+   * Signed relative change that triggered the marker (0.4 = +40%); the multiple of the set median for high-demand.
+   */
+  magnitude: number;
+  /**
+   * Evidence sources contributing to this marker (array of strings).
+   */
+  sources?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  derivedAt: string;
+  context: number | Context;
+  sync: number | DataSync;
+  /**
+   * The evidence records this marker was derived from.
+   */
+  evidence?: (number | EvidenceRecord)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -161,14 +378,123 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'demand-sync';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'demand-sync') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
   id: number;
-  document?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
+  document?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'contexts';
+        value: number | Context;
+      } | null)
+    | ({
+        relationTo: 'evidence-records';
+        value: number | EvidenceRecord;
+      } | null)
+    | ({
+        relationTo: 'markers';
+        value: number | Marker;
+      } | null)
+    | ({
+        relationTo: 'data-syncs';
+        value: number | DataSync;
+      } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
@@ -237,11 +563,148 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contexts_select".
+ */
+export interface ContextsSelect<T extends boolean = true> {
+  name?: T;
+  brand?: T;
+  category?: T;
+  market?: T;
+  semrushDatabase?: T;
+  audience?: T;
+  period?: T;
+  competitors?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  topics?:
+    | T
+    | {
+        phrase?: T;
+        id?: T;
+      };
+  isDemo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "evidence-records_select".
+ */
+export interface EvidenceRecordsSelect<T extends boolean = true> {
+  lens?: T;
+  source?: T;
+  kind?: T;
+  phrase?: T;
+  topic?: T;
+  domain?: T;
+  metrics?:
+    | T
+    | {
+        searchVolume?: T;
+        cpc?: T;
+        competition?: T;
+        resultsCount?: T;
+        position?: T;
+        previousPosition?: T;
+      };
+  trend?: T;
+  intents?: T;
+  provenance?:
+    | T
+    | {
+        sourceReport?: T;
+        retrievedAt?: T;
+        market?: T;
+        period?: T;
+      };
+  context?: T;
+  sync?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "markers_select".
+ */
+export interface MarkersSelect<T extends boolean = true> {
+  kind?: T;
+  direction?: T;
+  confidence?: T;
+  statement?: T;
+  phrase?: T;
+  topic?: T;
+  market?: T;
+  magnitude?: T;
+  sources?: T;
+  derivedAt?: T;
+  context?: T;
+  sync?: T;
+  evidence?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "data-syncs_select".
+ */
+export interface DataSyncsSelect<T extends boolean = true> {
+  context?: T;
+  lens?: T;
+  source?: T;
+  status?: T;
+  trigger?: T;
+  startedAt?: T;
+  finishedAt?: T;
+  requestCount?: T;
+  estimatedUnits?: T;
+  evidenceCount?: T;
+  markerCount?: T;
+  reports?: T;
+  errorMessage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -284,6 +747,20 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskDemand-sync".
+ */
+export interface TaskDemandSync {
+  input: {
+    contextId: number;
+  };
+  output: {
+    status: string;
+    syncId: number;
+    estimatedUnits?: number | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
