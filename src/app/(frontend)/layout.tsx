@@ -4,6 +4,7 @@ import React from 'react'
 import '../../styles/brand.css'
 
 import { AppHeader } from '../../features/currents/components/AppHeader.tsx'
+import { AskDock } from '../../features/currents/components/ask/AskDock.tsx'
 import { ContextBar } from '../../features/currents/components/ContextBar.tsx'
 
 export const metadata: Metadata = {
@@ -64,6 +65,7 @@ export default function FrontendLayout({ children }: { children: React.ReactNode
         <AppHeader />
         <ContextBar />
         <main id="main">{children}</main>
+        <AskDock />
       </body>
     </html>
   )

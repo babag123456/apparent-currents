@@ -65,7 +65,10 @@ migrations in `src/migrations` (baseline + domain collections; see
 **Env:** `.env` (gitignored) from `.env.example`: `DATABASE_URL`,
 `PAYLOAD_SECRET`, `SEMRUSH_API_KEY`, `GOOGLE_CLIENT_ID`,
 `GOOGLE_CLIENT_SECRET`, `GOOGLE_OAUTH_CALLBACK_URL`,
-`GOOGLE_ALLOWED_EMAILS` or `GOOGLE_ALLOWED_DOMAIN`.
+`GOOGLE_ALLOWED_EMAILS` or `GOOGLE_ALLOWED_DOMAIN`,
+`OPENROUTER_API_KEY` + optional `OPENROUTER_MODEL` (the "Ask the
+evidence" panel — server-side only, admin-gated, grounded in the
+evidence digest; answers are stamped AI interpretation, never data).
 
 ## Product principles
 
@@ -198,7 +201,9 @@ Do not use the phrase “read the water”.
 
 ## Out of scope for the first vertical slice
 
-Do not build yet: GA4 / GWI / Brandwatch connectors, an AI chat assistant,
-automatic strategic recommendations, a proprietary composite score, a data
-warehouse, a vector database, a heavyweight chart library, or a separate
-frontend application.
+Do not build yet: GA4 / GWI / Brandwatch connectors, automatic strategic
+recommendations, a proprietary composite score, a data warehouse, a
+vector database, a heavyweight chart library, or a separate frontend
+application. (The grounded "Ask the evidence" panel exists — a chat over
+stored evidence only; anything that fetches or generates beyond that
+digest is still out of scope.)
