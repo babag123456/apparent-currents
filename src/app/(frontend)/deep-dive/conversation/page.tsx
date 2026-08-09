@@ -10,7 +10,7 @@ import { SourceChip } from '../../../../features/currents/components/SourceChip.
 import { PR_PUBLICATIONS_FIXTURE } from '../../../../features/currents/fixtures/prPublications.ts'
 import { getLensFixture } from '../../../../features/currents/queries/getLensFixture.ts'
 
-export const metadata: Metadata = { title: 'Conversation · Deep Dive · CURRENTS' }
+export const metadata: Metadata = { title: 'Currents · Deep Dive · Conversation' }
 export const dynamic = 'force-dynamic'
 
 /**

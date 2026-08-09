@@ -8,7 +8,7 @@ import { SectionHead } from '../../../../features/currents/components/deep-dive/
 import { SourceChip } from '../../../../features/currents/components/SourceChip.tsx'
 import { getLensFixture } from '../../../../features/currents/queries/getLensFixture.ts'
 
-export const metadata: Metadata = { title: 'People · Deep Dive · CURRENTS' }
+export const metadata: Metadata = { title: 'Currents · Deep Dive · People' }
 export const dynamic = 'force-dynamic'
 
 /**

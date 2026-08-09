@@ -17,7 +17,7 @@ import { RELATED_KEYWORDS_LIMIT } from '../../../../intelligence/sync/runDemandS
 import { COOLDOWN_MINUTES, canStartSync, syncFreshness } from '../../../../intelligence/sync/status.ts'
 import { importDemandEvidence } from './actions.ts'
 
-export const metadata: Metadata = { title: 'Demand · Deep Dive · CURRENTS' }
+export const metadata: Metadata = { title: 'Currents · Deep Dive · Demand' }
 export const dynamic = 'force-dynamic'
 
 /**

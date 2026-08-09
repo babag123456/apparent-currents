@@ -7,7 +7,7 @@ import { Notice } from '../../../../features/currents/components/deep-dive/Notic
 import { SectionHead } from '../../../../features/currents/components/deep-dive/SectionHead.tsx'
 import { OPEN_DATASETS_FIXTURE } from '../../../../features/currents/fixtures/openDatasets.ts'
 
-export const metadata: Metadata = { title: 'Market context · Deep Dive · CURRENTS' }
+export const metadata: Metadata = { title: 'Currents · Deep Dive · Market context' }
 export const dynamic = 'force-dynamic'
 
 /**

@@ -10,7 +10,7 @@ import { SourceChip } from '../../../../features/currents/components/SourceChip.
 import { COMPETITOR_TRAFFIC_FIXTURE } from '../../../../features/currents/fixtures/competitorTraffic.ts'
 import { getLensFixture } from '../../../../features/currents/queries/getLensFixture.ts'
 
-export const metadata: Metadata = { title: 'Behaviour · Deep Dive · CURRENTS' }
+export const metadata: Metadata = { title: 'Currents · Deep Dive · Behaviour' }
 export const dynamic = 'force-dynamic'
 
 /**

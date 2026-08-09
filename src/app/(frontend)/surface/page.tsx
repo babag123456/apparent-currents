@@ -7,7 +7,7 @@ import { ValidityStamp } from '../../../features/currents/components/surface/Val
 import { SourceChip } from '../../../features/currents/components/SourceChip.tsx'
 import { getSurfaceBulletin } from '../../../features/currents/queries/getSurfaceBulletin.ts'
 
-export const metadata: Metadata = { title: 'Surface · CURRENTS' }
+export const metadata: Metadata = { title: 'Currents · Surface' }
 export const dynamic = 'force-dynamic'
 
 /**

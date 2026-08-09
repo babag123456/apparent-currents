@@ -8,7 +8,7 @@ import { AskDock } from '../../features/currents/components/ask/AskDock.tsx'
 import { ContextBar } from '../../features/currents/components/ContextBar.tsx'
 
 export const metadata: Metadata = {
-  title: 'CURRENTS',
+  title: 'Currents',
   description: 'Audience-intent intelligence by Apparent.',
   robots: {
     index: false,
