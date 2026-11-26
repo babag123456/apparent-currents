@@ -1,6 +1,4 @@
-import { getPayload } from 'payload'
-
-import config from '@payload-config'
+import { requireViewer } from '../../../lib/security/viewer.ts'
 
 /**
  * Load the latest successful sync (and its evidence + markers) for one of
@@ -8,17 +6,15 @@ import config from '@payload-config'
  * have no live adapters: any data returned here entered via
  * seed-lens-fixtures.ts and carries isFixture on its sync, which the
  * pages surface as SYNTHETIC FIXTURE stamps.
+ *
+ * Signed-in only; reads run with the collections' access rules enforced.
  */
 export async function getLensFixture(lens: 'conversation' | 'behaviour' | 'people') {
-  let payload
-  try {
-    payload = await getPayload({ config })
-  } catch {
-    return null
-  }
+  const { payload, user } = await requireViewer()
+  const access = { user, overrideAccess: false } as const
 
   const context = (
-    await payload.find({ collection: 'contexts', sort: 'createdAt', limit: 1 })
+    await payload.find({ collection: 'contexts', sort: 'createdAt', limit: 1, ...access })
   ).docs[0]
   if (!context) return null
 
@@ -32,6 +28,7 @@ export async function getLensFixture(lens: 'conversation' | 'behaviour' | 'peopl
       },
       sort: '-finishedAt',
       limit: 1,
+      ...access,
     })
   ).docs[0]
   if (!sync || !sync.finishedAt) return { context, sync: null, evidence: [], markers: [] }
@@ -42,12 +39,14 @@ export async function getLensFixture(lens: 'conversation' | 'behaviour' | 'peopl
       where: { sync: { equals: sync.id } },
       sort: 'phrase',
       limit: 60,
+      ...access,
     }),
     payload.find({
       collection: 'markers',
       where: { sync: { equals: sync.id } },
       sort: '-magnitude',
       limit: 60,
+      ...access,
     }),
   ])
 

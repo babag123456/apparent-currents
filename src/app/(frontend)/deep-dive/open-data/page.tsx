@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
-import { getPayload } from 'payload'
 import React from 'react'
 
-import config from '@payload-config'
+import { requireViewer } from '../../../../lib/security/viewer.ts'
 import { Notice } from '../../../../features/currents/components/deep-dive/Notice.tsx'
 import { SectionHead } from '../../../../features/currents/components/deep-dive/SectionHead.tsx'
 import { OPEN_DATASETS_FIXTURE } from '../../../../features/currents/fixtures/openDatasets.ts'
@@ -19,14 +18,21 @@ export const dynamic = 'force-dynamic'
  */
 
 export default async function OpenDataPage() {
+  // Signed-in only; outside the try so the login redirect is never swallowed.
+  const { payload, user } = await requireViewer()
   let context = null
   try {
-    const payload = await getPayload({ config })
     context = (
-      await payload.find({ collection: 'contexts', sort: 'createdAt', limit: 1 })
+      await payload.find({
+        collection: 'contexts',
+        sort: 'createdAt',
+        limit: 1,
+        user,
+        overrideAccess: false,
+      })
     ).docs[0] ?? null
   } catch {
-    // No database: the not-curated notice below is still honest.
+    // Query failed: the not-curated notice below is still honest.
   }
 
   const curatedForContext = Boolean(

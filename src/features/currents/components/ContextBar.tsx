@@ -1,9 +1,7 @@
-import { headers } from 'next/headers'
-import { getPayload } from 'payload'
 import React from 'react'
 
-import config from '@payload-config'
 import { refineContext } from '../../../app/(frontend)/context-actions.ts'
+import { requireViewer } from '../../../lib/security/viewer.ts'
 import { DEMO_CONTEXT } from '../fixtures/demoContext.ts'
 import { ContextBarView } from './context/ContextBarView.tsx'
 
@@ -15,16 +13,21 @@ import { ContextBarView } from './context/ContextBarView.tsx'
  * or the database is unavailable.
  */
 export async function ContextBar() {
+  // Signed-in only; outside the try so the login redirect is never swallowed.
+  const { payload, user } = await requireViewer()
   let context = null
-  let user = null
   try {
-    const payload = await getPayload({ config })
     context = (
-      await payload.find({ collection: 'contexts', sort: 'createdAt', limit: 1 })
+      await payload.find({
+        collection: 'contexts',
+        sort: 'createdAt',
+        limit: 1,
+        user,
+        overrideAccess: false,
+      })
     ).docs[0] ?? null
-    user = (await payload.auth({ headers: await headers() })).user
   } catch {
-    // No database (e.g. static build without env): fixture fallback below.
+    // Query failed: fixture fallback below.
   }
 
   if (!context) {

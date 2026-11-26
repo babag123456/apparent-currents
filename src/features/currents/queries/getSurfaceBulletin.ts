@@ -1,9 +1,7 @@
-import { getPayload } from 'payload'
-
-import config from '@payload-config'
 import { deriveCurrents } from '../../../intelligence/currents/deriveCurrents.ts'
 import type { StoredMarker } from '../../../intelligence/currents/types.ts'
 import { syncFreshness } from '../../../intelligence/sync/status.ts'
+import { requireViewer } from '../../../lib/security/viewer.ts'
 import { AUTHORED_OPPORTUNITIES } from '../fixtures/authoredOpportunities.ts'
 import {
   DEMO_BULLETIN,
@@ -105,9 +103,11 @@ function alignmentFor(
  * changes a current's momentum, status or confidence.
  */
 async function loadCorroboration(
-  payload: Awaited<ReturnType<typeof getPayload>>,
+  viewer: Awaited<ReturnType<typeof requireViewer>>,
   contextId: number,
 ): Promise<Map<string, CorroboratingMarker[]>> {
+  const { payload, user } = viewer
+  const access = { user, overrideAccess: false } as const
   const byTopic = new Map<string, CorroboratingMarker[]>()
 
   await Promise.all(
@@ -122,6 +122,7 @@ async function loadCorroboration(
           },
           sort: '-finishedAt',
           limit: 1,
+          ...access,
         })
       ).docs[0]
       if (!sync) return
@@ -130,6 +131,7 @@ async function loadCorroboration(
         collection: 'markers',
         where: { sync: { equals: sync.id } },
         limit: 60,
+        ...access,
       })
       const provenanceLabel = sync.isFixture ? 'synthetic fixture' : 'live'
 
@@ -159,17 +161,13 @@ const FLAT_TREND = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
   const authoredFallback: SurfaceBulletinView = { ...DEMO_BULLETIN, mode: 'authored-fixture' }
 
-  let payload
-  try {
-    payload = await getPayload({ config })
-  } catch {
-    // No database (e.g. static build without env) — the authored fixture
-    // bulletin is the honest fallback and says so on its stamp.
-    return authoredFallback
-  }
+  // Signed-in only; reads run with the collections' access rules enforced.
+  const viewer = await requireViewer()
+  const { payload, user } = viewer
+  const access = { user, overrideAccess: false } as const
 
   const context = (
-    await payload.find({ collection: 'contexts', sort: 'createdAt', limit: 1 })
+    await payload.find({ collection: 'contexts', sort: 'createdAt', limit: 1, ...access })
   ).docs[0]
   if (!context) return authoredFallback
 
@@ -184,6 +182,7 @@ export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
       },
       sort: '-finishedAt',
       limit: 1,
+      ...access,
     })
   ).docs[0]
   if (!sync || !sync.finishedAt) return authoredFallback
@@ -193,11 +192,13 @@ export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
       collection: 'markers',
       where: { sync: { equals: sync.id } },
       limit: 200,
+      ...access,
     }),
     payload.find({
       collection: 'evidence-records',
       where: { sync: { equals: sync.id } },
       limit: 200,
+      ...access,
     }),
   ])
   if (markerDocs.docs.length === 0) return authoredFallback
@@ -236,7 +237,7 @@ export async function getSurfaceBulletin(): Promise<SurfaceBulletinView> {
   const { currents, unclustered } = deriveCurrents(storedMarkers, { volumesByPhrase })
   if (currents.length === 0) return authoredFallback
 
-  const corroborationByTopic = await loadCorroboration(payload, context.id)
+  const corroborationByTopic = await loadCorroboration(viewer, context.id)
   let corroboratingCount = 0
   const corroboratingLenses = new Set<string>()
 
