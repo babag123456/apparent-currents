@@ -35,6 +35,8 @@ export async function importDemandEvidence(contextId: number): Promise<ImportAct
     where: { context: { equals: contextId }, source: { equals: 'semrush' } },
     sort: '-startedAt',
     limit: 1,
+    user,
+    overrideAccess: false,
   })
   const latestSync = latest.docs[0]
   const decision = canStartSync(

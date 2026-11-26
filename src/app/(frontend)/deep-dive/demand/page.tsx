@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
-import { headers } from 'next/headers'
-import { getPayload } from 'payload'
 import React from 'react'
 
-import config from '@payload-config'
+import { requireViewer } from '../../../../lib/security/viewer.ts'
 import { MiniTrend, TrendAlt } from '../../../../features/currents/components/deep-dive/MiniTrend.tsx'
 import { Notice } from '../../../../features/currents/components/deep-dive/Notice.tsx'
 import { SectionHead } from '../../../../features/currents/components/deep-dive/SectionHead.tsx'
@@ -30,10 +28,11 @@ export const dynamic = 'force-dynamic'
 export default async function DemandPage() {
   const semrushConfigured = Boolean(process.env.SEMRUSH_API_KEY)
 
-  const payload = await getPayload({ config })
-  const { user } = await payload.auth({ headers: await headers() })
+  // Signed-in only; reads run with the collections' access rules enforced.
+  const { payload, user } = await requireViewer()
+  const access = { user, overrideAccess: false } as const
 
-  const contexts = await payload.find({ collection: 'contexts', sort: 'createdAt', limit: 1 })
+  const contexts = await payload.find({ collection: 'contexts', sort: 'createdAt', limit: 1, ...access })
   const context = contexts.docs[0] ?? null
 
   const latestSync = context
@@ -43,6 +42,7 @@ export default async function DemandPage() {
           where: { context: { equals: context.id }, source: { equals: 'semrush' } },
           sort: '-startedAt',
           limit: 1,
+          ...access,
         })
       ).docs[0] ?? null
     : null
@@ -58,6 +58,7 @@ export default async function DemandPage() {
           },
           sort: '-finishedAt',
           limit: 1,
+          ...access,
         })
       ).docs[0] ?? null
     : null
@@ -69,12 +70,14 @@ export default async function DemandPage() {
           where: { sync: { equals: latestSuccess.id } },
           sort: '-metrics.searchVolume',
           limit: 60,
+          ...access,
         }),
         payload.find({
           collection: 'markers',
           where: { sync: { equals: latestSuccess.id } },
           sort: '-magnitude',
           limit: 60,
+          ...access,
         }),
       ])
     : [null, null]

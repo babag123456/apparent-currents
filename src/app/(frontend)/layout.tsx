@@ -6,6 +6,7 @@ import '../../styles/brand.css'
 import { AppHeader } from '../../features/currents/components/AppHeader.tsx'
 import { AskDock } from '../../features/currents/components/ask/AskDock.tsx'
 import { ContextBar } from '../../features/currents/components/ContextBar.tsx'
+import { requireViewer } from '../../lib/security/viewer.ts'
 
 export const metadata: Metadata = {
   title: 'Currents',
@@ -51,7 +52,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the
 finish review, the verdict, and DESIGN.md
 -->`
 
-export default function FrontendLayout({ children }: { children: React.ReactNode }) {
+export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
+  // Currents is private. This gate keeps the shell from rendering for
+  // visitors; pages and queries check again themselves because a layout is
+  // not re-run on every navigation.
+  await requireViewer()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased app-body" suppressHydrationWarning>
